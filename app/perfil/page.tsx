@@ -1,6 +1,6 @@
 'use client'
 export const dynamic = 'force-dynamic'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import { MpcLockup } from '@/lib/MpcLogo'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -26,6 +26,14 @@ const PLANS = [
 ]
 
 export default function PerfilPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight:'100vh', background:'#F6F4EF', display:'flex', alignItems:'center', justifyContent:'center', color:'#4A6B8A', fontSize:14 }}>Cargando...</div>}>
+      <PerfilInner />
+    </Suspense>
+  )
+}
+
+function PerfilInner() {
   const [user, setUser] = useState<{ id: string; email?: string; user_metadata?: Record<string, string> } | null>(null)
   const [tab, setTab] = useState('perfil')
   const [loading, setLoading] = useState(true)
