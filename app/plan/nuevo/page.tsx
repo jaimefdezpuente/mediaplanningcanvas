@@ -362,7 +362,7 @@ export default function NuevoPlanPage() {
               <button onClick={()=>{markDone(4);setStep(5)}} style={BTN_P}>Ver Resumen →</button>
             </div>
           </div>
-          <iframe src="/calculadora.html" style={{ flex:1, border:'none', width:'100%' }} title="Calculadora" />
+          <iframe src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}`} style={{ flex:1, border:'none', width:'100%' }} title="Calculadora" />
         </div>
       )}
 

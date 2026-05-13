@@ -425,6 +425,213 @@ button[style*="background: rgb(0"], .btn-dark, [class*="btn-primary"] {
   background: var(--mpc-paper) !important;
   color: var(--mpc-navy) !important;
 }
+
+/* ═══ MPC BRAND — COMPREHENSIVE OVERRIDE ═══ */
+:root {
+  --mpc-navy: #0F2942;
+  --mpc-paper: #F6F4EF;
+  --mpc-paper2: #ECE8DF;
+  --mpc-white: #FFFFFF;
+  --mpc-steel: #4A6B8A;
+  --mpc-steel1: #DDE2E8;
+  --mpc-steel2: #B5C2D0;
+  --mpc-steel3: #8AA0B5;
+  --mpc-accent: #C75A3C;
+  --mpc-success: #2F7D5C;
+  --mpc-warn: #C28840;
+}
+
+/* Force white background */
+body, #mpc-root, .inn { background: var(--mpc-paper) !important; color: var(--mpc-navy) !important; }
+body::before { display: none !important; }
+
+/* Header */
+.hdr { background: var(--mpc-white) !important; border-bottom: 1px solid var(--mpc-steel1) !important; box-shadow: 0 1px 2px rgba(15,41,66,0.05) !important; }
+.logo-nm { color: var(--mpc-navy) !important; font-family: 'Geist', sans-serif !important; font-weight: 600 !important; }
+.logo-sb { color: var(--mpc-steel3) !important; font-size: 11px !important; font-family: 'Geist Mono', monospace !important; }
+
+/* Budget bar */
+.bb { background: var(--mpc-white) !important; border-bottom: 1px solid var(--mpc-steel1) !important; }
+.bb-n .l { color: var(--mpc-steel3) !important; font-family: 'Geist Mono', monospace !important; font-size: 10px !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; }
+.bb-n .v { color: var(--mpc-navy) !important; font-family: 'Geist Mono', monospace !important; font-weight: 600 !important; }
+
+/* Section labels */
+.slbl { background: transparent !important; }
+.snum { background: var(--mpc-navy) !important; color: var(--mpc-paper) !important; font-family: 'Geist Mono', monospace !important; }
+.stit { color: var(--mpc-navy) !important; font-weight: 600 !important; }
+.ssub { color: var(--mpc-steel) !important; }
+
+/* Cards */
+.card, .card2 { background: var(--mpc-white) !important; border: 1px solid var(--mpc-steel1) !important; color: var(--mpc-navy) !important; box-shadow: 0 1px 2px rgba(15,41,66,0.04) !important; }
+.fr { background: transparent !important; }
+
+/* Mode toggle (Maximizar vs Alcanzar) */
+.pm-tog { background: var(--mpc-paper) !important; border-radius: 8px !important; padding: 3px !important; gap: 3px !important; }
+.pm-btn { background: transparent !important; color: var(--mpc-steel) !important; border: none !important; border-radius: 6px !important; font-family: 'Geist', sans-serif !important; transition: all 0.2s !important; }
+.pm-btn.act { background: var(--mpc-white) !important; color: var(--mpc-navy) !important; box-shadow: 0 1px 3px rgba(15,41,66,0.1) !important; font-weight: 600 !important; }
+.pm-btn[data-pm="budget"].act { border-left: 3px solid var(--mpc-navy) !important; }
+.pm-btn[data-pm="objective"].act { border-left: 3px solid var(--mpc-accent) !important; }
+.pm-desc { color: var(--mpc-steel3) !important; font-size: 11px !important; }
+
+/* Inputs */
+.fl, label { color: var(--mpc-navy) !important; font-weight: 500 !important; }
+.fs { color: var(--mpc-steel3) !important; font-size: 11px !important; }
+.fi, .f-inp, input[type="number"], input[type="text"], select {
+  background: var(--mpc-paper) !important;
+  color: var(--mpc-navy) !important;
+  border: 1px solid var(--mpc-steel1) !important;
+  border-radius: 6px !important;
+  font-family: 'Geist', sans-serif !important;
+}
+.fi:focus, .f-inp:focus, input:focus, select:focus {
+  border-color: var(--mpc-navy) !important;
+  outline: none !important;
+  background: var(--mpc-white) !important;
+}
+select option { background: var(--mpc-white) !important; color: var(--mpc-navy) !important; }
+.mono { color: var(--mpc-navy) !important; }
+
+/* Buttons */
+.ic-btn, .btn-p, .btn-s, button { font-family: 'Geist', sans-serif !important; }
+.ic-btn { background: var(--mpc-paper) !important; color: var(--mpc-navy) !important; border: 1px solid var(--mpc-steel1) !important; border-radius: 6px !important; }
+.ic-btn:hover { background: var(--mpc-white) !important; border-color: var(--mpc-navy) !important; }
+.btn-p { background: var(--mpc-navy) !important; color: var(--mpc-paper) !important; border: none !important; border-radius: 6px !important; }
+.btn-p:hover { background: #163659 !important; }
+.btn-s { background: transparent !important; color: var(--mpc-steel) !important; border: 1px solid var(--mpc-steel1) !important; border-radius: 6px !important; }
+
+/* B2C/B2B toggle */
+.mode-tog { background: var(--mpc-paper) !important; border-radius: 8px !important; padding: 3px !important; }
+.mode-btn { background: transparent !important; color: var(--mpc-steel) !important; border: none !important; border-radius: 6px !important; font-weight: 500 !important; }
+.mode-btn.act { background: var(--mpc-white) !important; color: var(--mpc-navy) !important; font-weight: 600 !important; box-shadow: 0 1px 3px rgba(15,41,66,0.1) !important; }
+
+/* Phase tabs */
+.ph-tab { background: transparent !important; color: var(--mpc-steel) !important; border: none !important; border-bottom: 2px solid transparent !important; border-radius: 0 !important; }
+.ph-tab.act { color: var(--mpc-navy) !important; border-bottom-color: var(--mpc-navy) !important; font-weight: 600 !important; background: transparent !important; }
+.ph-tabs { border-bottom: 1px solid var(--mpc-steel1) !important; background: transparent !important; }
+
+/* Channel grid */
+.ch-card { background: var(--mpc-white) !important; border: 1px solid var(--mpc-steel1) !important; color: var(--mpc-navy) !important; border-radius: 8px !important; }
+.ch-card:hover { border-color: var(--mpc-navy) !important; box-shadow: 0 2px 8px rgba(15,41,66,0.08) !important; }
+.ch-nm { color: var(--mpc-navy) !important; font-weight: 600 !important; }
+.ch-ds { color: var(--mpc-steel3) !important; font-size: 12px !important; }
+
+/* Channel form */
+.f-hdr { background: var(--mpc-paper) !important; border-radius: 8px !important; padding: 12px !important; margin-bottom: 12px !important; }
+.f-tit { color: var(--mpc-navy) !important; font-weight: 600 !important; }
+.f-sub { color: var(--mpc-steel) !important; font-size: 12px !important; }
+
+/* Preview box — was black on black */
+.prev-box { background: var(--mpc-paper) !important; border: 1px solid var(--mpc-steel1) !important; border-radius: 8px !important; padding: 14px !important; }
+.fflow { color: var(--mpc-navy) !important; font-size: 14px !important; line-height: 1.6 !important; }
+
+/* Conversion label */
+.f-div { border-top: 1px solid var(--mpc-steel1) !important; margin: 12px 0 !important; }
+
+/* Summary metrics */
+.sm-row { gap: 10px !important; }
+.sm { background: var(--mpc-white) !important; border: 1px solid var(--mpc-steel1) !important; border-radius: 8px !important; padding: 14px 16px !important; }
+.sm .l { color: var(--mpc-steel3) !important; font-size: 11px !important; font-family: 'Geist Mono', monospace !important; text-transform: uppercase !important; letter-spacing: 0.08em !important; }
+.sm .v { color: var(--mpc-navy) !important; font-family: 'Geist Mono', monospace !important; font-size: 20px !important; font-weight: 500 !important; }
+.sm .s { color: var(--mpc-steel3) !important; font-size: 11px !important; }
+
+/* Plan table */
+.ptbl { background: var(--mpc-white) !important; }
+.ptbl th { background: var(--mpc-paper) !important; color: var(--mpc-steel3) !important; border-bottom: 1px solid var(--mpc-steel1) !important; font-family: 'Geist Mono', monospace !important; font-size: 11px !important; text-transform: uppercase !important; letter-spacing: 0.08em !important; }
+.ptbl td { color: var(--mpc-navy) !important; border-bottom: 1px solid var(--mpc-steel1) !important; }
+.ptbl tfoot td { background: var(--mpc-paper) !important; color: var(--mpc-navy) !important; border-top: 2px solid var(--mpc-steel1) !important; font-weight: 600 !important; }
+
+/* Monthly table */
+.mtbl th { background: var(--mpc-paper) !important; color: var(--mpc-steel3) !important; font-family: 'Geist Mono', monospace !important; font-size: 11px !important; }
+.mtbl td { color: var(--mpc-navy) !important; border-bottom: 1px solid var(--mpc-steel1) !important; }
+.mtog { background: var(--mpc-paper) !important; color: var(--mpc-steel2) !important; border: 1px solid var(--mpc-steel1) !important; border-radius: 4px !important; }
+.mtog.on { background: var(--mpc-navy) !important; color: var(--mpc-paper) !important; border-color: var(--mpc-navy) !important; }
+
+/* Phase summary cards */
+.ph-sc { border-radius: 8px !important; padding: 12px 14px !important; }
+.ph-sc.notoriedad { background: #FFFBEB !important; border: 1px solid #FDE68A !important; }
+.ph-sc.interaccion { background: #EFF6FF !important; border: 1px solid #BFDBFE !important; }
+.ph-sc.lead_venta { background: #F0FDF4 !important; border: 1px solid #BBF7D0 !important; }
+.ph-sc.fidelizacion { background: #F5F3FF !important; border: 1px solid #DDD6FE !important; }
+.ph-sc-lbl { font-weight: 600 !important; font-size: 13px !important; }
+.ph-sc.notoriedad .ph-sc-lbl { color: var(--mpc-warn) !important; }
+.ph-sc.interaccion .ph-sc-lbl { color: #1E40AF !important; }
+.ph-sc.lead_venta .ph-sc-lbl { color: var(--mpc-success) !important; }
+.ph-sc.fidelizacion .ph-sc-lbl { color: #7C3AED !important; }
+.ph-sc-rows span { color: var(--mpc-navy) !important; font-size: 13px !important; }
+
+/* Summary / Resumen — was dark bg */
+#resumen, .resumen, [id*="sum"], [class*="summary"] {
+  background: var(--mpc-white) !important;
+  color: var(--mpc-navy) !important;
+}
+
+/* Sensitivity analysis — was dark */
+.sc2 { background: var(--mpc-white) !important; border: 1px solid var(--mpc-steel1) !important; border-radius: 8px !important; padding: 14px !important; }
+.sc-lbl { font-size: 12px !important; font-weight: 600 !important; }
+.sc-main { font-size: 20px !important; font-weight: 500 !important; color: var(--mpc-navy) !important; }
+.sc-s { color: var(--mpc-steel) !important; font-size: 12px !important; }
+.sens-sl input[type=range] { accent-color: var(--mpc-navy) !important; }
+.sens-v { color: var(--mpc-navy) !important; font-weight: 600 !important; font-family: 'Geist Mono', monospace !important; }
+
+/* LTV/CAC — more padding */
+.lres { color: var(--mpc-navy) !important; }
+.ltbl th { background: var(--mpc-paper) !important; color: var(--mpc-steel3) !important; font-family: 'Geist Mono', monospace !important; font-size: 11px !important; padding: 10px 16px !important; }
+.ltbl td { color: var(--mpc-navy) !important; border-bottom: 1px solid var(--mpc-steel1) !important; padding: 12px 16px !important; }
+.ltbl input { background: var(--mpc-paper) !important; color: var(--mpc-navy) !important; border-color: var(--mpc-steel1) !important; }
+.scard { background: var(--mpc-white) !important; border: 1px solid var(--mpc-steel1) !important; border-radius: 8px !important; padding: 20px 24px !important; }
+.sc-lbl2 { color: var(--mpc-steel3) !important; font-family: 'Geist Mono', monospace !important; }
+.sc-val { color: var(--mpc-navy) !important; font-family: 'Geist Mono', monospace !important; }
+
+/* Health indicators */
+.hi { background: var(--mpc-white) !important; border: 1px solid var(--mpc-steel1) !important; border-radius: 8px !important; padding: 12px !important; }
+.h-lbl { color: var(--mpc-steel3) !important; font-size: 11px !important; text-transform: uppercase !important; letter-spacing: 0.08em !important; font-family: 'Geist Mono', monospace !important; }
+.h-val { color: var(--mpc-navy) !important; font-family: 'Geist Mono', monospace !important; font-weight: 500 !important; }
+
+/* Mix recomendado */
+#mixBox { background: #F0F9FF !important; border: 1px solid #BAE6FD !important; border-radius: 8px !important; padding: 16px !important; }
+
+/* Phase note */
+.ph-note { background: var(--mpc-paper) !important; border: 1px solid var(--mpc-steel1) !important; border-radius: 8px !important; color: var(--mpc-navy) !important; }
+
+/* Toasts */
+.toast { background: var(--mpc-navy) !important; color: var(--mpc-paper) !important; border-radius: 8px !important; }
+
+/* Examples */
+.ex-c { background: var(--mpc-white) !important; border: 1.5px solid var(--mpc-steel1) !important; color: var(--mpc-navy) !important; border-radius: 8px !important; }
+.ex-c:hover { border-color: var(--mpc-navy) !important; box-shadow: 0 2px 8px rgba(15,41,66,0.08) !important; }
+.ex-tt { color: var(--mpc-navy) !important; font-weight: 600 !important; }
+.ex-ds { color: var(--mpc-steel) !important; font-size: 12px !important; }
+.ex-bg { color: var(--mpc-steel3) !important; font-family: 'Geist Mono', monospace !important; font-size: 11px !important; }
+
+/* Tags */
+.tag { border-radius: 4px !important; font-size: 10px !important; font-weight: 600 !important; font-family: 'Geist Mono', monospace !important; letter-spacing: 0.05em !important; padding: 2px 7px !important; }
+.tb2c { background: #EFF6FF !important; color: #1E40AF !important; }
+.tb2b { background: #F0FDF4 !important; color: var(--mpc-success) !important; }
+.tlaunch { background: var(--mpc-paper2) !important; color: var(--mpc-steel) !important; }
+.tgrow { background: #FFFBEB !important; color: var(--mpc-warn) !important; }
+
+/* Empty state */
+.empty { color: var(--mpc-steel3) !important; }
+.empty-ic { font-size: 32px !important; opacity: 0.4 !important; }
+
+/* Bench tip */
+.bench-tip, .info-box { background: #F0F9FF !important; border: 1px solid #BAE6FD !important; color: #1E40AF !important; border-radius: 6px !important; }
+
+/* Override any remaining dark backgrounds */
+[style*="background:#07"], [style*="background: #07"],
+[style*="background:#0d"], [style*="background: #0d"],
+[style*="background:#11"], [style*="background: #11"],
+[style*="background:#16"], [style*="background: #16"] {
+  background: var(--mpc-paper) !important;
+  color: var(--mpc-navy) !important;
+}
+[style*="color:#94a3b8"], [style*="color: #94a3b8"] { color: var(--mpc-steel) !important; }
+[style*="color:#3d5370"], [style*="color: #3d5370"] { color: var(--mpc-steel3) !important; }
+[style*="color:#f0f6ff"], [style*="color: #f0f6ff"] { color: var(--mpc-navy) !important; }
+[style*="color:#e2e8f0"], [style*="color: #e2e8f0"] { color: var(--mpc-navy) !important; }
+
+/* Start options hover */
+.start-opt:hover { border-color: var(--mpc-navy) !important; box-shadow: 0 2px 8px rgba(15,41,66,0.08) !important; }
 </style>
 </head>
 <body>
@@ -434,7 +641,19 @@ button[style*="background: rgb(0"], .btn-dark, [class*="btn-primary"] {
 <!-- HEADER -->
 <div class="hdr">
   <div class="logo">
-    <div class="logo-ic">📊</div>
+    <div class="logo-ic" style="background:none;padding:0">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32" style="display:block">
+        <rect x="0" y="0" width="29" height="29" rx="2" fill="#0F2942" opacity="1"/>
+        <rect x="35.5" y="0" width="29" height="29" rx="2" fill="#0F2942" opacity="0.42"/>
+        <rect x="71" y="0" width="29" height="29" rx="2" fill="#0F2942" opacity="0.16"/>
+        <rect x="0" y="35.5" width="29" height="29" rx="2" fill="#0F2942" opacity="0.16"/>
+        <rect x="35.5" y="35.5" width="29" height="29" rx="2" fill="#C75A3C" opacity="1"/>
+        <rect x="71" y="35.5" width="29" height="29" rx="2" fill="#0F2942" opacity="0.42"/>
+        <rect x="0" y="71" width="29" height="29" rx="2" fill="#0F2942" opacity="0.16"/>
+        <rect x="35.5" y="71" width="29" height="29" rx="2" fill="#0F2942" opacity="0.16"/>
+        <rect x="71" y="71" width="29" height="29" rx="2" fill="#0F2942" opacity="1"/>
+      </svg>
+    </div>
     <div>
       <div class="logo-nm">Media Planning Canvas</div>
       <div class="logo-sb">Jaime Fernández de la Puente-Campano</div>
@@ -543,11 +762,36 @@ button[style*="background: rgb(0"], .btn-dark, [class*="btn-primary"] {
 <div id="mixBox" style="display:none"></div>
 
 <!-- STEP 01: EJEMPLOS -->
-<div class="slbl np"><div class="snum">01</div><div class="stit">¿Empezar desde cero o cargar un ejemplo?</div></div>
+<div class="slbl np"><div class="snum">01</div><div class="stit">¿Cómo quieres empezar?</div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px" class="np">
+  <div class="start-opt" onclick="startFromScratch()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:8px;padding:16px;cursor:pointer;transition:border-color 0.2s">
+    <div style="font-size:18px;margin-bottom:6px">✦</div>
+    <div style="font-weight:600;font-size:14px;color:var(--mpc-navy);margin-bottom:3px">Desde cero</div>
+    <div style="font-size:12px;color:var(--mpc-steel)">Borra el plan actual y empieza con un lienzo vacío</div>
+  </div>
+  <div class="start-opt" id="btnMySelection" onclick="loadMySelection()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:8px;padding:16px;cursor:pointer;transition:border-color 0.2s;opacity:0.45" title="Completa la selección de canales en el paso anterior">
+    <div style="font-size:18px;margin-bottom:6px">◈</div>
+    <div style="font-weight:600;font-size:14px;color:var(--mpc-navy);margin-bottom:3px">Tu selección de canales</div>
+    <div style="font-size:12px;color:var(--mpc-steel)">Carga los canales que elegiste en el paso de estrategia</div>
+  </div>
+</div>
+<div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--mpc-steel3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace" class="np">Ejemplos B2C</div>
+<div class="ex-g np" style="margin-bottom:16px">
+  <div class="ex-c" onclick="loadExample('ecom_b2c')"><span class="ex-tt">🛍️ E-commerce · Moda</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">Meta Branding + Meta Perf + SEM + Influencer + Email. Plan completo.</div><span class="ex-bg">€ 3.500 · 80 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('academia')"><span class="ex-tt">🎓 Academia Online</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">RRSS Orgánico + Meta Perf + Email BBDD + Webinar + Afiliación.</div><span class="ex-bg">€ 2.200 · 60 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('fitness_b2c')"><span class="ex-tt">🏋️ App Fitness/Salud</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">TikTok Branding + Meta Perf + Influencer + App Store + Email Auto.</div><span class="ex-bg">€ 4.000 · 200 usuarios</span></div>
+  <div class="ex-c" onclick="loadExample('retail_b2c')"><span class="ex-tt">🏪 Retail Local</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">Google Business + Meta Ads + Cupones + SMS + Loyalty Program.</div><span class="ex-bg">€ 1.500 · 150 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('travel_b2c')"><span class="ex-tt">✈️ Viajes y Turismo</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">SEM + Meta Perf + Display Retargeting + Email BBDD + Reviews.</div><span class="ex-bg">€ 5.000 · 100 reservas</span></div>
+  <div class="ex-c" onclick="loadExample('beauty_b2c')"><span class="ex-tt">💄 Belleza y Cosmética</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">Influencer Gifting + TikTok Ads + Instagram Meta Perf + Email Own.</div><span class="ex-bg">€ 2.800 · 120 clientes</span></div>
+</div>
+<div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--mpc-steel3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace" class="np">Ejemplos B2B</div>
 <div class="ex-g np">
-  <div class="ex-c" onclick="loadExample('ecom_b2c')"><span class="ex-tt">🛍️ E-commerce B2C · Moda</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">Meta Branding + Meta Perf + SEM + Influencer + Email. Plan completo con notoriedad y conversión.</div><span class="ex-bg">€ 3.500 · Objetivo 80 clientes</span></div>
-  <div class="ex-c" onclick="loadExample('saas_b2b')"><span class="ex-tt">💼 SaaS B2B · Servicios</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">LinkedIn Branding + LinkedIn Perf + SEM + Email Outreach + Sales Force + Email Automation.</div><span class="ex-bg">€ 6.000 · Objetivo 20 clientes</span></div>
-  <div class="ex-c" onclick="loadExample('academia')"><span class="ex-tt">🎓 Academia Online · Formación</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">RRSS Orgánico + Meta Perf + Email BBDD + Webinar + Afiliación + Loyalty.</div><span class="ex-bg">€ 2.200 · Objetivo 60 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('saas_b2b')"><span class="ex-tt">💼 SaaS · Servicios</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">LinkedIn Branding + LinkedIn Perf + SEM + Email Outreach + Sales Force.</div><span class="ex-bg">€ 6.000 · 20 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('consulting_b2b')"><span class="ex-tt">🏛️ Consultoría</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">LinkedIn Perfiles + Webinar + Cold Outreach + Demos + Customer Success.</div><span class="ex-bg">€ 3.000 · 8 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('industrial_b2b')"><span class="ex-tt">⚙️ Industrial/Manufactura</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">SEM + LinkedIn + Partners Comerciales + Sales Force + Email Auto CRM.</div><span class="ex-bg">€ 8.000 · 15 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('hr_b2b')"><span class="ex-tt">👥 RRHH / Formación B2B</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">LinkedIn Branding + Webinar + Email Outreach + Demos + Customer Success.</div><span class="ex-bg">€ 4.500 · 12 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('agency_b2b')"><span class="ex-tt">🎯 Agencia Digital</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">LinkedIn + Branded Content + Cold Outreach + Referidos + Reviews Google.</div><span class="ex-bg">€ 2.500 · 6 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('fintech_b2b')"><span class="ex-tt">💳 Fintech B2B</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">SEM + LinkedIn Perf + Eventos Propios + Sales Force + Customer Success.</div><span class="ex-bg">€ 10.000 · 25 clientes</span></div>
 </div>
 
 <!-- STEP 02: CANALES -->
@@ -1114,6 +1358,120 @@ window.loadExample=loadExample;window.saveToStorage=saveToStorage;window.loadFro
 window.showStorageInfo=showStorageInfo;window.closeModal=closeModal;
 function init(){renderChGrid();onSectorChange();onPhaseChange();updateBB();renderSens();calcLTV();renderSummary();renderMonthly();}
 document.addEventListener('DOMContentLoaded',init);
+</script>
+
+<script>
+// ─── MPC WIZARD INTEGRATION ────────────────────────────────────────────────
+const EXTRA_EXAMPLES = {
+  fitness_b2c:{mode:'B2C',budget:4000,clients:200,cac:20,phase:'launch',channels:[{id:'TIKTOK_BRAND',fields:{inv:800,cpm:5,frec:3,cr_sec:0.1}},{id:'META_PERF',fields:{inv:1200,cpm:8,ctr:1.5,deflaccion:25,cr:2.5}},{id:'INF_PROD',fields:{inv:300,n_inf:10,seg:10000,pct_imp:60,cr_sec:0.1}},{id:'EMAIL_AUTO',fields:{inv:100,base_cli:500,pct_activo:20,frec_compra:20}}]},
+  retail_b2c:{mode:'B2C',budget:1500,clients:150,cac:10,phase:'growth',channels:[{id:'GOOGLE_BIZ',fields:{inv:100,busq_mes:2000,pct_click:25}},{id:'META_PERF',fields:{inv:500,cpm:7,ctr:1.5,deflaccion:25,cr:3}},{id:'CUPONES',fields:{inv:300,n_cupones:500,cr:8}},{id:'SMS_FID',fields:{inv:100,base_cli:800,pct_activo:10,frec_compra:10}},{id:'LOYALTY',fields:{inv:500,base_cli:400,pct_activo:30,frec_compra:25}}]},
+  travel_b2c:{mode:'B2C',budget:5000,clients:100,cac:50,phase:'growth',channels:[{id:'SEM',fields:{inv:2000,cpc:1.5,deflaccion:20,cr:2}},{id:'META_PERF',fields:{inv:1500,cpm:8,ctr:1.5,deflaccion:25,cr:1.5}},{id:'DISPLAY_P',fields:{inv:500,cpc:0.5,deflaccion:40,cr:0.8}},{id:'EMAIL_OWN',fields:{inv:100,n_emails:5000,ctr:18,deflaccion:10,cr:2}},{id:'REVIEWS',fields:{inv:100,base_cli:500,pct_activo:10,frec_compra:5}}]},
+  beauty_b2c:{mode:'B2C',budget:2800,clients:120,cac:23,phase:'launch',channels:[{id:'INF_PROD',fields:{inv:600,n_inf:20,seg:15000,pct_imp:60,cr_sec:0.2}},{id:'TIKTOK_PERF',fields:{inv:800,cpm:5,ctr:0.8,deflaccion:35,cr:2}},{id:'META_PERF',fields:{inv:800,cpm:7,ctr:1.5,deflaccion:25,cr:2.5}},{id:'EMAIL_OWN',fields:{inv:100,n_emails:3000,ctr:18,deflaccion:10,cr:3}},{id:'REVIEWS',fields:{inv:100,base_cli:300,pct_activo:15,frec_compra:8}}]},
+  consulting_b2b:{mode:'B2B',budget:3000,clients:8,cac:375,phase:'launch',channels:[{id:'LI_BRAND',fields:{inv:500,cpm:18,frec:3,cr_sec:0.1}},{id:'WEBINAR',fields:{inv:400,invitaciones:2000,pct_reg:8,pct_asist:50}},{id:'EMAIL_OUT',fields:{inv:300,n_emails:2000,ctr:3,deflaccion:20,cr:2}},{id:'DEMO_WORK',fields:{inv:500,n_demo:15,demos_por:1,cierre:20}},{id:'CUST_SUCCESS',fields:{inv:1300,base_cli:30,pct_activo:85,frec_compra:20}}]},
+  industrial_b2b:{mode:'B2B',budget:8000,clients:15,cac:533,phase:'growth',channels:[{id:'SEM',fields:{inv:2000,cpc:3,deflaccion:15,cr:1.5}},{id:'LINKEDIN_PERF',fields:{inv:2000,cpc:7,deflaccion:15,cr:2}},{id:'PARTNERS',fields:{inv:1000,n_demo:5,demos_por:8,cierre:15}},{id:'SALESFORCE',fields:{inv:2000,n_demo:2,demos_por:15,cierre:20}},{id:'EMAIL_AUTO',fields:{inv:500,base_cli:200,pct_activo:30,frec_compra:15}}]},
+  hr_b2b:{mode:'B2B',budget:4500,clients:12,cac:375,phase:'growth',channels:[{id:'LI_BRAND',fields:{inv:800,cpm:18,frec:3,cr_sec:0.1}},{id:'WEBINAR',fields:{inv:600,invitaciones:3000,pct_reg:10,pct_asist:50}},{id:'EMAIL_OUT',fields:{inv:500,n_emails:3000,ctr:4,deflaccion:15,cr:2}},{id:'DEMO_WORK',fields:{inv:800,n_demo:20,demos_por:1,cierre:25}},{id:'CUST_SUCCESS',fields:{inv:1800,base_cli:50,pct_activo:85,frec_compra:20}}]},
+  agency_b2b:{mode:'B2B',budget:2500,clients:6,cac:416,phase:'launch',channels:[{id:'LI_BRAND',fields:{inv:500,cpm:18,frec:3,cr_sec:0.15}},{id:'BRANDED_C',fields:{inv:600,alcance_m:50000,pct_imp:10,cr_sec:0.2}},{id:'EMAIL_OUT',fields:{inv:300,n_emails:1500,ctr:4,deflaccion:20,cr:3}},{id:'MGM',fields:{inv:200,base_cli:20,cr:15}},{id:'REVIEWS',fields:{inv:200,base_cli:50,pct_activo:20,frec_compra:10}},{id:'CUST_SUCCESS',fields:{inv:700,base_cli:25,pct_activo:85,frec_compra:20}}]},
+  fintech_b2b:{mode:'B2B',budget:10000,clients:25,cac:400,phase:'growth',channels:[{id:'SEM',fields:{inv:3000,cpc:4,deflaccion:15,cr:2}},{id:'LINKEDIN_PERF',fields:{inv:2500,cpc:8,deflaccion:15,cr:1.5}},{id:'EVENTO_PROP',fields:{inv:2000,asistentes:150,online_reach:3000,cr_sec:0.2}},{id:'SALESFORCE',fields:{inv:2000,n_demo:3,demos_por:20,cierre:15}},{id:'CUST_SUCCESS',fields:{inv:500,base_cli:60,pct_activo:88,frec_compra:25}}]},
+};
+
+// Patch loadExample to support new examples
+(function(){
+  const origLoad = window.loadExample;
+  window.loadExample = function(id) {
+    if(EXTRA_EXAMPLES[id]){
+      const ex = EXTRA_EXAMPLES[id];
+      setMode(ex.mode||'B2C');
+      document.getElementById('obj_budget').value = ex.budget||5000;
+      document.getElementById('obj_clients').value = ex.clients||100;
+      document.getElementById('obj_cac').value = ex.cac||50;
+      if(ex.phase){const s=document.getElementById('obj_phase');if(s)s.value=ex.phase;}
+      S.channels = [];
+      (ex.channels||[]).forEach(ec=>{
+        const ch = CHANNELS.find(c=>c.id===ec.id);
+        if(!ch) return;
+        const fields = Object.assign({}, ec.fields);
+        const entry = {uid:UID(),channelId:ec.id,fields,results:null,months:Array(12).fill(true)};
+        entry.results = calcEntry(entry);
+        S.channels.push(entry);
+      });
+      recalcAll(); updateBB();
+      showToast('✅ Ejemplo cargado');
+      return;
+    }
+    if(origLoad) origLoad(id);
+  };
+})();
+
+const CHANNEL_NAME_MAP = {
+  'Meta Ads Branding':'META_BRAND','TikTok Ads Branding':'TIKTOK_BRAND','LinkedIn Ads Branding':'LI_BRAND',
+  'YouTube Branding':'YT_BRAND','Display Branding':'DISP_BRAND','Influencer Paid':'INF_BRAND',
+  'Influencer Envío Producto':'INF_PROD','Brand Ambassadors':'BRAND_AMB','Branded Content':'BRANDED_C',
+  'Podcast Propio':'PODCAST','Contenidos RRSS':'RRSS_CONT','Employer Branding':'EMPL_BRAND',
+  'Employee Advocacy':'EMPL_BRAND','Sponsorship':'EVENTO_PROP','Blog / Vblog':'SEO_BLOG',
+  'Webinars':'WEBINAR','Google Business':'GOOGLE_BIZ','WhatsApp Business':'WHATSAPP_B',
+  'Concursos y Sorteos':'CONCURSO','Comunidad Propia':'COMUNIDAD',
+  'SEO':'SEO_BLOG','SEM / Buscadores':'SEM','LLM Ads':'SEM','Meta Ads Performance':'META_PERF',
+  'TikTok Performance':'TIKTOK_PERF','LinkedIn Performance':'LINKEDIN_PERF','YouTube Performance':'YT_PERF',
+  'Display Retargeting':'DISPLAY_P','Display Performance':'DISPLAY_P',
+  'Email BBDD Propia':'EMAIL_OWN','Email Automation':'EMAIL_AUTO','Newsletters':'EMAIL_OWN',
+  'Cold Outreach':'EMAIL_OUT','Marketing de Afiliación':'AFILIACION','Member Get Member':'MGM',
+  'SMS':'SMS_PERF','Influencer Performance':'INF_PERF','Lead Magnets':'LEAD_MAG',
+  'Cupones':'CUPONES','Punto de Venta':'POS','Demos':'DEMO_WORK',
+  'Partners Comerciales':'PARTNERS','Sales Force':'SALESFORCE','Social Selling':'LINKEDIN_PERF',
+  'Email Automation CRM':'EMAIL_AUTO','WhatsApp Fidelización':'WHATSAPP_F',
+  'Programa Fidelización':'LOYALTY','Push Notifications':'PUSH_NOT',
+  'SMS Fidelización':'SMS_FID','Reviews / Reputación':'REVIEWS','Customer Success':'CUST_SUCCESS',
+};
+
+window.startFromScratch = function() {
+  if(S.channels.length > 0 && !confirm('¿Borrar el plan actual?')) return;
+  S.channels = []; recalcAll();
+  showToast('✦ Lienzo vacío');
+};
+
+window.loadMySelection = function() {
+  const params = new URLSearchParams(window.location.search);
+  const chParam = params.get('channels');
+  if(!chParam){ showToast('⚠️ No hay canales del wizard. Selecciona canales en el paso de Estrategia.'); return; }
+  const names = chParam.split(',').map(s=>s.trim());
+  const budget = parseFloat(params.get('budget')||'0');
+  const mapped = [];
+  names.forEach(name=>{
+    const id = CHANNEL_NAME_MAP[name];
+    if(id && CHANNELS.find(c=>c.id===id) && !mapped.includes(id)) mapped.push(id);
+  });
+  if(!mapped.length){ showToast('⚠️ No se pudieron mapear los canales. Prueba otro método.'); return; }
+  if(budget > 0){ document.getElementById('obj_budget').value = budget; updateBB(); }
+  S.channels = [];
+  const perCh = budget > 0 ? Math.max(100, Math.round(budget/mapped.length/100)*100) : 500;
+  mapped.forEach(id=>{
+    const ch = CHANNELS.find(c=>c.id===id); if(!ch) return;
+    const fields = {inv: perCh};
+    ch.fields.forEach(f=>{ if(f.def !== undefined) fields[f.id] = f.def; });
+    const e = {uid:UID(),channelId:id,fields,results:null,months:Array(12).fill(true)};
+    e.results = calcEntry(e); S.channels.push(e);
+  });
+  recalcAll(); updateBB();
+  showToast('✓ '+mapped.length+' canales cargados desde tu estrategia');
+};
+
+// Init
+window.addEventListener('DOMContentLoaded', function(){
+  const params = new URLSearchParams(window.location.search);
+  const chParam = params.get('channels');
+  const budget = params.get('budget');
+  if(budget){ document.getElementById('obj_budget').value = budget; updateBB(); }
+  if(chParam){
+    const btn = document.getElementById('btnMySelection');
+    if(btn){
+      btn.style.opacity = '1';
+      btn.style.borderColor = '#0F2942';
+      btn.style.borderWidth = '2px';
+      const title = btn.querySelector('div:nth-child(2)');
+      if(title) title.style.color = '#0F2942';
+    }
+  }
+});
 </script>
 </body>
 </html>
