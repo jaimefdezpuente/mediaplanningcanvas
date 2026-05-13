@@ -1,28 +1,64 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── MPC Design Tokens ───────────────────────────────────────── */
+:root {
+  --mpc-navy:       #0F2942;
+  --mpc-navy-700:   #163659;
+  --mpc-navy-900:   #0B1B2C;
+  --mpc-steel:      #4A6B8A;
+  --mpc-steel-300:  #8AA0B5;
+  --mpc-steel-200:  #B5C2D0;
+  --mpc-steel-100:  #DDE2E8;
+  --mpc-paper:      #F6F4EF;
+  --mpc-paper-2:    #ECE8DF;
+  --mpc-paper-3:    #E2DDD0;
+  --mpc-accent:     #C75A3C;
+  --mpc-accent-700: #A6452C;
+  --mpc-success:    #2F7D5C;
+  --mpc-warning:    #C28840;
+  --mpc-danger:     #B33A2E;
+
+  /* Semantic */
+  --mpc-bg:          var(--mpc-paper);
+  --mpc-bg-elevated: #FFFFFF;
+  --mpc-fg:          var(--mpc-navy-900);
+  --mpc-fg-muted:    var(--mpc-steel);
+  --mpc-fg-subtle:   var(--mpc-steel-300);
+  --mpc-border:      var(--mpc-steel-100);
+  --mpc-border-strong: var(--mpc-steel-200);
+
+  /* Typography */
+  --mpc-font-sans:  'Geist', -apple-system, system-ui, sans-serif;
+  --mpc-font-serif: 'Instrument Serif', Georgia, serif;
+  --mpc-font-mono:  'Geist Mono', ui-monospace, monospace;
+
+  /* Spacing */
+  --mpc-radius-sm: 4px;
+  --mpc-radius-md: 6px;
+  --mpc-radius-lg: 10px;
+  --mpc-radius-xl: 16px;
+
+  /* Shadows */
+  --mpc-shadow-sm: 0 1px 2px rgba(15,41,66,0.06);
+  --mpc-shadow-md: 0 4px 12px -4px rgba(15,41,66,0.12);
+  --mpc-shadow-lg: 0 12px 28px -16px rgba(15,41,66,0.25);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
+
 body {
-  background-color: #07090f;
-  color: #f0f6ff;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--mpc-paper);
+  color: var(--mpc-fg);
+  font-family: var(--mpc-font-sans);
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'ss01' on, 'cv11' on;
 }
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(ellipse 80% 50% at 20% -10%, rgba(14,165,233,0.08) 0%, transparent 60%),
-              radial-gradient(ellipse 60% 40% at 80% 110%, rgba(139,92,246,0.06) 0%, transparent 60%);
-  pointer-events: none;
-  z-index: 0;
-}
-.gradient-text {
-  background: linear-gradient(135deg, #0ea5e9, #38bdf8, #a78bfa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--mpc-paper-2); }
+::-webkit-scrollbar-thumb { background: var(--mpc-steel-200); border-radius: 3px; }
