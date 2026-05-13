@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Media Planning Canvas | Jaime Fernández de la Puente-Campano</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== ENFOLD ISOLATION — todos los estilos bajo #mpc-root ===== */
+#mpc-root{display:block!important;font-family:'DM Sans',sans-serif!important;font-size:14px!important;line-height:1.5!important;color:#f0f6ff!important;background:#07090f!important;min-height:100vh!important;overflow-x:hidden!important;position:relative!important;
+  --bg:#07090f;--bg2:#0d1117;--card:#111826;--card2:#161f2e;--bdr:#1e2d45;--bdr2:#243449;
+  --acc:#0ea5e9;--acc2:#38bdf8;--glow:rgba(14,165,233,.2);
+  --ok:#10b981;--warn:#f59e0b;--err:#ef4444;--pur:#8b5cf6;--pnk:#ec4899;--org:#f97316;
+  --txt:#f0f6ff;--txt2:#94a3b8;--txt3:#3d5370;
+  --not:#f59e0b;--int:#3b82f6;--lv:#10b981;--fid:#8b5cf6;
+  --mono:'JetBrains Mono',monospace;--disp:'Syne',sans-serif;
+}
+#mpc-root::before{content:''!important;position:absolute!important;inset:0!important;z-index:0!important;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(14,165,233,.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(139,92,246,.05) 0%,transparent 60%)!important;pointer-events:none!important;z-index:0!important}
+#mpc-root *,#mpc-root *::before,#mpc-root *::after{box-sizing:border-box!important;margin:0!important;padding:0!important;font-family:'DM Sans',sans-serif!important}
+#mpc-root input,#mpc-root select,#mpc-root textarea,#mpc-root button{font-family:'DM Sans',sans-serif!important;font-size:14px!important;line-height:1.4!important;border-radius:0!important;appearance:none!important;-webkit-appearance:none!important;box-shadow:none!important;outline:none!important}
+#mpc-root input[type=number]::-webkit-inner-spin-button,#mpc-root input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none!important;margin:0!important}
+#mpc-root table{border-collapse:collapse!important;border-spacing:0!important}
+#mpc-root td,#mpc-root th{padding:0!important}
+#mpc-root ul,#mpc-root ol{list-style:none!important}
+#mpc-root .inn{position:relative!important;z-index:1!important;max-width:1440px!important;margin:0 auto!important;padding:0 28px 100px!important}
+#mpc-root .hdr{display:flex!important;align-items:center!important;justify-content:space-between!important;padding:22px 0 24px!important;gap:12px!important;flex-wrap:wrap!important;border-bottom:1px solid #1e2d45!important;margin-bottom:24px!important}
+#mpc-root .logo{display:flex!important;align-items:center!important;gap:12px!important}
+#mpc-root .logo-ic{width:42px!important;height:42px!important;background:linear-gradient(135deg,#0ea5e9,#8b5cf6)!important;border-radius:10px!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:20px!important;flex-shrink:0!important}
+#mpc-root .logo-nm{font-family:'Syne',sans-serif!important;font-size:18px!important;font-weight:800!important;letter-spacing:-.5px!important;color:#e2e8f0!important;line-height:1.2!important}
+#mpc-root .logo-sb{font-size:11px!important;color:#94a3b8!important;line-height:1.3!important;margin-top:2px!important}
+#mpc-root .hdr-act{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important}
+#mpc-root .mode-tog{display:flex!important;background:#111826!important;border:1px solid #1e2d45!important;border-radius:10px!important;padding:3px!important;gap:3px!important}
+#mpc-root .mode-btn{padding:7px 18px!important;border-radius:7px!important;border:none!important;background:transparent!important;color:#94a3b8!important;font-weight:600!important;font-size:13px!important;cursor:pointer!important;transition:all .2s!important;letter-spacing:.4px!important}
+#mpc-root .mode-btn.b2c{background:linear-gradient(135deg,#0ea5e9,#38bdf8)!important;color:#000!important}
+#mpc-root .mode-btn.b2b{background:linear-gradient(135deg,#8b5cf6,#a78bfa)!important;color:#fff!important}
+#mpc-root .ic-btn{display:inline-flex!important;align-items:center!important;gap:5px!important;padding:7px 12px!important;border-radius:8px!important;border:1px solid #243449!important;background:#111826!important;color:#94a3b8!important;font-size:12px!important;font-weight:600!important;cursor:pointer!important;transition:all .2s!important}
+#mpc-root .ic-btn:hover{border-color:#0ea5e9!important;color:#38bdf8!important}
+#mpc-root .btn-p{display:inline-flex!important;align-items:center!important;gap:7px!important;padding:10px 22px!important;background:linear-gradient(135deg,#0ea5e9,#0284c7)!important;border:none!important;border-radius:9px!important;color:#000!important;font-weight:700!important;font-size:14px!important;cursor:pointer!important;transition:all .2s!important}
+#mpc-root .btn-p:hover{transform:translateY(-1px)!important;box-shadow:0 8px 20px rgba(14,165,233,.2)!important}
+#mpc-root .btn-s{display:inline-flex!important;align-items:center!important;gap:6px!important;padding:10px 16px!important;background:transparent!important;border:1px solid #243449!important;border-radius:9px!important;color:#94a3b8!important;font-weight:500!important;cursor:pointer!important;transition:all .2s!important}
+#mpc-root .btn-s:hover{background:#161f2e!important;color:#e2e8f0!important}
+#mpc-root .btn-ed{display:inline-flex!important;align-items:center!important;padding:4px 8px!important;background:transparent!important;border:none!important;color:#3d5370!important;cursor:pointer!important;border-radius:5px!important;font-size:13px!important;transition:all .2s!important}
+#mpc-root .btn-ed:hover{color:#38bdf8!important;background:rgba(14,165,233,.08)!important}
+#mpc-root .btn-rm{display:inline-flex!important;align-items:center!important;padding:4px 8px!important;background:transparent!important;border:none!important;color:#3d5370!important;cursor:pointer!important;border-radius:5px!important;font-size:13px!important;transition:all .2s!important}
+#mpc-root .btn-rm:hover{color:#ef4444!important;background:rgba(239,68,68,.08)!important}
+#mpc-root .card{background:#111826!important;border:1px solid #1e2d45!important;border-radius:16px!important;padding:22px!important;margin-bottom:16px!important}
+#mpc-root .card2{background:#161f2e!important;border:1px solid #1e2d45!important;border-radius:12px!important;padding:16px!important}
+#mpc-root .slbl{display:flex!important;align-items:center!important;gap:10px!important;margin:24px 0 6px!important}
+#mpc-root .snum{width:26px!important;height:26px!important;border-radius:7px!important;background:#0ea5e9!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:11px!important;font-weight:700!important;color:#000!important;font-family:'JetBrains Mono',monospace!important;flex-shrink:0!important}
+#mpc-root .stit{font-family:'Syne',sans-serif!important;font-size:17px!important;font-weight:700!important;letter-spacing:-.3px!important;color:#e2e8f0!important}
+#mpc-root .ssub{font-size:12px!important;color:#3d5370!important;margin:0 0 14px 36px!important}
+#mpc-root .fl{font-size:11px!important;font-weight:600!important;color:#94a3b8!important;text-transform:uppercase!important;letter-spacing:.7px!important;display:block!important;margin-bottom:6px!important}
+#mpc-root .fs{font-size:11px!important;color:#3d5370!important;margin-top:4px!important;display:block!important}
+#mpc-root .fi{width:100%!important;background:#0d1117!important;border:1px solid #243449!important;border-radius:8px!important;padding:9px 12px!important;color:#e2e8f0!important;font-size:14px!important;transition:border-color .2s,box-shadow .2s!important;display:block!important}
+#mpc-root .fi:focus{border-color:#0ea5e9!important;box-shadow:0 0 0 3px rgba(14,165,233,.2)!important}
+#mpc-root .fi.mono{font-family:'JetBrains Mono',monospace!important;letter-spacing:.4px!important}
+#mpc-root .fi.ro{background:#07090f!important;color:#38bdf8!important;font-family:'JetBrains Mono',monospace!important;border-color:rgba(14,165,233,.3)!important;cursor:default!important}
+#mpc-root select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath stroke='%2394a3b8' stroke-width='1.5' fill='none' d='M1 1l5 5 5-5'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 12px center!important;padding-right:32px!important}
+#mpc-root select.fi option{background:#161f2e!important;color:#f0f6ff!important}
+#mpc-root .g2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:14px!important}
+#mpc-root .g3{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:14px!important}
+#mpc-root .g4{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:12px!important}
+#mpc-root .gauto{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(148px,1fr))!important;gap:9px!important}
+#mpc-root .fr{display:flex!important;flex-direction:column!important;gap:4px!important}
+@media(max-width:900px){#mpc-root .g3,#mpc-root .g4{grid-template-columns:1fr 1fr!important}}
+@media(max-width:560px){#mpc-root .g2,#mpc-root .g3,#mpc-root .g4{grid-template-columns:1fr!important}#mpc-root .gauto{grid-template-columns:repeat(2,1fr)!important}#mpc-root .inn{padding:0 14px 80px!important}}
+#mpc-root .bb{background:rgba(13,17,23,.88)!important;border:1px solid #1e2d45!important;border-radius:12px!important;padding:12px 18px!important;margin-bottom:18px!important;position:sticky!important;top:0!important;z-index:20!important;backdrop-filter:blur(8px)!important}
+#mpc-root .bb-top{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:8px!important;flex-wrap:wrap!important;gap:8px!important}
+#mpc-root .bb-nums{display:flex!important;gap:20px!important;flex-wrap:wrap!important}
+#mpc-root .bb-n .l{font-size:10px!important;color:#3d5370!important;text-transform:uppercase!important;letter-spacing:.5px!important;display:block!important}
+#mpc-root .bb-n .v{font-family:'JetBrains Mono',monospace!important;font-size:15px!important;font-weight:600!important;color:#e2e8f0!important;display:block!important}
+#mpc-root .bb-track{height:6px!important;background:#1e2d45!important;border-radius:3px!important;overflow:hidden!important}
+#mpc-root .bb-fill{height:100%!important;border-radius:3px!important;transition:width .5s,background .3s!important}
+#mpc-root .pm-tog{display:flex!important;background:#111826!important;border:1px solid #1e2d45!important;border-radius:12px!important;padding:4px!important;gap:4px!important;margin-bottom:16px!important}
+#mpc-root .pm-btn{flex:1!important;padding:10px!important;border-radius:9px!important;border:none!important;background:transparent!important;color:#94a3b8!important;font-size:13px!important;font-weight:600!important;cursor:pointer!important;transition:all .2s!important;text-align:center!important;line-height:1.3!important}
+#mpc-root .pm-btn.act{background:#161f2e!important;color:#e2e8f0!important;border:1px solid #243449!important}
+#mpc-root .pm-desc{font-size:11px!important;color:#3d5370!important;margin-top:2px!important;display:block!important;font-weight:400!important}
+#mpc-root .ph-tabs{display:flex!important;gap:6px!important;margin-bottom:14px!important;flex-wrap:wrap!important}
+#mpc-root .ph-tab{padding:8px 16px!important;border-radius:8px!important;border:1px solid #1e2d45!important;background:#161f2e!important;color:#94a3b8!important;font-size:12px!important;font-weight:600!important;cursor:pointer!important;transition:all .2s!important}
+#mpc-root .ph-tab[data-ph=notoriedad].act{background:rgba(245,158,11,.12)!important;border-color:#f59e0b!important;color:#f59e0b!important}
+#mpc-root .ph-tab[data-ph=interaccion].act{background:rgba(59,130,246,.12)!important;border-color:#3b82f6!important;color:#3b82f6!important}
+#mpc-root .ph-tab[data-ph=lead_venta].act{background:rgba(16,185,129,.12)!important;border-color:#10b981!important;color:#10b981!important}
+#mpc-root .ph-tab[data-ph=fidelizacion].act{background:rgba(139,92,246,.12)!important;border-color:#8b5cf6!important;color:#8b5cf6!important}
+#mpc-root .ph-note{font-size:12px!important;color:#94a3b8!important;padding:9px 13px!important;background:#0d1117!important;border-radius:8px!important;margin-bottom:12px!important;border-left:3px solid #1e2d45!important;line-height:1.5!important}
+#mpc-root .ph-note[data-ph=notoriedad]{border-left-color:#f59e0b!important}
+#mpc-root .ph-note[data-ph=interaccion]{border-left-color:#3b82f6!important}
+#mpc-root .ph-note[data-ph=lead_venta]{border-left-color:#10b981!important}
+#mpc-root .ph-note[data-ph=fidelizacion]{border-left-color:#8b5cf6!important}
+#mpc-root .ch-card{background:#161f2e!important;border:1px solid #1e2d45!important;border-radius:11px!important;padding:12px!important;cursor:pointer!important;transition:all .15s!important;display:flex!important;flex-direction:column!important;gap:4px!important}
+#mpc-root .ch-card.sel{border-color:#0ea5e9!important;background:rgba(14,165,233,.07)!important}
+#mpc-root .ch-card[data-ph=notoriedad]:hover{border-color:#f59e0b!important;transform:translateY(-2px)!important}
+#mpc-root .ch-card[data-ph=interaccion]:hover{border-color:#3b82f6!important;transform:translateY(-2px)!important}
+#mpc-root .ch-card[data-ph=lead_venta]:hover{border-color:#10b981!important;transform:translateY(-2px)!important}
+#mpc-root .ch-card[data-ph=fidelizacion]:hover{border-color:#8b5cf6!important;transform:translateY(-2px)!important}
+#mpc-root .ch-ic{font-size:20px!important;line-height:1!important}
+#mpc-root .ch-nm{font-size:12px!important;font-weight:600!important;color:#e2e8f0!important;line-height:1.3!important}
+#mpc-root .ch-tp{font-size:10px!important;color:#3d5370!important;text-transform:uppercase!important;letter-spacing:.4px!important;font-weight:500!important}
+#mpc-root .f-div{height:1px!important;background:#1e2d45!important;margin:18px 0!important}
+#mpc-root .f-hdr{display:flex!important;align-items:center!important;gap:12px!important;margin-bottom:16px!important}
+#mpc-root .f-ico{width:44px!important;height:44px!important;border-radius:11px!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:21px!important;flex-shrink:0!important}
+#mpc-root .f-tit{font-family:'Syne',sans-serif!important;font-size:16px!important;font-weight:700!important;color:#e2e8f0!important}
+#mpc-root .f-sub{font-size:12px!important;color:#94a3b8!important;margin-top:2px!important}
+#mpc-root .fg{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(180px,1fr))!important;gap:11px!important}
+#mpc-root .bench-hint{display:inline-block!important;font-size:10px!important;color:#38bdf8!important;margin-top:4px!important;background:rgba(14,165,233,.1)!important;padding:2px 6px!important;border-radius:4px!important}
+#mpc-root .funnel-tog{display:flex!important;align-items:center!important;gap:6px!important;background:none!important;border:none!important;color:#94a3b8!important;font-size:12px!important;font-weight:600!important;cursor:pointer!important;padding:6px 0!important;margin-top:4px!important;transition:color .2s!important}
+#mpc-root .funnel-tog:hover{color:#38bdf8!important}
+#mpc-root .funnel-body{display:none!important}
+#mpc-root .funnel-body.open{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(155px,1fr))!important;gap:10px!important;background:rgba(14,165,233,.04)!important;border:1px solid rgba(14,165,233,.12)!important;border-radius:8px!important;padding:12px!important;margin-top:6px!important}
+#mpc-root .prev-box{background:#0d1117!important;border:1px solid #1e2d45!important;border-radius:8px!important;padding:12px!important;margin-top:12px!important}
+#mpc-root .fflow{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:4px!important}
+#mpc-root .fstep{background:#161f2e!important;border:1px solid #1e2d45!important;border-radius:6px!important;padding:3px 8px!important;font-family:'JetBrains Mono',monospace!important;font-size:11px!important}
+#mpc-root .farr{color:#3d5370!important;font-size:10px!important}
+#mpc-root .health-g{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(175px,1fr))!important;gap:9px!important;margin:14px 0!important}
+#mpc-root .hi{background:#161f2e!important;border-radius:10px!important;padding:11px 13px!important;display:flex!important;align-items:flex-start!important;gap:9px!important;border-left:3px solid transparent!important}
+#mpc-root .hi.ok{border-left-color:#10b981!important}
+#mpc-root .hi.wa{border-left-color:#f59e0b!important}
+#mpc-root .hi.er{border-left-color:#ef4444!important}
+#mpc-root .hi.gr{border-left-color:#243449!important}
+#mpc-root .hi-dot{width:7px!important;height:7px!important;border-radius:50%!important;flex-shrink:0!important;margin-top:5px!important}
+#mpc-root .hi.ok .hi-dot{background:#10b981!important}
+#mpc-root .hi.wa .hi-dot{background:#f59e0b!important}
+#mpc-root .hi.er .hi-dot{background:#ef4444!important}
+#mpc-root .hi.gr .hi-dot{background:#3d5370!important}
+#mpc-root .hi-lbl{font-size:10px!important;font-weight:600!important;color:#94a3b8!important}
+#mpc-root .hi-val{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;font-weight:700!important;color:#e2e8f0!important;margin-top:2px!important}
+#mpc-root .hi-note{font-size:10px!important;color:#3d5370!important;margin-top:2px!important;line-height:1.4!important}
+#mpc-root .tw{overflow-x:auto!important;margin-top:12px!important}
+#mpc-root .ptbl{width:100%!important}
+#mpc-root .ptbl th{text-align:left!important;padding:9px 11px!important;color:#3d5370!important;font-size:10px!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.5px!important;border-bottom:1px solid #1e2d45!important;white-space:nowrap!important;background:#0d1117!important}
+#mpc-root .ptbl td{padding:11px 11px!important;border-bottom:1px solid #1e2d45!important;vertical-align:middle!important}
+#mpc-root .ptbl tr:last-child td{border-bottom:none!important}
+#mpc-root .ptbl tr:hover td{background:rgba(255,255,255,.015)!important}
+#mpc-root .tfoot td{border-top:2px solid #243449!important;background:#161f2e!important;font-weight:700!important}
+#mpc-root .mono{font-family:'JetBrains Mono',monospace!important;font-size:12px!important}
+#mpc-root .rbadge{display:inline-flex!important;align-items:center!important;padding:3px 8px!important;border-radius:6px!important;font-family:'JetBrains Mono',monospace!important;font-weight:600!important;font-size:12px!important}
+#mpc-root .rg{background:rgba(16,185,129,.15)!important;color:#34d399!important}
+#mpc-root .rw{background:rgba(245,158,11,.15)!important;color:#fbbf24!important}
+#mpc-root .rb{background:rgba(239,68,68,.15)!important;color:#f87171!important}
+#mpc-root .sbar{height:4px!important;background:#1e2d45!important;border-radius:2px!important;margin-top:3px!important;min-width:50px!important}
+#mpc-root .sfill{height:100%!important;border-radius:2px!important;transition:width .5s!important}
+#mpc-root .ph-badge{display:inline-block!important;padding:1px 6px!important;border-radius:4px!important;font-size:9px!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:.4px!important;margin-top:2px!important}
+#mpc-root .ph-badge.notoriedad{background:rgba(245,158,11,.15)!important;color:#f59e0b!important}
+#mpc-root .ph-badge.interaccion{background:rgba(59,130,246,.15)!important;color:#3b82f6!important}
+#mpc-root .ph-badge.lead_venta{background:rgba(16,185,129,.15)!important;color:#10b981!important}
+#mpc-root .ph-badge.fidelizacion{background:rgba(139,92,246,.15)!important;color:#8b5cf6!important}
+#mpc-root .ph-sum{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important;gap:10px!important;margin:14px 0!important}
+#mpc-root .ph-sc{border-radius:12px!important;padding:14px!important;border:1px solid transparent!important}
+#mpc-root .ph-sc.notoriedad{background:rgba(245,158,11,.07)!important;border-color:rgba(245,158,11,.2)!important}
+#mpc-root .ph-sc.interaccion{background:rgba(59,130,246,.07)!important;border-color:rgba(59,130,246,.2)!important}
+#mpc-root .ph-sc.lead_venta{background:rgba(16,185,129,.07)!important;border-color:rgba(16,185,129,.2)!important}
+#mpc-root .ph-sc.fidelizacion{background:rgba(139,92,246,.07)!important;border-color:rgba(139,92,246,.2)!important}
+#mpc-root .ph-sc-lbl{font-size:10px!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:.6px!important;margin-bottom:6px!important}
+#mpc-root .ph-sc.notoriedad .ph-sc-lbl{color:#f59e0b!important}
+#mpc-root .ph-sc.interaccion .ph-sc-lbl{color:#3b82f6!important}
+#mpc-root .ph-sc.lead_venta .ph-sc-lbl{color:#10b981!important}
+#mpc-root .ph-sc.fidelizacion .ph-sc-lbl{color:#8b5cf6!important}
+#mpc-root .ph-sc-rows span{display:block!important;font-size:12px!important;color:#94a3b8!important;margin-bottom:3px!important}
+#mpc-root .ph-sc-rows b{font-family:'JetBrains Mono',monospace!important;color:#e2e8f0!important}
+#mpc-root .sm-row{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important;gap:9px!important;margin-bottom:12px!important}
+#mpc-root .sm{background:#161f2e!important;border:1px solid #1e2d45!important;border-radius:10px!important;padding:11px 13px!important}
+#mpc-root .sm .l{font-size:10px!important;color:#3d5370!important;text-transform:uppercase!important;letter-spacing:.5px!important;margin-bottom:3px!important;display:block!important}
+#mpc-root .sm .v{font-family:'JetBrains Mono',monospace!important;font-size:17px!important;font-weight:600!important;color:#e2e8f0!important;display:block!important}
+#mpc-root .sm .s{font-size:10px!important;color:#3d5370!important;margin-top:2px!important;display:block!important}
+#mpc-root .mon-help{background:rgba(14,165,233,.06)!important;border:1px solid rgba(14,165,233,.15)!important;border-radius:8px!important;padding:11px 14px!important;margin-bottom:12px!important;font-size:12px!important;color:#94a3b8!important;line-height:1.5!important}
+#mpc-root .mon-help strong{color:#38bdf8!important;font-weight:700!important}
+#mpc-root .mtbl{width:100%!important;min-width:700px!important}
+#mpc-root .mtbl th{text-align:center!important;padding:7px 4px!important;font-size:10px!important;color:#3d5370!important;font-weight:600!important;border-bottom:1px solid #1e2d45!important;background:#0d1117!important}
+#mpc-root .mtbl th.cch{text-align:left!important;min-width:130px!important;padding-left:10px!important}
+#mpc-root .mtbl td{padding:5px 3px!important;text-align:center!important;border-bottom:1px solid #1e2d45!important}
+#mpc-root .mtbl td.cch{text-align:left!important;padding-left:10px!important}
+#mpc-root .mtog{width:26px!important;height:26px!important;border-radius:5px!important;background:#1e2d45!important;border:none!important;cursor:pointer!important;font-size:12px!important;transition:background .12s!important;color:transparent!important}
+#mpc-root .mtog.on{background:#0ea5e9!important;color:#000!important;font-weight:700!important}
+#mpc-root .ltbl{width:100%!important;border-collapse:collapse!important}
+#mpc-root .ltbl th{padding:8px 10px!important;font-size:10px!important;color:#94a3b8!important;text-transform:uppercase!important;letter-spacing:.5px!important;border-bottom:1px solid #1e2d45!important;text-align:left!important}
+#mpc-root .ltbl td{padding:8px 4px!important;border-bottom:1px solid #1e2d45!important;color:#e2e8f0!important}
+#mpc-root .ltbl input{width:85px!important;max-width:100%!important;background:#0d1117!important;border:1px solid #243449!important;border-radius:7px!important;padding:6px 8px!important;color:#e2e8f0!important;font-family:'JetBrains Mono',monospace!important;font-size:12px!important;text-align:right!important;display:inline-block!important}
+#mpc-root .ltbl input:focus{border-color:#0ea5e9!important}
+#mpc-root .lres{font-family:'JetBrains Mono',monospace!important;font-size:12px!important;font-weight:600!important;text-align:right!important;padding:8px 10px!important;color:#e2e8f0!important}
+#mpc-root .seg-lbl{display:flex!important;align-items:center!important;gap:8px!important;font-weight:600!important;font-size:13px!important;padding:0 8px!important;color:#e2e8f0!important;background:rgba(255,255,255,0.08)!important;border-radius:4px!important;margin:2px 0!important}
+#mpc-root .seg-dot{width:10px!important;height:10px!important;border-radius:50%!important;flex-shrink:0!important}
+#mpc-root .sens-sl{display:flex!important;align-items:center!important;gap:12px!important;margin:10px 0!important}
+#mpc-root input[type=range]{flex:1!important;height:4px!important;background:#1e2d45!important;border-radius:2px!important;outline:none!important;border:none!important;-webkit-appearance:none!important;cursor:pointer!important}
+#mpc-root input[type=range]::-webkit-slider-thumb{-webkit-appearance:none!important;width:16px!important;height:16px!important;border-radius:50%!important;background:#0ea5e9!important;cursor:pointer!important}
+#mpc-root .sens-v{font-family:'JetBrains Mono',monospace!important;font-size:14px!important;font-weight:700!important;color:#38bdf8!important;min-width:55px!important;text-align:right!important}
+#mpc-root .sg{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:10px!important;margin-top:12px!important}
+#mpc-root .sc2{background:#161f2e!important;border:1px solid #1e2d45!important;border-radius:10px!important;padding:12px!important;text-align:center!important}
+#mpc-root .sc2 .sc-lbl{font-size:10px!important;text-transform:uppercase!important;letter-spacing:.5px!important;margin-bottom:6px!important;display:block!important}
+#mpc-root .sc2 .sc-main{font-family:'JetBrains Mono',monospace!important;font-size:17px!important;font-weight:600!important;display:block!important}
+#mpc-root .sc2 .sc-s{font-family:'JetBrains Mono',monospace!important;font-size:11px!important;color:#94a3b8!important;display:block!important;margin-top:3px!important}
+#mpc-root .sumg{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important;gap:13px!important}
+#mpc-root .scard{background:#111826!important;border:1px solid #1e2d45!important;border-radius:15px!important;padding:18px!important;position:relative!important;overflow:hidden!important;transition:transform .2s!important}
+#mpc-root .scard:hover{transform:translateY(-2px)!important}
+#mpc-root .scard::before{content:''!important;position:absolute!important;top:0!important;left:0!important;right:0!important;height:3px!important}
+#mpc-root .sca::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)!important}
+#mpc-root .scb::before{background:linear-gradient(90deg,#10b981,#34d399)!important}
+#mpc-root .scc::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)!important}
+#mpc-root .scd::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)!important}
+#mpc-root .sce::before{background:linear-gradient(90deg,#f97316,#fb923c)!important}
+#mpc-root .scf::before{background:linear-gradient(90deg,#ec4899,#f472b6)!important}
+#mpc-root .sc-ic{font-size:21px!important;margin-bottom:8px!important;display:block!important}
+#mpc-root .sc-lbl{font-size:10px!important;color:#94a3b8!important;text-transform:uppercase!important;letter-spacing:.6px!important;margin-bottom:5px!important;display:block!important;font-weight:600!important}
+#mpc-root .sc-val{font-family:'JetBrains Mono',monospace!important;font-size:22px!important;font-weight:600!important;color:#e2e8f0!important;letter-spacing:-1px!important;display:block!important}
+#mpc-root .sc-sub{font-size:11px!important;color:#3d5370!important;margin-top:4px!important;display:block!important}
+#mpc-root .ex-g{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))!important;gap:11px!important;margin-top:12px!important}
+#mpc-root .ex-c{background:#161f2e!important;border:1px solid #1e2d45!important;border-radius:12px!important;padding:15px!important;cursor:pointer!important;transition:all .2s!important}
+#mpc-root .ex-c:hover{border-color:#0ea5e9!important;transform:translateY(-2px)!important}
+#mpc-root .ex-tt{font-weight:700!important;font-size:14px!important;color:#e2e8f0!important;margin-bottom:5px!important;display:block!important}
+#mpc-root .ex-tg{display:flex!important;gap:5px!important;flex-wrap:wrap!important;margin-bottom:7px!important}
+#mpc-root .tag{display:inline-block!important;padding:2px 7px!important;border-radius:4px!important;font-size:10px!important;font-weight:600!important;letter-spacing:.3px!important}
+#mpc-root .tb2c{background:rgba(14,165,233,.15)!important;color:#38bdf8!important}
+#mpc-root .tb2b{background:rgba(139,92,246,.15)!important;color:#c4b5fd!important}
+#mpc-root .tlaunch{background:rgba(16,185,129,.15)!important;color:#34d399!important}
+#mpc-root .tgrow{background:rgba(245,158,11,.15)!important;color:#fbbf24!important}
+#mpc-root .ex-ds{font-size:12px!important;color:#94a3b8!important;line-height:1.4!important}
+#mpc-root .ex-bg{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;font-weight:700!important;color:#38bdf8!important;margin-top:7px!important;display:block!important}
+#mpc-root .mix-box{background:#161f2e!important;border:1px solid rgba(14,165,233,.2)!important;border-radius:12px!important;padding:14px!important;margin-bottom:14px!important}
+#mpc-root .mix-tt{font-weight:700!important;color:#38bdf8!important;font-size:13px!important;margin-bottom:9px!important}
+#mpc-root .mr{display:flex!important;align-items:center!important;gap:7px!important;margin-bottom:5px!important;font-size:12px!important}
+#mpc-root .mp{font-family:'JetBrains Mono',monospace!important;font-weight:700!important;color:#38bdf8!important;min-width:35px!important}
+#mpc-root .mbt{flex:1!important;height:4px!important;background:#1e2d45!important;border-radius:2px!important}
+#mpc-root .mbf{height:100%!important;background:#0ea5e9!important;border-radius:2px!important}
+#mpc-root .mw{color:#3d5370!important;font-size:11px!important}
+#mpc-root .toast{position:fixed!important;bottom:22px!important;right:22px!important;background:#10b981!important;color:#000!important;padding:10px 16px!important;border-radius:10px!important;font-weight:600!important;font-size:13px!important;z-index:9999!important;transform:translateY(80px)!important;opacity:0!important;transition:all .3s!important;pointer-events:none!important}
+#mpc-root .toast.show{transform:translateY(0)!important;opacity:1!important}
+#mpc-root .overlay{position:fixed!important;inset:0!important;background:rgba(0,0,0,.75)!important;z-index:500!important;display:none!important;align-items:center!important;justify-content:center!important;padding:20px!important}
+#mpc-root .overlay.open{display:flex!important}
+#mpc-root .mbox{background:#111826!important;border:1px solid #243449!important;border-radius:16px!important;padding:26px!important;max-width:480px!important;width:100%!important;position:relative!important;max-height:90vh!important;overflow-y:auto!important}
+#mpc-root .mclose{position:absolute!important;top:12px!important;right:12px!important;background:#161f2e!important;border:none!important;color:#94a3b8!important;width:28px!important;height:28px!important;border-radius:6px!important;cursor:pointer!important;font-size:14px!important;display:flex!important;align-items:center!important;justify-content:center!important}
+#mpc-root .dot-sm{width:7px!important;height:7px!important;border-radius:50%!important;display:inline-block!important;flex-shrink:0!important}
+#mpc-root .info-box{background:rgba(14,165,233,.05)!important;border:1px solid rgba(14,165,233,.15)!important;border-radius:8px!important;padding:12px!important;font-size:12px!important;color:#94a3b8!important;line-height:1.5!important;margin-top:8px!important}
+#mpc-root .info-box strong{color:#38bdf8!important}
+#mpc-root .pct-warn{font-size:12px!important;color:#f59e0b!important;display:none!important;margin-top:6px!important}
+#mpc-root .empty{text-align:center!important;padding:36px 20px!important;color:#3d5370!important}
+#mpc-root .empty-ic{font-size:42px!important;margin-bottom:10px!important;opacity:.5!important;display:block!important}
+@media print{#mpc-root .np{display:none!important}#mpc-root{background:#fff!important;color:#000!important}}
+
+/* ===== WHITE THEME OVERRIDE ===== */
+#mpc-root {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  --bg: #ffffff !important;
+  --bg2: #f8fafc !important;
+  --card: #ffffff !important;
+  --card2: #f1f5f9 !important;
+  --bdr: #e2e8f0 !important;
+  --bdr2: #cbd5e1 !important;
+  --txt: #0f172a !important;
+  --txt2: #475569 !important;
+  --txt3: #94a3b8 !important;
+}
+#mpc-root::before { display: none !important; }
+body { background: #ffffff !important; }
+body::before { display: none !important; }
+#mpc-root .card { background: #ffffff !important; border-color: #e2e8f0 !important; }
+#mpc-root .card2 { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+#mpc-root .bb { background: rgba(255,255,255,0.97) !important; border-color: #e2e8f0 !important; }
+#mpc-root .fi { background: #f8fafc !important; color: #0f172a !important; border-color: #e2e8f0 !important; }
+#mpc-root .fl { color: #475569 !important; }
+#mpc-root .fs { color: #94a3b8 !important; }
+#mpc-root .ptbl th { background: #f8fafc !important; color: #94a3b8 !important; border-bottom: 1px solid #e2e8f0 !important; }
+#mpc-root .ptbl td { border-bottom: 1px solid #e2e8f0 !important; color: #0f172a !important; }
+#mpc-root .ch-card { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+#mpc-root .ch-nm { color: #0f172a !important; }
+#mpc-root .sm { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+#mpc-root .sm .l { color: #94a3b8 !important; }
+#mpc-root .sm .v { color: #0f172a !important; }
+#mpc-root .hi { background: #f8fafc !important; }
+#mpc-root .stit { color: #0f172a !important; }
+#mpc-root .mtbl th { background: #f8fafc !important; color: #94a3b8 !important; }
+#mpc-root .seg-lbl { color: #0f172a !important; }
+#mpc-root .lres { color: #0f172a !important; }
+#mpc-root .ltbl th { color: #94a3b8 !important; border-bottom: 1px solid #e2e8f0 !important; }
+#mpc-root .ltbl td { border-bottom: 1px solid #e2e8f0 !important; color: #0f172a !important; }
+#mpc-root .ltbl input { background: #f8fafc !important; color: #0f172a !important; border-color: #e2e8f0 !important; }
+#mpc-root .ex-c { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+#mpc-root .ex-tt { color: #0f172a !important; }
+#mpc-root .mix-box { background: #eff6ff !important; }
+#mpc-root .ph-note { background: #f8fafc !important; }
+#mpc-root .prev-box { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+#mpc-root .logo-nm { color: #0f172a !important; }
+#mpc-root .logo-sb { color: #475569 !important; }
+#mpc-root .sc-lbl { color: #475569 !important; }
+#mpc-root .sc-val { color: #0f172a !important; }
+#mpc-root .scard { background: #ffffff !important; border-color: #e2e8f0 !important; }
+#mpc-root .ph-sc.lead_venta { background: rgba(16,185,129,0.07) !important; }
+#mpc-root .mono { color: #0f172a !important; }
+#mpc-root .budget-num .val { color: #0f172a !important; }
+#mpc-root .budget-num .lbl { color: #94a3b8 !important; }
+#mpc-root input, #mpc-root select { color: #0f172a !important; background: #f8fafc !important; }
+#mpc-root .f-inp { background: #f8fafc !important; color: #0f172a !important; border-color: #e2e8f0 !important; }
+#mpc-root .f-inp:focus { border-color: #0284c7 !important; }
+#mpc-root select.fi option, #mpc-root .f-inp option { background: #ffffff !important; color: #0f172a !important; }
+</style>
+</head>
+<body>
+<div id="mpc-root" style="background-color:#07090f;color:#e2e8f0;min-height:100vh;display:block;font-family:'DM Sans',sans-serif;font-size:14px;position:relative">
+<div class="inn">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-ic">📊</div>
+    <div>
+      <div class="logo-nm">Media Planning Canvas</div>
+      <div class="logo-sb">Jaime Fernández de la Puente-Campano</div>
+    </div>
+  </div>
+  <div class="hdr-act">
+    <div class="mode-tog">
+      <button class="mode-btn b2c" id="btnB2C" onclick="setMode('B2C')">B2C</button>
+      <button class="mode-btn" id="btnB2B" onclick="setMode('B2B')">B2B</button>
+    </div>
+    <button class="ic-btn np" onclick="showStorageInfo()">💾 Guardar</button>
+    <button class="ic-btn np" onclick="loadFromStorage()">📂 Cargar</button>
+    <button class="ic-btn np" onclick="window.print()">🖨️ PDF</button>
+  </div>
+</div>
+
+<!-- BUDGET BAR -->
+<div class="bb np">
+  <div class="bb-top">
+    <div class="bb-nums">
+      <div class="bb-n"><span class="l">Presupuesto</span><span class="v" id="bb-tot">€ 0</span></div>
+      <div class="bb-n"><span class="l">Asignado</span><span class="v" id="bb-use">€ 0</span></div>
+      <div class="bb-n"><span class="l">Disponible</span><span class="v" id="bb-lft">€ 0</span></div>
+      <div class="bb-n"><span class="l">% Asignado</span><span class="v" id="bb-pct">0%</span></div>
+    </div>
+    <span id="bb-alrt" style="font-size:12px;color:#ef4444;display:none">⚠️ Presupuesto superado</span>
+  </div>
+  <div class="bb-track"><div class="bb-fill" id="bb-fill" style="width:0%;background:#10b981"></div></div>
+</div>
+
+<!-- STEP 00: OBJETIVOS -->
+<div class="slbl"><div class="snum">00</div><div class="stit">Objetivos del Plan</div></div>
+<div class="ssub">Define primero el techo y el objetivo. El plan se construye hacia atrás desde aquí.</div>
+<div class="card">
+  <div class="pm-tog">
+    <button class="pm-btn act" data-pm="budget" onclick="setPlanMode('budget')">💰 Maximizar Presupuesto<span class="pm-desc">Tengo €X — ¿cómo distribuirlo?</span></button>
+    <button class="pm-btn" data-pm="objective" onclick="setPlanMode('objective')">🎯 Alcanzar Objetivo<span class="pm-desc">Quiero N clientes — ¿cuánto necesito invertir?</span></button>
+  </div>
+  <div id="pm-help" class="info-box" style="display:none;margin-bottom:14px">
+    <strong>Modo Objetivo:</strong> En cada canal de Lead/Venta introduce cuántos clientes quieres conseguir de ese canal. La herramienta calculará la inversión necesaria según los ratios que establezcas.
+  </div>
+  <div class="g4">
+    <div class="fr">
+      <label class="fl" id="budgetLabel">Presupuesto Total (€)</label>
+      <input class="fi mono" type="number" id="obj_budget" value="5000" min="0" step="100" oninput="updateBB();renderSummary()">
+      <span class="fs" id="budgetHint">Techo máximo de inversión</span>
+    </div>
+    <div class="fr">
+      <label class="fl">Objetivo de Clientes</label>
+      <input class="fi mono" type="number" id="obj_clients" value="100" min="0" oninput="renderSummary()">
+      <span class="fs">¿Cuántos clientes necesitas?</span>
+    </div>
+    <div class="fr">
+      <label class="fl">CAC Máximo (€)</label>
+      <input class="fi mono" type="number" id="obj_cac" value="50" min="0" oninput="renderSummary()">
+      <span class="fs">Coste máximo por cliente</span>
+    </div>
+    <div class="fr">
+      <label class="fl">Ticket Medio (€)</label>
+      <input class="fi mono" type="number" id="globalTicket" value="150" min="0" oninput="recalcAll()">
+      <select class="fi" id="ticketType" onchange="recalcAll()" style="margin-top:6px!important">
+        <option value="por_venta">Por Venta (precio unitario)</option>
+        <option value="mensual">Mensual × 12 (suscripción)</option>
+        <option value="anual">Anual por cliente</option>
+      </select>
+    </div>
+  </div>
+  <div class="g2" style="margin-top:12px">
+    <div class="fr">
+      <label class="fl">Fase del Negocio</label>
+      <select class="fi" id="obj_phase" onchange="onPhaseChange()">
+        <option value="launch">🚀 Lanzamiento</option>
+        <option value="growth">📈 Crecimiento</option>
+        <option value="maturity">🏛️ Madurez</option>
+      </select>
+    </div>
+    <div class="fr">
+      <label class="fl">Sector</label>
+      <select class="fi" id="sectorSelect" onchange="onSectorChange()">
+        <option value="">— Selecciona tu sector —</option>
+        <option value="alimentacion">🛒 Alimentación</option>
+        <option value="moda">👗 Moda y Accesorios</option>
+        <option value="salud">💊 Salud y Belleza</option>
+        <option value="deporte">🏋️ Deporte y Fitness</option>
+        <option value="hogar">🏠 Hogar y Decoración</option>
+        <option value="bricolaje">🔧 Bricolaje</option>
+        <option value="tecnologia">💻 Tecnología</option>
+        <option value="cursos">🎓 Cursos y Formación</option>
+        <option value="viajes">✈️ Viajes</option>
+        <option value="food_delivery">🍕 Food Delivery</option>
+        <option value="servicios">💼 Servicios</option>
+        <option value="automovil">🚗 Automoción</option>
+        <option value="seguros">🛡️ Seguros y Finanzas</option>
+        <option value="otros">📦 Otros</option>
+      </select>
+      <div id="benchRow" style="margin-top:8px;display:none">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span id="bench_b2c" class="tag tb2c" style="font-size:11px;padding:3px 9px"></span>
+          <span id="bench_b2b" class="tag tb2b" style="font-size:11px;padding:3px 9px"></span>
+        </div>
+        <span style="font-size:10px;color:#3d5370;margin-top:5px;display:block">📄 Flat 101 · Estudio Conversión 2025</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="mixBox" style="display:none"></div>
+
+<!-- STEP 01: EJEMPLOS -->
+<div class="slbl np"><div class="snum">01</div><div class="stit">¿Empezar desde cero o cargar un ejemplo?</div></div>
+<div class="ex-g np">
+  <div class="ex-c" onclick="loadExample('ecom_b2c')"><span class="ex-tt">🛍️ E-commerce B2C · Moda</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">Meta Branding + Meta Perf + SEM + Influencer + Email. Plan completo con notoriedad y conversión.</div><span class="ex-bg">€ 3.500 · Objetivo 80 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('saas_b2b')"><span class="ex-tt">💼 SaaS B2B · Servicios</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">LinkedIn Branding + LinkedIn Perf + SEM + Email Outreach + Sales Force + Email Automation.</div><span class="ex-bg">€ 6.000 · Objetivo 20 clientes</span></div>
+  <div class="ex-c" onclick="loadExample('academia')"><span class="ex-tt">🎓 Academia Online · Formación</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">RRSS Orgánico + Meta Perf + Email BBDD + Webinar + Afiliación + Loyalty.</div><span class="ex-bg">€ 2.200 · Objetivo 60 clientes</span></div>
+</div>
+
+<!-- STEP 02: CANALES -->
+<div class="slbl"><div class="snum">02</div><div class="stit">Añade Canales por Fase del Embudo</div></div>
+<div class="ssub">Selecciona la fase → elige el canal → rellena sus variables. Un mismo canal puede usarse en diferentes fases con KPIs distintos (ej: Meta Ads en Notoriedad = impresiones; en Lead/Venta = conversiones).</div>
+<div class="card np">
+  <div class="ph-tabs">
+    <button class="ph-tab act" data-ph="notoriedad" onclick="setPhaseTab('notoriedad')">📣 Notoriedad</button>
+    <button class="ph-tab" data-ph="interaccion" onclick="setPhaseTab('interaccion')">🔄 Interacción | Tráfico</button>
+    <button class="ph-tab" data-ph="lead_venta" onclick="setPhaseTab('lead_venta')">💰 Lead | Venta</button>
+    <button class="ph-tab" data-ph="fidelizacion" onclick="setPhaseTab('fidelizacion')">❤️ Fidelización</button>
+  </div>
+  <div class="ph-note" id="phNote" data-ph="notoriedad">
+    📣 <strong>Notoriedad:</strong> KPI = <strong>Impresiones y Alcance</strong>. El objetivo es que tu target te vea y recuerde. No hay ventas directas en este nivel, pero el impacto en conversión se produce a largo plazo.
+  </div>
+  <div class="gauto" id="chGrid"></div>
+  <div id="chForm" style="display:none">
+    <div class="f-div"></div>
+    <div class="f-hdr"><div class="f-ico" id="fIco"></div><div><div class="f-tit" id="fTit"></div><div class="f-sub" id="fSub"></div></div></div>
+    <div class="fg" id="fFields"></div>
+    <div id="fFunnelWrap"></div>
+    <div class="prev-box"><span class="fl" style="margin-bottom:8px">Vista previa</span><div class="fflow" id="fPrev">— rellena los campos —</div></div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn-p" onclick="addOrUpdate()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 4v16m8-8H4"/></svg><span id="addLbl">Añadir al Plan</span></button>
+      <button class="btn-s" onclick="cancelForm()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 03: PLAN -->
+<div class="slbl"><div class="snum">03</div><div class="stit">Plan de Medios</div></div>
+<div id="planSection">
+  <div class="empty" id="planEmpty"><span class="empty-ic">📋</span><div>Sin canales todavía.</div><div style="font-size:12px;margin-top:4px">Selecciona canales arriba o carga un ejemplo.</div></div>
+  <div id="planContent" style="display:none">
+    <div class="health-g" id="healthG"></div>
+    <div class="ph-sum" id="phSum"></div>
+    <div class="sm-row" id="smRow"></div>
+    <div class="tw"><table class="ptbl"><thead><tr>
+      <th>Canal</th><th>Inversión</th><th>% Presup.</th>
+      <th id="th_kpi1">KPI Fase</th><th id="th_kpi2">Clientes</th>
+      <th>Ingreso Est.</th><th>ROAS</th><th class="np"></th>
+    </tr></thead><tbody id="planBody"></tbody><tfoot id="planFoot"></tfoot></table></div>
+  </div>
+</div>
+
+<!-- STEP 04: MENSUAL -->
+<div class="slbl"><div class="snum">04</div><div class="stit">Distribución Mensual</div></div>
+<div class="card">
+  <div class="mon-help">
+    <strong>🗓️ ¿Cómo funciona?</strong> Cada <strong>●</strong> activa el canal ese mes. La inversión total del canal se <strong>divide entre los meses activos</strong>. Ejemplo: un canal con <strong>€1.200 activado en 6 meses = €200/mes</strong> esos meses. Al desactivar un mes pausas la inversión ese período — el canal sigue en el plan. Útil para gestionar <strong>estacionalidad, lanzamientos o presupuestos trimestrales</strong>.
+  </div>
+  <div class="tw"><table class="mtbl"><thead><tr id="mHdr">
+    <th class="cch">Canal</th>
+    <th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th>
+    <th>Jul</th><th>Ago</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dic</th>
+    <th>Meses</th><th>€/Mes</th>
+  </tr></thead><tbody id="mBody"></tbody></table></div>
+</div>
+
+<!-- STEP 05: SENSIBILIDAD -->
+<div class="slbl"><div class="snum">05</div><div class="stit">Análisis de Sensibilidad</div></div>
+<div class="ssub">¿Qué pasa si los ratios de conversión cambian? Testa la solidez del plan.</div>
+<div class="card">
+  <label class="fl" style="margin-bottom:8px">Variación del CR (Ratio de Conversión)</label>
+  <div class="sens-sl">
+    <span style="font-size:12px;color:#3d5370">-50%</span>
+    <input type="range" id="sensSlider" min="-50" max="50" value="0" step="5" oninput="renderSens()">
+    <span style="font-size:12px;color:#3d5370">+50%</span>
+    <span class="sens-v" id="sensV">Base</span>
+  </div>
+  <div class="sg" id="sensG"></div>
+</div>
+
+<!-- STEP 06: LTV -->
+<div class="slbl"><div class="snum">06</div><div class="stit">Life Time Value</div></div>
+<div class="ssub">Porcentajes deben sumar 100%. El LTV se calcula sobre los clientes del plan.</div>
+<div class="card">
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">
+    <div style="background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.2);border-radius:10px;padding:11px 15px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:600;color:#38bdf8;display:block" id="ltv_cc">0</span>
+      <span style="font-size:11px;color:#94a3b8">Clientes del Plan</span>
+    </div>
+    <div style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:11px 15px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:600;color:#c4b5fd;display:block" id="ltv_ratio">—</span>
+      <span style="font-size:11px;color:#94a3b8">LTV / CAC ratio (objetivo ≥ 3x)</span>
+    </div>
+    <div id="pct_warn" class="pct-warn">⚠️ Los porcentajes no suman 100%</div>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="ltbl">
+      <thead><tr>
+        <th style="min-width:150px">Segmento</th>
+        <th>% Clientes</th><th>Compras/Año</th><th>Años</th><th>Ticket (€)</th>
+        <th style="text-align:right">LTV/Cliente</th><th style="text-align:right">Nº Clientes</th><th style="text-align:right">Ingreso Total</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="seg-lbl"><span class="seg-dot" style="background:#10b981"></span>Heavy Users</div></td>
+          <td><input id="lh_p" value="40" type="number" min="0" max="100" oninput="calcLTV()">%</td>
+          <td><input id="lh_f" value="2.5" type="number" min="0" step=".5" oninput="calcLTV()"></td>
+          <td><input id="lh_y" value="3" type="number" min="1" oninput="calcLTV()"></td>
+          <td><input id="lh_t" value="299" type="number" min="0" oninput="calcLTV()"></td>
+          <td class="lres" id="lh_per">—</td><td class="lres" id="lh_cnt">—</td><td class="lres" id="lh_tot">—</td>
+        </tr>
+        <tr>
+          <td><div class="seg-lbl"><span class="seg-dot" style="background:#38bdf8"></span>Mid Users</div></td>
+          <td><input id="lm_p" value="20" type="number" min="0" max="100" oninput="calcLTV()">%</td>
+          <td><input id="lm_f" value="1.5" type="number" min="0" step=".5" oninput="calcLTV()"></td>
+          <td><input id="lm_y" value="2" type="number" min="1" oninput="calcLTV()"></td>
+          <td><input id="lm_t" value="199" type="number" min="0" oninput="calcLTV()"></td>
+          <td class="lres" id="lm_per">—</td><td class="lres" id="lm_cnt">—</td><td class="lres" id="lm_tot">—</td>
+        </tr>
+        <tr>
+          <td><div class="seg-lbl"><span class="seg-dot" style="background:#f59e0b"></span>Basic Users</div></td>
+          <td><input id="lb_p" value="20" type="number" min="0" max="100" oninput="calcLTV()">%</td>
+          <td><input id="lb_f" value="1" type="number" min="0" step=".5" oninput="calcLTV()"></td>
+          <td><input id="lb_y" value="1" type="number" min="1" oninput="calcLTV()"></td>
+          <td><input id="lb_t" value="99" type="number" min="0" oninput="calcLTV()"></td>
+          <td class="lres" id="lb_per">—</td><td class="lres" id="lb_cnt">—</td><td class="lres" id="lb_tot">—</td>
+        </tr>
+        <tr>
+          <td><div class="seg-lbl"><span class="seg-dot" style="background:#ef4444"></span>No Repiten</div></td>
+          <td><input id="ln_p" value="20" type="number" min="0" max="100" oninput="calcLTV()">%</td>
+          <td colspan="3" style="color:#3d5370;font-size:12px;padding:8px 10px">— Una sola compra —</td>
+          <td class="lres">€ 0</td><td class="lres" id="ln_cnt">—</td><td class="lres">€ 0</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" style="font-weight:700;padding:11px 8px;font-size:14px;color:#f0f6ff">TOTAL LTV</td>
+          <td colspan="3"></td>
+          <td class="lres" id="ltv_avg" style="color:#38bdf8;font-size:15px"></td>
+          <td class="lres" id="ltv_ctot" style="font-weight:700;color:#f0f6ff"></td>
+          <td class="lres" id="ltv_rtot" style="color:#10b981;font-size:15px;font-weight:700"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- STEP 07: RESUMEN -->
+<div class="slbl"><div class="snum">07</div><div class="stit">Resumen del Plan</div></div>
+<div class="sumg">
+  <div class="scard sca"><span class="sc-ic">💰</span><span class="sc-lbl">Inversión Total</span><span class="sc-val" id="s_inv">€ 0</span><span class="sc-sub" id="s_inv_s">—</span></div>
+  <div class="scard scb"><span class="sc-ic">👥</span><span class="sc-lbl">Clientes Estimados</span><span class="sc-val" id="s_cli">0</span><span class="sc-sub" id="s_cli_s">—</span></div>
+  <div class="scard scc"><span class="sc-ic">🏷️</span><span class="sc-lbl">Ticket Medio</span><span class="sc-val" id="s_tck">€ 0</span><span class="sc-sub" id="s_tck_s">—</span></div>
+  <div class="scard scd"><span class="sc-ic">📈</span><span class="sc-lbl">Ingreso Neto Año 1</span><span class="sc-val" id="s_rev">€ 0</span><span class="sc-sub" id="s_rev_s">ROAS: —</span></div>
+  <div class="scard sce"><span class="sc-ic">🎯</span><span class="sc-lbl">CAC</span><span class="sc-val" id="s_cac">€ 0</span><span class="sc-sub" id="s_cac_s">—</span></div>
+  <div class="scard scf"><span class="sc-ic">♾️</span><span class="sc-lbl">Life Time Value</span><span class="sc-val" id="s_ltv">€ 0</span><span class="sc-sub" id="s_ltv_s">LTV/CAC: —</span></div>
+</div>
+
+</div><!-- /inn -->
+<div class="toast" id="toast"></div>
+<div class="overlay" id="storageModal">
+  <div class="mbox">
+    <button class="mclose" onclick="closeModal('storageModal')">✕</button>
+    <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:12px;color:#e2e8f0">💾 ¿Cómo funciona Guardar?</div>
+    <div style="font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:16px">
+      El plan se guarda en el <strong style="color:#38bdf8">localStorage de tu navegador</strong>, directamente en este dispositivo. No se sube a ningún servidor.<br><br>
+      ✅ <strong style="color:#10b981">Lo que sí funciona:</strong><br>
+      · Guardado instantáneo sin registro<br>
+      · Cargar el plan en la misma sesión o más tarde<br>
+      · Funciona sin conexión<br><br>
+      ⚠️ <strong style="color:#f59e0b">Lo que NO funciona:</strong><br>
+      · Si borras la caché del navegador, el plan desaparece<br>
+      · No funciona en modo incógnito<br>
+      · No se sincroniza entre dispositivos<br><br>
+      📤 <strong style="color:#e2e8f0">Para compartir o hacer backup permanente:</strong> usa el botón <strong>🖨️ PDF</strong>, que genera un documento imprimible con todo el plan visible.
+    </div>
+    <button class="btn-p" onclick="saveToStorage();closeModal('storageModal')">💾 Guardar ahora</button>
+  </div>
+</div>
+</div><!-- /mpc-root -->
+
+<script>
+const SECTORS={alimentacion:{crB2C:2.67,crB2C_lo:0.80,crB2C_hi:4.54,crB2B:1.86},moda:{crB2C:0.91,crB2C_lo:0.71,crB2C_hi:1.10,crB2B:null},salud:{crB2C:1.88,crB2C_lo:0.73,crB2C_hi:3.04,crB2B:4.66},deporte:{crB2C:1.27,crB2C_lo:0.76,crB2C_hi:1.78,crB2B:null},hogar:{crB2C:0.50,crB2C_lo:0.27,crB2C_hi:0.73,crB2B:3.87},bricolaje:{crB2C:0.26,crB2C_lo:null,crB2C_hi:null,crB2B:6.33},tecnologia:{crB2C:null,crB2C_lo:null,crB2C_hi:null,crB2B:0.42},cursos:{crB2C:0.70,crB2C_lo:0.47,crB2C_hi:0.94,crB2B:2.74},viajes:{crB2C:1.28,crB2C_lo:0.91,crB2C_hi:1.65,crB2B:1.00},food_delivery:{crB2C:10.62,crB2C_lo:null,crB2C_hi:null,crB2B:3.35},servicios:{crB2C:null,crB2C_lo:null,crB2C_hi:null,crB2B:4.01},automovil:{crB2C:null,crB2C_lo:null,crB2C_hi:null,crB2B:3.20},seguros:{crB2C:0.08,crB2C_lo:null,crB2C_hi:null,crB2B:6.07},otros:{crB2C:1.01,crB2C_lo:null,crB2C_hi:null,crB2B:4.33}};
+const MIX={B2C_launch:[{id:'DISP_BRAND',pct:15,why:'Impactos baratos de marca'},{id:'META_BRAND',pct:20,why:'Awareness rápido en redes'},{id:'META_PERF',pct:30,why:'Ventas directas desde día 1'},{id:'SEM',pct:20,why:'Captura intención de búsqueda'},{id:'INF_BRAND',pct:15,why:'Credibilidad inicial de marca'}],B2C_growth:[{id:'META_PERF',pct:30,why:'Escalar audiencias validadas'},{id:'SEM',pct:20,why:'Expandir keywords'},{id:'EMAIL_OWN',pct:20,why:'BBDD propia = ROI más alto'},{id:'AFILIACION',pct:15,why:'CPA cero riesgo'},{id:'LOYALTY',pct:15,why:'Retención y recompra'}],B2C_maturity:[{id:'EMAIL_OWN',pct:30,why:'Canal propio siempre rentable'},{id:'EMAIL_AUTO',pct:20,why:'Fidelización automatizada'},{id:'MGM',pct:20,why:'Clientes que traen clientes'},{id:'SEM',pct:15,why:'Defensa de marca'},{id:'LOYALTY',pct:15,why:'Programa de puntos'}],B2B_launch:[{id:'LI_BRAND',pct:15,why:'Awareness en audiencia B2B'},{id:'LINKEDIN_PERF',pct:30,why:'Leads B2B cualificados'},{id:'SEM',pct:25,why:'Captura intención de compra'},{id:'EMAIL_OUT',pct:30,why:'Outreach directo a decisores'}],B2B_growth:[{id:'LINKEDIN_PERF',pct:25,why:'Escalar en ICP validado'},{id:'SALESFORCE',pct:25,why:'SDR/AE para cerrar pipeline'},{id:'SEM',pct:20,why:'Ampliar keywords B2B'},{id:'EMAIL_OWN',pct:15,why:'Nurturing automático'},{id:'PARTNERS',pct:15,why:'Canal indirecto escalable'}],B2B_maturity:[{id:'SALESFORCE',pct:30,why:'Control total del pipeline'},{id:'EMAIL_AUTO',pct:25,why:'Automatización de nurturing'},{id:'PARTNERS',pct:20,why:'Canal indirecto sin techo'},{id:'MGM',pct:15,why:'Clientes como embajadores'},{id:'CUST_SUCCESS',pct:10,why:'Reducir churn B2B'}]};
+const PH_NOTES={notoriedad:'📣 <strong>Notoriedad:</strong> KPI = <strong>Impresiones y Alcance</strong>. El objetivo es que tu target te vea y te recuerde. El impacto en ventas es indirecto y se produce a lo largo del tiempo.',interaccion:'🔄 <strong>Interacción | Tráfico:</strong> KPI = <strong>Visitas, Engagement, Seguidores</strong>. Calentar a la audiencia y llevarla a la consideración de compra.',lead_venta:'💰 <strong>Lead | Venta:</strong> KPI = <strong>Leads, Clientes y ROAS</strong>. Inversión directamente medible en ingresos. Cada canal aquí debe tener ROAS positivo.',fidelizacion:'❤️ <strong>Fidelización:</strong> KPI = <strong>Retención, Recompra y LTV</strong>. Retener un cliente cuesta 5x menos que captar uno nuevo. Este nivel protege la inversión de todos los demás canales.'};
+
+const CHANNELS=[
+  // NOTORIEDAD (kt='awareness')
+  {id:'DISP_BRAND',ph:'notoriedad',name:'Display CPM Branding',icon:'🖼️',color:'#f97316',desc:'Programática branding',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'500'},{id:'cpm',lb:'CPM (€/1.000)',def:4,tip:'Coste por mil impresiones'},{id:'frec',lb:'Frecuencia media',def:3,tip:'Veces que ve el anuncio cada persona'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'META_BRAND',ph:'notoriedad',name:'Meta Ads · Branding',icon:'📘',color:'#1877F2',desc:'Facebook/Instagram awareness',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'500'},{id:'cpm',lb:'CPM (€/1.000)',def:7},{id:'frec',lb:'Frecuencia media',def:4},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'TIKTOK_BRAND',ph:'notoriedad',name:'TikTok Ads · Branding',icon:'🎵',color:'#ff0050',desc:'TikTok awareness y viralidad',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'400'},{id:'cpm',lb:'CPM (€/1.000)',def:5},{id:'frec',lb:'Frecuencia media',def:3},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'YT_BRAND',ph:'notoriedad',name:'YouTube Ads · Branding',icon:'▶️',color:'#FF0000',desc:'TrueView / Bumper Ads',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'600'},{id:'cpv',lb:'CPV (€/vista)',def:0.03,tip:'Coste por visualización'},{id:'frec',lb:'Frecuencia media',def:3},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'LI_BRAND',ph:'notoriedad',name:'LinkedIn Ads · Branding',icon:'🔷',color:'#0077B5',desc:'Brand awareness B2B premium',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'800'},{id:'cpm',lb:'CPM (€/1.000)',def:18,tip:'LinkedIn CPM alto, audiencia premium'},{id:'frec',lb:'Frecuencia media',def:3},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'INF_BRAND',ph:'notoriedad',name:'Influencer Branding · Paid',icon:'⭐',color:'#fbbf24',desc:'Influencer pagado · notoriedad',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'600'},{id:'n_inf',lb:'Nº Influencers',req:true,ph:'3'},{id:'seg',lb:'Seguidores medios',req:true,ph:'30000'},{id:'pct_imp',lb:'% Impactos reales',def:15,tip:'% seguidores que ven el contenido'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'INF_PROD',ph:'notoriedad',name:'Influencer Producto / Gifting',icon:'🎁',color:'#fb923c',desc:'Envío de producto, earned media',kt:'awareness',fields:[{id:'inv',lb:'Coste producto total (€)',req:true,ph:'300',tip:'Coste total de productos enviados'},{id:'n_inf',lb:'Nº Influencers',req:true,ph:'10'},{id:'seg',lb:'Seguidores medios',req:true,ph:'10000'},{id:'pct_imp',lb:'% que publica',def:60,tip:'% influencers que publican'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'BRAND_AMB',ph:'notoriedad',name:'Brand Ambassador',icon:'🏆',color:'#d97706',desc:'Embajadores de marca continuos',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€/mes)',req:true,ph:'1000'},{id:'n_inf',lb:'Nº Embajadores',req:true,ph:'2'},{id:'seg',lb:'Seguidores medios',req:true,ph:'50000'},{id:'pct_imp',lb:'% Impactos reales',def:20},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'BRANDED_C',ph:'notoriedad',name:'Branded Content',icon:'🎬',color:'#7c3aed',desc:'Contenido de marca en medios',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'800'},{id:'alcance_m',lb:'Audiencia del medio',req:true,ph:'100000',tip:'Lectores/espectadores del medio'},{id:'pct_imp',lb:'% que lee/ve el contenido',def:10},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'PR_MEDIOS',ph:'notoriedad',name:'PR Digital / Medios',icon:'📰',color:'#a78bfa',desc:'Notas de prensa, colaboraciones',kt:'awareness',fields:[{id:'inv',lb:'Agencia o freelance (€)',req:true,ph:'600'},{id:'n_medios',lb:'Nº Medios impactados',req:true,ph:'10'},{id:'alcance_m',lb:'Audiencia media por medio',req:true,ph:'50000'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'EVENTO_PROP',ph:'notoriedad',name:'Eventos Propios / Sponsor',icon:'🎪',color:'#0891b2',desc:'Eventos de marca y patrocinios',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'2000'},{id:'asistentes',lb:'Asistentes esperados',req:true,ph:'200'},{id:'online_reach',lb:'Alcance online del evento',ph:'5000',tip:'Personas en redes/streaming'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'OOH',ph:'notoriedad',name:'Exterior / OOH / Digital Signage',icon:'🏙️',color:'#059669',desc:'Vallas, mupis, pantallas digitales',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'2000'},{id:'grp',lb:'GRPs estimados',req:true,ph:'100',tip:'Gross Rating Points'},{id:'poblacion',lb:'Población objetivo',ph:'100000'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'TV_RADIO',ph:'notoriedad',name:'TV / Radio / Prensa offline',icon:'📡',color:'#6366f1',desc:'Medios masivos tradicionales',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'5000'},{id:'audiencia',lb:'Audiencia bruta',req:true,ph:'500000',tip:'Audiencia total del medio'},{id:'frec',lb:'Frecuencia media',def:3},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'RRSS_ORG_NOT',ph:'notoriedad',name:'RRSS Orgánico · Contenidos',icon:'📱',color:'#14b8a6',desc:'Posts propios en redes sociales',kt:'awareness',fields:[{id:'inv',lb:'Coste creación (€)',req:false,ph:'200',tip:'Community manager o agencia'},{id:'posts_mes',lb:'Nº Posts al mes',req:true,ph:'20'},{id:'alcance_post',lb:'Alcance medio por post',req:true,ph:'2000'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'EMPL_BRAND',ph:'notoriedad',name:'Employee Branding',icon:'👔',color:'#8b5cf6',desc:'Empleados como embajadores',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:false,ph:'300'},{id:'n_empl',lb:'Nº Empleados activos',req:true,ph:'10'},{id:'seg',lb:'Seguidores medios',req:true,ph:'500'},{id:'posts_mes',lb:'Posts/empleado/mes',def:4},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  // INTERACCIÓN (kt='traffic')
+  {id:'SEO_BLOG',ph:'interaccion',name:'SEO / Blog Contenidos',icon:'🌱',color:'#10b981',desc:'Tráfico orgánico de buscadores',kt:'traffic',fields:[{id:'inv',lb:'Agencia/Freelance (€)',req:false,ph:'500'},{id:'vis_org',lb:'Visitas orgánicas/mes',req:true,ph:'5000'},{id:'deflaccion',lb:'Deflacción (%)',def:30,tip:'% rebote/irrelevantes'}]},
+  {id:'RRSS_CONT',ph:'interaccion',name:'Contenidos RRSS · Engagement',icon:'👍',color:'#3b82f6',desc:'Posts engagement y tráfico',kt:'traffic',fields:[{id:'inv',lb:'Inversión (€)',req:false,ph:'300'},{id:'seg_tot',lb:'Seguidores totales',req:true,ph:'5000'},{id:'eng_rate',lb:'Engagement Rate (%)',def:3,tip:'% seguidores que interactúan'}]},
+  {id:'YOUTUBE_ORG',ph:'interaccion',name:'YouTube Canal · Orgánico',icon:'▶️',color:'#FF0000',desc:'Canal propio, contenido orgánico',kt:'traffic',fields:[{id:'inv',lb:'Coste producción (€)',req:false,ph:'400'},{id:'n_videos',lb:'Vídeos al mes',req:true,ph:'4'},{id:'views_vid',lb:'Views medios por vídeo',req:true,ph:'1000'}]},
+  {id:'PODCAST',ph:'interaccion',name:'Podcast',icon:'🎙️',color:'#9333ea',desc:'Canal de audio y comunidad',kt:'traffic',fields:[{id:'inv',lb:'Coste producción (€)',req:false,ph:'300'},{id:'episodios',lb:'Episodios al mes',req:true,ph:'4'},{id:'escuchas',lb:'Escuchas por episodio',req:true,ph:'500'}]},
+  {id:'WEBINAR',ph:'interaccion',name:'Webinar / Evento Online',icon:'🎓',color:'#06b6d4',desc:'Lead gen de alto valor',kt:'traffic',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'400'},{id:'invitaciones',lb:'Invitaciones enviadas',req:true,ph:'2000'},{id:'pct_reg',lb:'% Registro',def:10},{id:'pct_asist',lb:'% Asistencia real',def:50}]},
+  {id:'WHATSAPP_B',ph:'interaccion',name:'WhatsApp Business',icon:'💬',color:'#25D366',desc:'Atención y conversación directa',kt:'traffic',fields:[{id:'inv',lb:'Herramienta (€/mes)',req:false,ph:'50'},{id:'contactos',lb:'Contactos en lista',req:true,ph:'500'},{id:'pct_resp',lb:'% Tasa de respuesta',def:40}]},
+  {id:'GOOGLE_BIZ',ph:'interaccion',name:'Google Business / Maps',icon:'📍',color:'#4285F4',desc:'Perfil local y búsquedas locales',kt:'traffic',fields:[{id:'inv',lb:'Gestión (€/mes)',req:false,ph:'100'},{id:'busq_mes',lb:'Búsquedas mensuales',req:true,ph:'1000'},{id:'pct_click',lb:'CTR a web (%)',def:20}]},
+  {id:'CONCURSO',ph:'interaccion',name:'Concursos y Sorteos',icon:'🎰',color:'#ec4899',desc:'Viralización y captación seguidores',kt:'traffic',fields:[{id:'inv',lb:'Inversión + Premio (€)',req:true,ph:'500'},{id:'part_ini',lb:'Participantes iniciales',req:true,ph:'100'},{id:'coef_viral',lb:'Coeficiente viral',def:3,tip:'Veces que cada participante lo comparte'}]},
+  {id:'BANNER_INT',ph:'interaccion',name:'Banners Interactivos / Display',icon:'🖥️',color:'#0ea5e9',desc:'Display CPC tráfico a web',kt:'traffic',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'400'},{id:'cpc',lb:'CPC (€)',def:0.4},{id:'deflaccion',lb:'Deflacción (%)',def:35}]},
+  // LEAD / VENTA (kt='conversion'/'variable'/'demo'/'direct')
+  {id:'SEM',ph:'lead_venta',name:'SEM · Buscadores',icon:'🔍',color:'#4285F4',desc:'Google/Bing Ads CPC',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'1000'},{id:'cpc',lb:'CPC (€/clic)',req:true,ph:'2.00'},{id:'deflaccion',lb:'Deflacción (%)',def:20},{id:'cr',lb:'CR Lead/Venta (%)',bench:true}]},
+  {id:'META_PERF',ph:'lead_venta',name:'Meta Ads · Performance',icon:'📘',color:'#1877F2',desc:'Facebook/Instagram leads/ventas',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'1000'},{id:'cpm',lb:'CPM (€/1.000)',def:8},{id:'ctr',lb:'CTR (%)',def:1.5},{id:'deflaccion',lb:'Deflacción (%)',def:25},{id:'cr',lb:'CR Lead/Venta (%)',bench:true}]},
+  {id:'TIKTOK_PERF',ph:'lead_venta',name:'TikTok Ads · Performance',icon:'🎵',color:'#ff0050',desc:'TikTok para ventas directas',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'600'},{id:'cpm',lb:'CPM (€/1.000)',def:5},{id:'ctr',lb:'CTR (%)',def:0.8},{id:'deflaccion',lb:'Deflacción (%)',def:35},{id:'cr',lb:'CR Lead/Venta (%)',bench:true}]},
+  {id:'LINKEDIN_PERF',ph:'lead_venta',name:'LinkedIn Ads · Performance',icon:'🔷',color:'#0077B5',desc:'B2B: leads cualificados',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'1500'},{id:'cpc',lb:'CPC (€)',def:6,tip:'CPC alto, lead muy cualificado'},{id:'deflaccion',lb:'Deflacción (%)',def:15},{id:'cr',lb:'CR Lead (%)',bench:true}]},
+  {id:'YT_PERF',ph:'lead_venta',name:'YouTube Ads · Performance',icon:'▶️',color:'#FF0000',desc:'YouTube para leads y ventas',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'700'},{id:'cpv',lb:'CPV (€/vista)',def:0.03},{id:'v2c',lb:'% Vista a Clic',def:2},{id:'deflaccion',lb:'Deflacción (%)',def:30},{id:'cr',lb:'CR Lead/Venta (%)',bench:true}]},
+  {id:'DISPLAY_P',ph:'lead_venta',name:'Display Performance / GDN',icon:'🖥️',color:'#fbbc04',desc:'Google Display Network CPC',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'400'},{id:'cpc',lb:'CPC (€)',def:0.5},{id:'deflaccion',lb:'Deflacción (%)',def:40},{id:'cr',lb:'CR Lead/Venta (%)',bench:true}]},
+  {id:'EMAIL_BBDD',ph:'lead_venta',name:'Email · Compra BBDD',icon:'📧',color:'#f97316',desc:'Email marketing BBDD comprada',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'590'},{id:'n_emails',lb:'Emails enviados',req:true,ph:'5000'},{id:'ctr',lb:'CTR (%)',def:5},{id:'deflaccion',lb:'Deflacción (%)',def:20},{id:'cr',lb:'CR Lead/Venta (%)',bench:true}]},
+  {id:'EMAIL_OUT',ph:'lead_venta',name:'Email Outreach',icon:'✉️',color:'#ec4899',desc:'Cold outreach B2B',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'400'},{id:'n_emails',lb:'Emails enviados',req:true,ph:'3000'},{id:'ctr',lb:'CTR (%)',def:3},{id:'deflaccion',lb:'Deflacción (%)',def:20},{id:'cr',lb:'CR Respuesta (%)',def:2}]},
+  {id:'EMAIL_OWN',ph:'lead_venta',name:'Email · BBDD Propia',icon:'📮',color:'#8b5cf6',desc:'Base propia · alto ROI',kt:'conversion',fields:[{id:'inv',lb:'Herramienta (€)',req:false,ph:'100'},{id:'n_emails',lb:'Contactos BBDD',req:true,ph:'8000'},{id:'ctr',lb:'CTR (%)',def:18},{id:'deflaccion',lb:'Deflacción (%)',def:10},{id:'cr',lb:'CR Lead/Venta (%)',bench:true}]},
+  {id:'AFILIACION',ph:'lead_venta',name:'Afiliación a Éxito',icon:'🤝',color:'#14b8a6',desc:'CPA · solo pagas si vende',kt:'variable',fields:[{id:'vis_est',lb:'Visitas estimadas',req:true,ph:'3000'},{id:'cr',lb:'CR Venta (%)',bench:true},{id:'com_pct',lb:'Comisión (%)',def:10,tip:'% sobre la venta'}]},
+  {id:'INF_PERF',ph:'lead_venta',name:'Influencer · Performance',icon:'🛍️',color:'#e879f9',desc:'Influencer con link/código promo',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'500'},{id:'n_inf',lb:'Nº Influencers',req:true,ph:'3'},{id:'seg',lb:'Seguidores medios',req:true,ph:'20000'},{id:'pct_imp',lb:'% Impactos reales',def:10},{id:'ctr',lb:'CTR Link (%)',def:2},{id:'deflaccion',lb:'Deflacción (%)',def:20},{id:'cr',lb:'CR Venta (%)',bench:true}]},
+  {id:'SMS_PERF',ph:'lead_venta',name:'SMS Marketing',icon:'📱',color:'#16a34a',desc:'SMS para ventas y promociones',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'300'},{id:'n_sms',lb:'SMS enviados',req:true,ph:'5000'},{id:'ctr',lb:'CTR SMS (%)',def:15,tip:'CTR medio SMS ~15%'},{id:'cr',lb:'CR Venta (%)',bench:true}]},
+  {id:'LEAD_MAG',ph:'lead_venta',name:'Lead Magnet / BBDD Captación',icon:'🧲',color:'#6366f1',desc:'Recursos para captar leads',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'300'},{id:'vis_lp',lb:'Visitas a Landing',req:true,ph:'2000'},{id:'cr',lb:'CR Descarga/Lead (%)',def:15},{id:'deflaccion',lb:'% Leads no cualificados',def:30}]},
+  {id:'CUPONES',ph:'lead_venta',name:'Cupones y Descuentos',icon:'🎫',color:'#dc2626',desc:'Promociones para activar compra',kt:'direct',fields:[{id:'inv',lb:'Coste del descuento (€)',req:true,ph:'500',tip:'Coste total del descuento otorgado'},{id:'n_cupones',lb:'Cupones distribuidos',req:true,ph:'1000'},{id:'cr',lb:'% Redención',def:5}]},
+  {id:'DEMO_WORK',ph:'lead_venta',name:'Demo / Workshop de Venta',icon:'🖥️',color:'#7c3aed',desc:'Demos de producto y workshops',kt:'demo',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'500'},{id:'n_demo',lb:'Nº Demos/Workshops',req:true,ph:'20'},{id:'demos_por',lb:'Demos/items por sesión',def:1},{id:'cierre',lb:'% Cierre',def:25}]},
+  {id:'PARTNERS',ph:'lead_venta',name:'Partners Comerciales',icon:'🏢',color:'#0891b2',desc:'Alianzas y canal indirecto',kt:'demo',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'500'},{id:'n_demo',lb:'Nº Partners',req:true,ph:'5'},{id:'demos_por',lb:'Demos por partner',req:true,ph:'10'},{id:'cierre',lb:'% Cierre',def:10}]},
+  {id:'SALESFORCE',ph:'lead_venta',name:'Sales Force',icon:'📞',color:'#f43f5e',desc:'Equipo comercial propio',kt:'demo',fields:[{id:'inv',lb:'Coste equipo (€)',req:true,ph:'3000'},{id:'n_demo',lb:'Nº Comerciales',req:true,ph:'2'},{id:'demos_por',lb:'Demos por comercial',req:true,ph:'20'},{id:'cierre',lb:'% Cierre',def:20}]},
+  {id:'MGM',ph:'lead_venta',name:'Referidos / Member Get Member',icon:'🔗',color:'#84cc16',desc:'Clientes que traen nuevos clientes',kt:'direct',fields:[{id:'inv',lb:'Incentivo (€)',req:false,ph:'100'},{id:'base_cli',lb:'Clientes activos',req:true,ph:'500'},{id:'cr',lb:'% que refieren',def:5}]},
+  {id:'POS',ph:'lead_venta',name:'Punto de Venta / POS / Marketplace',icon:'🏪',color:'#065f46',desc:'Tienda física o marketplace',kt:'direct',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'1000'},{id:'vis_tienda',lb:'Visitas a tienda/mes',req:true,ph:'500'},{id:'cr',lb:'CR Compra (%)',def:15}]},
+  // FIDELIZACIÓN (kt='retention')
+  {id:'EMAIL_AUTO',ph:'fidelizacion',name:'Email Automation / CRM',icon:'⚙️',color:'#8b5cf6',desc:'Nurturing y recuperación automáticos',kt:'retention',fields:[{id:'inv',lb:'Herramienta (€/mes)',req:true,ph:'200'},{id:'base_cli',lb:'Clientes en BBDD',req:true,ph:'1000'},{id:'pct_activo',lb:'% Clientes que recompran',def:20},{id:'frec_compra',lb:'Aumento frecuencia (%)',def:20,tip:'Incremento de frecuencia de compra'}]},
+  {id:'WHATSAPP_F',ph:'fidelizacion',name:'WhatsApp Fidelización',icon:'💬',color:'#25D366',desc:'Retención y recompra por WhatsApp',kt:'retention',fields:[{id:'inv',lb:'Herramienta (€/mes)',req:false,ph:'50'},{id:'base_cli',lb:'Clientes en lista',req:true,ph:'500'},{id:'pct_activo',lb:'% que recompran',def:15},{id:'frec_compra',lb:'Aumento frecuencia (%)',def:10}]},
+  {id:'LOYALTY',ph:'fidelizacion',name:'Programa de Fidelización / Puntos',icon:'🏅',color:'#d97706',desc:'Programa de puntos y beneficios',kt:'retention',fields:[{id:'inv',lb:'Inversión en programa (€)',req:true,ph:'500'},{id:'base_cli',lb:'Clientes en programa',req:true,ph:'1000'},{id:'pct_activo',lb:'% Participación activa',def:30},{id:'frec_compra',lb:'Aumento frecuencia (%)',def:25}]},
+  {id:'PUSH_NOT',ph:'fidelizacion',name:'Push Notifications',icon:'🔔',color:'#6366f1',desc:'App o web push para reactivar',kt:'retention',fields:[{id:'inv',lb:'Herramienta (€/mes)',req:false,ph:'50'},{id:'base_cli',lb:'Suscriptores activos',req:true,ph:'2000'},{id:'pct_activo',lb:'CTR Push → recompra (%)',def:5},{id:'frec_compra',lb:'Aumento frecuencia (%)',def:10}]},
+  {id:'SMS_FID',ph:'fidelizacion',name:'SMS Fidelización',icon:'📱',color:'#16a34a',desc:'SMS para retención y recompra',kt:'retention',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'200'},{id:'base_cli',lb:'Clientes en BBDD',req:true,ph:'1000'},{id:'pct_activo',lb:'% Respuesta y recompra',def:8},{id:'frec_compra',lb:'Aumento frecuencia (%)',def:8}]},
+  {id:'REVIEWS',ph:'fidelizacion',name:'Reviews y Reputación',icon:'⭐',color:'#fbbf24',desc:'Google, Trustpilot, reseñas activas',kt:'retention',fields:[{id:'inv',lb:'Herramienta (€/mes)',req:false,ph:'100'},{id:'base_cli',lb:'Clientes contactados',req:true,ph:'500'},{id:'pct_activo',lb:'% que dejan reseña',def:10},{id:'frec_compra',lb:'Impacto en recompra (%)',def:5}]},
+  {id:'COMUNIDAD',ph:'fidelizacion',name:'Comunidad Propia',icon:'🏘️',color:'#0891b2',desc:'Discord, Telegram, grupo privado',kt:'retention',fields:[{id:'inv',lb:'Gestión (€/mes)',req:false,ph:'200'},{id:'base_cli',lb:'Miembros activos',req:true,ph:'300'},{id:'pct_activo',lb:'% Conversión recompra',def:20},{id:'frec_compra',lb:'Aumento frecuencia (%)',def:15}]},
+  {id:'CUST_SUCCESS',ph:'fidelizacion',name:'Customer Success B2B',icon:'🎯',color:'#14b8a6',desc:'Onboarding y éxito del cliente',kt:'retention',fields:[{id:'inv',lb:'Coste equipo (€/mes)',req:true,ph:'2000'},{id:'base_cli',lb:'Clientes gestionados',req:true,ph:'100'},{id:'pct_activo',lb:'Tasa retención (%)',def:85},{id:'frec_compra',lb:'Expansión revenue (%)',def:20}]},
+];
+
+const S={mode:'B2C',sector:null,phase:'notoriedad',planMode:'budget',selectedCh:null,editUid:null,uidCtr:0,channels:[],ltvRev:0,ltvPerCl:0};
+function UID(){return ++S.uidCtr;}
+function getCh(id){return CHANNELS.find(c=>c.id===id);}
+const fE=n=>(n==null||isNaN(n))?'—':'€ '+Math.round(n).toLocaleString('es-ES');
+const fN=n=>(n==null||isNaN(n))?'—':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'k':n.toFixed(1);
+const fR=n=>(n==null||isNaN(n)||n<=0)?'—':n.toFixed(2)+'x';
+const fP=n=>(n==null||isNaN(n))?'—':n.toFixed(1)+'%';
+function bch(sec,mode){if(!sec||!SECTORS[sec])return mode==='B2B'?2.5:1.2;const s=SECTORS[sec];return mode==='B2B'?(s.crB2B||2.5):(s.crB2C||1.2);}
+function annTk(){const t=parseFloat(document.getElementById('globalTicket').value)||150;const tp=document.getElementById('ticketType').value;return tp==='mensual'?t*12:t;}
+
+function calcEntry(entry,crMult){
+  crMult=crMult||1;
+  const ch=getCh(entry.channelId);if(!ch)return{leads:0,clients:0,ingreso:0,inversion:0,roas:0,funnel:{},extraKPI:{}};
+  const f=entry.fields;
+  const inv=parseFloat(f.inv)||0;
+  const cr=((parseFloat(f.cr)||0)/100)*crMult;
+  const defl=(parseFloat(f.deflaccion)||0)/100;
+  const ticket=annTk();
+  let vis=0,leads=0,clients=0,ingreso=0,funnel={},extraKPI={};
+
+  if(ch.kt==='awareness'){
+    if(ch.id==='YT_BRAND'){const cpv=parseFloat(f.cpv)||0.03;const views=cpv>0?inv/cpv:0;const frec=parseFloat(f.frec)||3;extraKPI={type:'awareness',impresiones:views,alcance:views/frec,label:'Visualizaciones',cpm_real:views>0?inv/views*1000:0};}
+    else if(['INF_BRAND','INF_PROD','BRAND_AMB'].includes(ch.id)){const ni=parseFloat(f.n_inf)||0;const sg=parseFloat(f.seg)||0;const pi=(parseFloat(f.pct_imp)||10)/100;const imp=ni*sg*pi;extraKPI={type:'awareness',impresiones:imp,alcance:ni*sg,label:'Impactos',cpm_real:imp>0?inv/imp*1000:0};}
+    else if(ch.id==='EMPL_BRAND'){const ne=parseFloat(f.n_empl)||0;const sg=parseFloat(f.seg)||0;const pm=parseFloat(f.posts_mes)||0;const imp=ne*sg*(pm/30)*0.05;extraKPI={type:'awareness',impresiones:imp,alcance:ne*sg,label:'Impactos empleados',cpm_real:0};}
+    else if(ch.id==='BRANDED_C'){const am=parseFloat(f.alcance_m)||0;const pi=(parseFloat(f.pct_imp)||10)/100;extraKPI={type:'awareness',impresiones:am*pi,alcance:am,label:'Lectores/Viewers',cpm_real:am*pi>0?inv/(am*pi)*1000:0};}
+    else if(ch.id==='PR_MEDIOS'){const nm=parseFloat(f.n_medios)||0;const am=parseFloat(f.alcance_m)||0;extraKPI={type:'awareness',impresiones:nm*am*0.1,alcance:nm*am,label:'Impresiones editoriales',cpm_real:0};}
+    else if(ch.id==='EVENTO_PROP'){const a=parseFloat(f.asistentes)||0;const o=parseFloat(f.online_reach)||0;extraKPI={type:'awareness',impresiones:a+o,alcance:a+o,label:'Asistentes+Online',cpm_real:0};}
+    else if(ch.id==='OOH'){const g=parseFloat(f.grp)||0;const p=parseFloat(f.poblacion)||100000;const imp=g/100*p;extraKPI={type:'awareness',impresiones:imp,alcance:p*0.6,label:'Impactos GRP',cpm_real:imp>0?inv/imp*1000:0};}
+    else if(ch.id==='TV_RADIO'){const a=parseFloat(f.audiencia)||0;const fr=parseFloat(f.frec)||3;extraKPI={type:'awareness',impresiones:a*fr,alcance:a,label:'Contactos brutos',cpm_real:a>0?inv/(a*fr)*1000:0};}
+    else if(ch.id==='RRSS_ORG_NOT'){const pm=parseFloat(f.posts_mes)||0;const ap=parseFloat(f.alcance_post)||0;extraKPI={type:'awareness',impresiones:pm*ap,alcance:ap,label:'Impresiones orgánicas',cpm_real:0};}
+    else{const cpm=parseFloat(f.cpm)||8;const fr=parseFloat(f.frec)||3;const imp=(inv/cpm)*1000;extraKPI={type:'awareness',impresiones:imp,alcance:imp/fr,label:'Impresiones',cpm_real:cpm};}
+    const crSec=(parseFloat(f.cr_sec)||0)/100;
+    if(crSec>0&&extraKPI.alcance>0){
+      extraKPI.secLeads=extraKPI.alcance*crSec;
+      extraKPI.secRev=extraKPI.secLeads*ticket;
+      extraKPI.crSecLabel='⚠️ ~'+fN(extraKPI.secLeads)+' contactos potenciales (estimación branding indirecto)';
+    }
+    return{leads:0,clients:0,ingreso:0,inversion:inv,roas:0,funnel:{},extraKPI};
+  }
+
+  if(ch.kt==='traffic'){
+    if(ch.id==='SEO_BLOG'){const vo=parseFloat(f.vis_org)||0;extraKPI={type:'traffic',visits:vo*(1-defl),label:'Visitas cualificadas/mes'};}
+    else if(ch.id==='RRSS_CONT'){const st=parseFloat(f.seg_tot)||0;const er=(parseFloat(f.eng_rate)||0)/100;extraKPI={type:'traffic',visits:st*er,label:'Interacciones/mes'};}
+    else if(ch.id==='YOUTUBE_ORG'){const nv=parseFloat(f.n_videos)||0;const vv=parseFloat(f.views_vid)||0;extraKPI={type:'traffic',visits:nv*vv,label:'Visualizaciones/mes'};}
+    else if(ch.id==='PODCAST'){const ep=parseFloat(f.episodios)||0;const esc=parseFloat(f.escuchas)||0;extraKPI={type:'traffic',visits:ep*esc,label:'Escuchas/mes'};}
+    else if(ch.id==='WEBINAR'){const inv2=parseFloat(f.invitaciones)||0;const pr=(parseFloat(f.pct_reg)||0)/100;const pa=(parseFloat(f.pct_asist)||0)/100;const reg=inv2*pr;extraKPI={type:'traffic',visits:reg*pa,label:'Asistentes reales',extra:`Registros: ${fN(reg)}`};}
+    else if(ch.id==='WHATSAPP_B'){const ct=parseFloat(f.contactos)||0;const pr=(parseFloat(f.pct_resp)||0)/100;extraKPI={type:'traffic',visits:ct*pr,label:'Conversaciones activas'};}
+    else if(ch.id==='GOOGLE_BIZ'){const bq=parseFloat(f.busq_mes)||0;const pc=(parseFloat(f.pct_click)||0)/100;extraKPI={type:'traffic',visits:bq*pc,label:'Clics a web desde Maps'};}
+    else if(ch.id==='CONCURSO'){const pi=parseFloat(f.part_ini)||0;const cv=parseFloat(f.coef_viral)||3;extraKPI={type:'traffic',visits:pi*cv,label:'Participantes totales'};}
+    else if(ch.id==='BANNER_INT'){const cpc2=parseFloat(f.cpc)||0.4;const clics=cpc2>0?inv/cpc2:0;extraKPI={type:'traffic',visits:clics*(1-defl),label:'Visitas cualificadas'};}
+    else{extraKPI={type:'traffic',visits:0,label:'KPI tráfico'};}
+    const crSec=(parseFloat(f.cr_sec)||0)/100;
+    if(crSec>0&&extraKPI.alcance>0){
+      extraKPI.secLeads=extraKPI.alcance*crSec;
+      extraKPI.secRev=extraKPI.secLeads*ticket;
+      extraKPI.crSecLabel='⚠️ ~'+fN(extraKPI.secLeads)+' contactos potenciales (estimación branding indirecto)';
+    }
+    return{leads:0,clients:0,ingreso:0,inversion:inv,roas:0,funnel:{},extraKPI};
+  }
+
+  if(ch.kt==='retention'){
+    const bc=parseFloat(f.base_cli)||0;const pa=(parseFloat(f.pct_activo)||0)/100;const fa=(parseFloat(f.frec_compra)||0)/100;
+    const ret=bc*pa;const ingR=ret*ticket*(1+fa);
+    extraKPI={type:'retention',retained:ret,label:'Clientes reactivados'};
+    return{leads:ret,clients:ret,ingreso:ingR,inversion:inv,roas:inv>0?ingR/inv:0,funnel:{},extraKPI};
+  }
+
+  if(ch.kt==='variable'){
+    const ve=parseFloat(f.vis_est)||0;const com=(parseFloat(f.com_pct)||0)/100;
+    clients=ve*cr;ingreso=clients*ticket;const ic=ingreso*com;// inv computed - not stored to avoid state mutation
+    return{leads:clients,clients,ingreso,inversion:ic,roas:ic>0?ingreso/ic:0,funnel:{vis:ve},extraKPI};
+  }
+
+  if(ch.kt==='demo'){
+    const nd=parseFloat(f.n_demo)||0;const dp=parseFloat(f.demos_por)||1;const cp=(parseFloat(f.cierre)||0)/100;
+    const demos=nd*dp;clients=demos*cp;ingreso=clients*ticket;leads=demos;
+    return{leads,clients,ingreso,inversion:inv,roas:inv>0?ingreso/inv:0,funnel:{demos},extraKPI};
+  }
+
+  if(ch.kt==='direct'){
+    if(ch.id==='MGM'){const ca=parseFloat(f.base_cli)||0;clients=ca*cr;leads=clients;}
+    else if(ch.id==='POS'){const vt=parseFloat(f.vis_tienda)||0;clients=vt*cr;leads=clients;}
+    else if(ch.id==='CUPONES'){const nc=parseFloat(f.n_cupones)||0;clients=nc*cr;leads=clients;}
+    else{const vl=parseFloat(f.vis_lp)||0;const l0=vl*cr;clients=l0*(1-defl);leads=l0;}
+    ingreso=clients*ticket;
+    return{leads,clients,ingreso,inversion:inv,roas:inv>0?ingreso/inv:0,funnel:{},extraKPI};
+  }
+
+  // CONVERSION — forward
+  if(['EMAIL_BBDD','EMAIL_OUT','EMAIL_OWN'].includes(ch.id)){const cnt=parseFloat(f.n_emails)||0;const ct2=(parseFloat(f.ctr)||0)/100;vis=cnt*ct2;}
+  else if(ch.id==='SMS_PERF'){const cnt=parseFloat(f.n_sms)||0;const ct2=(parseFloat(f.ctr)||0)/100;vis=cnt*ct2;}
+  else if(['META_PERF','TIKTOK_PERF'].includes(ch.id)){const cpm=parseFloat(f.cpm)||8;const ct2=(parseFloat(f.ctr)||0)/100;const impr=(inv/cpm)*1000;funnel.impr=impr;vis=impr*ct2;}
+  else if(ch.id==='YT_PERF'){const cpv=parseFloat(f.cpv)||0.03;const v2c=(parseFloat(f.v2c)||0)/100;const views=cpv>0?inv/cpv:0;funnel.views=views;vis=views*v2c;}
+  else if(ch.id==='INF_PERF'){const ni=parseFloat(f.n_inf)||0;const sg=parseFloat(f.seg)||0;const pi=(parseFloat(f.pct_imp)||10)/100;const ct2=(parseFloat(f.ctr)||0)/100;const imp=ni*sg*pi;funnel.imp=imp;vis=imp*ct2;}
+  else if(ch.id==='LEAD_MAG'){const vl=parseFloat(f.vis_lp)||0;vis=vl;}
+  else{const cpc=parseFloat(f.cpc)||1;vis=cpc>0?inv/cpc:0;funnel.clics=vis;}
+
+  const vq=vis*(1-defl);funnel.vis=vis;funnel.vq=vq;
+  if(S.mode==='B2B'){
+    const l2m=(parseFloat(f.lead2mql)||30)/100;const m2s=(parseFloat(f.mql2sql)||50)/100;const d2c=(parseFloat(f.demo2client)||20)/100;
+    leads=vq*cr;const mql=leads*l2m;const sql=mql*m2s;clients=sql*d2c;
+    funnel.leads=leads;funnel.mql=mql;funnel.sql=sql;
+  } else {
+    const c2v=(parseFloat(f.carrito2venta)||30)/100;
+    leads=vq*cr;clients=leads*c2v;funnel.cart=leads;
+  }
+  ingreso=clients*ticket;
+  return{leads,clients,ingreso,inversion:inv,roas:inv>0?ingreso/inv:0,funnel,extraKPI};
+}
+
+function recalcAll(){S.channels.forEach(c=>{c.results=calcEntry(c);});updateBB();renderPlan();renderMonthly();renderSens();calcLTV();renderSummary();}
+
+function updateBB(){
+  const tot=parseFloat(document.getElementById('obj_budget').value)||0;
+  const used=S.channels.reduce((s,c)=>s+(c.results?.inversion||0),0);
+  const left=tot-used;const pct=tot>0?Math.min(used/tot*100,100):0;
+  document.getElementById('bb-tot').textContent=fE(tot);document.getElementById('bb-use').textContent=fE(used);
+  document.getElementById('bb-lft').textContent=fE(left);document.getElementById('bb-pct').textContent=pct.toFixed(1)+'%';
+  const fill=document.getElementById('bb-fill');fill.style.width=pct+'%';
+  fill.style.background=pct>100?'#ef4444':pct>80?'#f59e0b':'#10b981';
+  document.getElementById('bb-alrt').style.display=used>tot&&tot>0?'block':'none';
+}
+
+function setMode(m){S.mode=m;document.getElementById('btnB2C').className='mode-btn'+(m==='B2C'?' b2c':'');document.getElementById('btnB2B').className='mode-btn'+(m==='B2B'?' b2b':'');onSectorChange();onPhaseChange();recalcAll();if(S.selectedCh)renderForm(S.selectedCh);showToast(m==='B2B'?'📊 Modo B2B':'🛒 Modo B2C');}
+
+function setPlanMode(pm){S.planMode=pm;document.querySelectorAll('#mpc-root .pm-btn').forEach(b=>b.classList.toggle('act',b.dataset.pm===pm));document.getElementById('pm-help').style.display=pm==='objective'?'block':'none';const bl=document.getElementById('budgetLabel');const bh=document.getElementById('budgetHint');if(pm==='objective'){bl.textContent='Inversión estimada (€)';bh.textContent='Se calcula automáticamente';}else{bl.textContent='Presupuesto Total (€)';bh.textContent='Techo máximo de inversión';}if(S.selectedCh)renderForm(S.selectedCh);recalcAll();}
+
+function onSectorChange(){const sel=document.getElementById('sectorSelect').value;S.sector=sel||null;const row=document.getElementById('benchRow');if(sel&&SECTORS[sel]){const s=SECTORS[sel];row.style.display='block';const b2c=document.getElementById('bench_b2c');const b2b=document.getElementById('bench_b2b');b2c.style.display=s.crB2C!=null?'':'none';if(s.crB2C!=null)b2c.textContent='B2C: '+s.crB2C+'%'+(s.crB2C_lo?` (${s.crB2C_lo}–${s.crB2C_hi}%)`:'');b2b.style.display=s.crB2B!=null?'':'none';if(s.crB2B!=null)b2b.textContent='B2B: '+s.crB2B+'% CR lead';}else{row.style.display='none';}const bi=document.querySelector('#fFields [data-bench]');if(bi)bi.value=bch(S.sector,S.mode).toFixed(2);renderMixRec();}
+
+function onPhaseChange(){renderMixRec();}
+
+function setPhaseTab(ph){S.phase=ph;document.querySelectorAll('#mpc-root .ph-tab').forEach(t=>t.classList.toggle('act',t.dataset.ph===ph));document.getElementById('phNote').innerHTML=PH_NOTES[ph];document.getElementById('phNote').dataset.ph=ph;S.selectedCh=null;S.editUid=null;document.getElementById('chForm').style.display='none';renderChGrid();}
+
+function renderMixRec(){const ph=document.getElementById('obj_phase').value;const key=S.mode+'_'+ph;const box=document.getElementById('mixBox');if(!MIX[key]){box.style.display='none';return;}box.style.display='block';const rows=MIX[key].map(r=>{const ch=getCh(r.id);return`<div class="mr"><span class="mp">${r.pct}%</span><span>${ch?ch.icon:'•'} ${r.id}</span><div class="mbt"><div class="mbf" style="width:${r.pct}%"></div></div><span class="mw">${r.why}</span></div>`;}).join('');box.innerHTML=`<div class="mix-box"><div class="mix-tt">💡 Mix recomendado · ${S.mode} · ${ph} (orientativo, no prescriptivo)</div>${rows}</div>`;}
+
+function renderChGrid(){
+  const pch=CHANNELS.filter(c=>c.ph===S.phase);
+  const grid=document.getElementById('chGrid');
+  grid.innerHTML=pch.map(c=>`<div class="ch-card ${S.selectedCh===c.id?'sel':''}" data-ph="${c.ph}" data-chid="${c.id}" style="cursor:pointer"><span class="ch-ic">${c.icon}</span><span class="ch-nm">${c.name}</span><span class="ch-tp">${c.desc}</span></div>`).join('');
+  grid.onclick=function(e){const card=e.target.closest('.ch-card');if(card&&card.dataset.chid)selectCh(card.dataset.chid);};
+}
+
+function selectCh(id){S.selectedCh=id;S.editUid=null;renderChGrid();renderForm(id);document.getElementById('chForm').style.display='block';document.getElementById('addLbl').textContent='Añadir al Plan';document.getElementById('chForm').scrollIntoView({behavior:'smooth',block:'nearest'});}
+
+function cancelForm(){S.selectedCh=null;S.editUid=null;renderChGrid();document.getElementById('chForm').style.display='none';}
+
+function renderForm(id,ef){
+  const ch=getCh(id);if(!ch)return;
+  const b=bch(S.sector,S.mode);const isB2B=S.mode==='B2B';
+  document.getElementById('fIco').textContent=ch.icon;document.getElementById('fIco').style.background=ch.color+'22';
+  document.getElementById('fTit').textContent=ch.name;document.getElementById('fSub').textContent=ch.desc;
+  let html='';
+  ch.fields.forEach(fd=>{
+    if(!fd.lb)return;
+    const val=ef&&ef[fd.id]!=null?ef[fd.id]:(fd.bench?b.toFixed(2):(fd.def!=null?fd.def:''));
+    const tip=fd.tip?`<span class="fs">${fd.tip}</span>`:'';
+    const bh=fd.bench?`<span class="bench-hint">📊 Benchmark sector: ${b.toFixed(2)}%</span>`:'';
+    html+=`<div class="fr"><label class="fl">${fd.lb}${fd.req===false?' <span style="color:#3d5370;font-weight:400">(opcional)</span>':''}</label><input class="fi mono" type="number" data-id="${fd.id}" ${fd.bench?'data-bench="1"':''} value="${val}" placeholder="${fd.ph||''}" step="any" min="0" oninput="onFI()"> ${tip}${bh}</div>`;
+  });
+  document.getElementById('fFields').innerHTML=html;
+  const fw=document.getElementById('fFunnelWrap');
+  if(ch.kt==='conversion'){
+    if(isB2B){const l=ef?.lead2mql||30,m=ef?.mql2sql||50,d=ef?.demo2client||20;fw.innerHTML=`<button type="button" class="funnel-tog" id="ftBtn" onclick="toggleFT()">▶ Funnel B2B: Lead → MQL → SQL → Cliente</button><div class="funnel-body" id="ftBody"><div class="fr"><label class="fl">Lead a MQL (%)</label><input class="fi mono" type="number" data-id="lead2mql" value="${l}" min="0" max="100" oninput="onFI()"><span class="fs">% leads cualificados por marketing</span></div><div class="fr"><label class="fl">MQL a SQL (%)</label><input class="fi mono" type="number" data-id="mql2sql" value="${m}" min="0" max="100" oninput="onFI()"></div><div class="fr"><label class="fl">Demo a Cliente (%)</label><input class="fi mono" type="number" data-id="demo2client" value="${d}" min="0" max="100" oninput="onFI()"></div></div>`;}
+    else{const cv=ef?.carrito2venta||30;fw.innerHTML=`<div class="fr" style="margin-top:8px"><label class="fl">Carrito a Venta (%)</label><input class="fi mono" type="number" data-id="carrito2venta" value="${cv}" min="0" max="100" oninput="onFI()"><span class="fs">% carritos que completan la compra</span></div>`;}
+  }else{fw.innerHTML='';}
+  onFI();
+}
+
+function toggleFT(){const b=document.getElementById('ftBtn');const f=document.getElementById('ftBody');if(!b||!f)return;const o=f.classList.contains('open');f.classList.toggle('open');b.textContent=(o?'▶':'▼')+' Funnel B2B: Lead → MQL → SQL → Cliente';}
+
+function collectFF(){const f={};document.querySelectorAll('#fFields input[data-id],#fFunnelWrap input[data-id]').forEach(i=>{f[i.dataset.id]=i.value;});return f;}
+
+function onFI(){
+  const ch=getCh(S.selectedCh);if(!ch)return;
+  try{const mock={channelId:ch.id,fields:collectFF(),results:null};const r=calcEntry(mock);renderPrev(r,ch);}catch(e){}
+}
+
+function renderPrev(r,ch){
+  const p=document.getElementById('fPrev');if(!p)return;
+  const steps=[];
+  const add=(lb,vl,col)=>{steps.push(`<span class="fstep" style="${col?'border-color:'+col+';color:'+col+';':''}">${lb}: ${fN(vl)}</span>`);steps.push(`<span class="farr">→</span>`);};
+  if(r.extraKPI?.type==='awareness'){const ek=r.extraKPI;steps.push(`<span class="fstep" style="border-color:#f59e0b;color:#f59e0b">${ek.label}: ${fN(ek.impresiones)}</span>`);steps.push(`<span class="farr">→</span>`);steps.push(`<span class="fstep" style="border-color:#f59e0b;color:#f59e0b">Alcance: ${fN(ek.alcance)}</span>`);if(ek.cpm_real>0){steps.push(`<span class="farr">→</span>`);steps.push(`<span class="fstep">CPM: €${ek.cpm_real.toFixed(2)}</span>`);}if(ek.secLeads>0){steps.push(`<span class="farr">→</span>`);steps.push(`<span class="fstep" style="border-color:#f97316;color:#f97316;font-size:10px">⚠️ ~${fN(ek.secLeads)} leads est. · CR branding</span>`);}}
+  else if(r.extraKPI?.type==='traffic'){steps.push(`<span class="fstep" style="border-color:#3b82f6;color:#3b82f6">${r.extraKPI.label}: ${fN(r.extraKPI.visits)}</span>`);if(r.extraKPI.extra)steps.push(`<span class="farr">→</span><span class="fstep">${r.extraKPI.extra}</span>`);}
+  else if(r.extraKPI?.type==='retention'){steps.push(`<span class="fstep" style="border-color:#8b5cf6;color:#8b5cf6">Retenidos: ${fN(r.extraKPI.retained)}</span>`);steps.push(`<span class="farr">→</span>`);steps.push(`<span class="fstep" style="border-color:#10b981;color:#10b981">Ingreso: ${fE(r.ingreso)}</span>`);}
+  else{if(r.funnel?.impr)add('Impr',r.funnel.impr);if(r.funnel?.views)add('Vistas',r.funnel.views);if(r.funnel?.clics)add('Clics',r.funnel.clics);if(r.funnel?.imp)add('Impactos',r.funnel.imp);if(r.funnel?.vis)add('Visitas',r.funnel.vis);if(r.funnel?.vq)add('Calidad',r.funnel.vq);if(r.funnel?.cart)add('Carritos',r.funnel.cart);if(r.funnel?.leads)add('Leads',r.funnel.leads);if(r.funnel?.mql)add('MQL',r.funnel.mql);if(r.funnel?.sql)add('SQL',r.funnel.sql);if(r.funnel?.demos)add('Demos',r.funnel.demos);if(steps.length>0&&steps[steps.length-1].includes('farr'))steps.pop();steps.push(`<span class="fstep" style="border-color:#10b981;color:#10b981">Clientes: ${fN(r.clients)}</span>`);steps.push(`<span class="farr">→</span>`);steps.push(`<span class="fstep" style="border-color:#0ea5e9;color:#38bdf8">Ingreso: ${fE(r.ingreso)}</span>`);if(r.inversion>0){const rc=r.roas>=3?'#10b981':r.roas>=1?'#f59e0b':'#ef4444';steps.push(`<span class="farr">→</span><span class="fstep" style="border-color:${rc};color:${rc}">ROAS: ${fR(r.roas)}</span>`);}}
+  p.innerHTML=steps.join('');
+}
+
+function addOrUpdate(){
+  const ch=getCh(S.selectedCh);if(!ch)return;
+  const fields=collectFF();
+  if(S.editUid!=null){const e=S.channels.find(c=>c.uid===S.editUid);if(e){e.fields=fields;e.results=calcEntry(e);}showToast('✏️ Canal actualizado');}
+  else{const e={uid:UID(),channelId:ch.id,fields,results:null,months:Array(12).fill(true)};e.results=calcEntry(e);S.channels.push(e);showToast('✅ Canal añadido: '+ch.name);}
+  cancelForm();recalcAll();
+}
+
+function removeChannel(u){S.channels=S.channels.filter(c=>c.uid!==u);recalcAll();showToast('🗑️ Canal eliminado');}
+
+function editChannel(u){
+  const e=S.channels.find(c=>c.uid===u);if(!e)return;
+  const ch=getCh(e.channelId);S.selectedCh=e.channelId;S.editUid=u;
+  S.phase=ch.ph;setPhaseTab(ch.ph);renderChGrid();
+  renderForm(e.channelId,e.fields);
+  document.getElementById('chForm').style.display='block';
+  document.getElementById('addLbl').textContent='Actualizar Canal';
+  document.getElementById('chForm').scrollIntoView({behavior:'smooth',block:'start'});
+  showToast('✏️ Editando — cambia valores y pulsa Actualizar');
+}
+
+const COLORS=['#4285F4','#10b981','#1877F2','#fbbc04','#f97316','#ec4899','#8b5cf6','#fbbf24','#e879f9','#06b6d4','#f43f5e','#84cc16','#0077B5','#ff0050','#FF0000','#0891b2','#a78bfa','#65a30d','#14b8a6','#d97706','#dc2626','#16a34a'];
+
+function renderPlan(){
+  const empty=document.getElementById('planEmpty');const cont=document.getElementById('planContent');
+  if(!S.channels.length){empty.style.display='block';cont.style.display='none';return;}
+  empty.style.display='none';cont.style.display='block';
+  const lv=S.channels.filter(c=>['conversion','variable','demo','direct','retention'].includes(getCh(c.channelId)?.kt));
+  const totInv=S.channels.reduce((s,c)=>s+(c.results?.inversion||0),0);
+  const totCl=lv.reduce((s,c)=>s+(c.results?.clients||0),0);
+  const totL=lv.reduce((s,c)=>s+(c.results?.leads||0),0);
+  const totRev=lv.reduce((s,c)=>s+(c.results?.ingreso||0),0);
+  const totROAS=totInv>0?totRev/totInv:0;
+  const phG={notoriedad:{inv:0,impr:0,alc:0},interaccion:{inv:0,vis:0},lead_venta:{inv:0,leads:0,cli:0,rev:0},fidelizacion:{inv:0,ret:0,rev:0}};
+  S.channels.forEach(c=>{const ch=getCh(c.channelId);const r=c.results;const g=phG[ch.ph];if(!g)return;g.inv+=(r?.inversion||0);if(ch.ph==='notoriedad'){g.impr+=(r?.extraKPI?.impresiones||0);g.alc+=(r?.extraKPI?.alcance||0);}else if(ch.ph==='interaccion'){g.vis+=(r?.extraKPI?.visits||0);}else if(ch.ph==='lead_venta'){g.leads+=(r?.leads||0);g.cli+=(r?.clients||0);g.rev+=(r?.ingreso||0);}else if(ch.ph==='fidelizacion'){g.ret+=(r?.extraKPI?.retained||r?.clients||0);g.rev+=(r?.ingreso||0);}});
+  document.getElementById('phSum').innerHTML=[{ph:'notoriedad',label:'📣 Notoriedad',cl:'notoriedad',rows:[`Inversión: <b>${fE(phG.notoriedad.inv)}</b>`,`Impresiones: <b>${fN(phG.notoriedad.impr)}</b>`,`Alcance: <b>${fN(phG.notoriedad.alc)}</b>`]},{ph:'interaccion',label:'🔄 Interacción',cl:'interaccion',rows:[`Inversión: <b>${fE(phG.interaccion.inv)}</b>`,`KPI Tráfico: <b>${fN(phG.interaccion.vis)}</b>`]},{ph:'lead_venta',label:'💰 Lead|Venta',cl:'lead_venta',rows:[`Inversión: <b>${fE(phG.lead_venta.inv)}</b>`,`Leads: <b>${fN(phG.lead_venta.leads)}</b>`,`Clientes: <b>${fN(phG.lead_venta.cli)}</b>`,`Ingreso: <b>${fE(phG.lead_venta.rev)}</b>`]},{ph:'fidelizacion',label:'❤️ Fidelización',cl:'fidelizacion',rows:[`Inversión: <b>${fE(phG.fidelizacion.inv)}</b>`,`Retenidos: <b>${fN(phG.fidelizacion.ret)}</b>`,`Ingreso: <b>${fE(phG.fidelizacion.rev)}</b>`]}].filter(p=>S.channels.some(c=>getCh(c.channelId)?.ph===p.ph)).map(p=>`<div class="ph-sc ${p.cl}"><div class="ph-sc-lbl">${p.label}</div><div class="ph-sc-rows">${p.rows.map(r=>`<span>${r}</span>`).join('')}</div></div>`).join('');
+  const budget=parseFloat(document.getElementById('obj_budget').value)||0;const objCl=parseFloat(document.getElementById('obj_clients').value)||0;const cacMax=parseFloat(document.getElementById('obj_cac').value)||0;const cac=totCl>0?totInv/totCl:0;const pB=budget>0?totInv/budget*100:0;const pC=objCl>0?totCl/objCl*100:0;const hasAw=S.channels.some(c=>getCh(c.channelId)?.ph==='notoriedad');const hasLV=S.channels.some(c=>getCh(c.channelId)?.ph==='lead_venta');const hasFid=S.channels.some(c=>getCh(c.channelId)?.ph==='fidelizacion');const maxSh=totInv>0?Math.max(...S.channels.map(c=>(c.results?.inversion||0)/totInv))*100:0;
+  const H=[{s:pB<=100?'ok':'er',l:'Presupuesto',v:fP(pB),n:pB>100?'Presupuesto superado':pB<50?'Tienes margen':'Bien asignado'},{s:objCl>0?(pC>=100?'ok':pC>=70?'wa':'er'):'gr',l:'Objetivo Clientes',v:fN(totCl)+'/'+fN(objCl),n:objCl>0?(pC>=100?'✅ Conseguido':pC>=70?'Cerca':'Por debajo'):'Define un objetivo'},{s:cacMax>0?(cac<=cacMax?'ok':cac<=cacMax*1.5?'wa':'er'):'gr',l:'CAC vs Objetivo',v:fE(cac),n:cacMax>0?(cac<=cacMax?'Dentro del objetivo':'CAC alto'):'Define el CAC máx.'},{s:totROAS>=3?'ok':totROAS>=1?'wa':totROAS>0?'er':'gr',l:'ROAS',v:fR(totROAS),n:totROAS>=3?'Excelente':totROAS>=1?'Positivo':totROAS>0?'Bajo':'Sin datos'},{s:hasAw&&hasLV&&hasFid?'ok':hasAw&&hasLV?'wa':'er',l:'Cobertura Funnel',v:[hasAw?'✅':'❌','Not',hasLV?'✅':'❌','Venta',hasFid?'✅':'❌','Fid'].join(' '),n:!hasLV?'Sin canales de venta':!hasFid?'Sin fidelización':'Full funnel'},{s:maxSh<60?'ok':maxSh<80?'wa':'er',l:'Concentración',v:fP(maxSh)+' max',n:maxSh>80?'Un canal domina':maxSh>60?'Diversifica más':'OK'}];
+  document.getElementById('healthG').innerHTML=H.map(h=>`<div class="hi ${h.s}"><div class="hi-dot"></div><div><div class="hi-lbl">${h.l}</div><div class="hi-val">${h.v}</div><div class="hi-note">${h.n}</div></div></div>`).join('');
+  document.getElementById('smRow').innerHTML=`<div class="sm"><span class="l">Inversión total</span><span class="v">${fE(totInv)}</span><span class="s">${S.channels.length} canales</span></div><div class="sm"><span class="l">${S.mode==='B2B'?'Leads':'Carritos'}</span><span class="v">${fN(totL)}</span></div><div class="sm"><span class="l">Clientes Est.</span><span class="v">${fN(totCl)}</span></div><div class="sm"><span class="l">Ingreso Est.</span><span class="v">${fE(totRev)}</span></div><div class="sm"><span class="l">ROAS</span><span class="v" style="color:${totROAS>=3?'#10b981':totROAS>=1?'#f59e0b':'#ef4444'}">${fR(totROAS)}</span></div><div class="sm"><span class="l">CAC</span><span class="v">${fE(cac)}</span></div>`;
+  const phL={notoriedad:'📣',interaccion:'🔄',lead_venta:'💰',fidelizacion:'❤️'};
+  const tbody=document.getElementById('planBody');
+  tbody.onclick=function(ev){
+    const btn=ev.target.closest('[data-action]');
+    if(!btn)return;
+    const uid=parseInt(btn.dataset.uid);
+    if(btn.dataset.action==='edit')editChannel(uid);
+    else if(btn.dataset.action==='remove')removeChannel(uid);
+  };
+  tbody.innerHTML=S.channels.map((e,i)=>{
+    const ch=getCh(e.channelId);const r=e.results;const col=COLORS[i%COLORS.length];
+    const soi=totInv>0?(r.inversion/totInv)*100:0;const rc=r.roas>=3?'rg':r.roas>=1?'rw':r.roas>0?'rb':'';
+    let kpi1='—',kpi2='—';
+    if(r.extraKPI?.type==='awareness'){const secLabel=r.extraKPI&&r.extraKPI.secLeads?` · ~${fN(r.extraKPI.secLeads)} leads est.`:'';kpi1=`${fN(r.extraKPI.impresiones)} impr${secLabel}`;}
+    else if(r.extraKPI?.type==='traffic'){kpi1=`${fN(r.extraKPI.visits)} ${r.extraKPI.label}`;}
+    else if(r.extraKPI?.type==='retention'){kpi1=`${fN(r.extraKPI.retained)} retenidos`;kpi2=fN(r.clients);}
+    else{kpi1=fN(r.leads)+' leads';kpi2=fN(r.clients);}
+    return`<tr><td><div style="display:flex;align-items:center;gap:7px"><span class="dot-sm" style="background:${col}"></span><div><div style="font-weight:600">${ch.icon} ${ch.name}</div><span class="ph-badge ${ch.ph}">${phL[ch.ph]} ${ch.ph.replace('_',' ')}</span></div></div></td><td class="mono">${fE(r.inversion)}</td><td><div class="mono">${soi.toFixed(1)}%</div><div class="sbar"><div class="sfill" style="width:${Math.min(soi,100)}%;background:${col}"></div></div></td><td class="mono" style="font-size:11px">${kpi1}</td><td class="mono">${kpi2}</td><td class="mono" style="color:#10b981">${fE(r.ingreso)}</td><td>${r.roas>0?`<span class="rbadge ${rc}">${fR(r.roas)}</span>`:ch.ph==='notoriedad'?`<span style="color:#f59e0b;font-size:11px">Awareness</span>`:ch.ph==='interaccion'?`<span style="color:#3b82f6;font-size:11px">Tráfico</span>`:'—'}</td><td class="np" style="white-space:nowrap"><button class="btn-ed" data-action="edit" data-uid="${e.uid}" title="Editar">✏️</button><button class="btn-rm" data-action="remove" data-uid="${e.uid}" title="Eliminar">✕</button></td></tr>`;
+  }).join('');
+  document.getElementById('planFoot').innerHTML=`<tr class="tfoot"><td style="font-weight:700;color:#f0f6ff">TOTAL</td><td class="mono">${fE(totInv)}</td><td class="mono">100%</td><td class="mono" style="font-size:11px">—</td><td class="mono"><b>${fN(totCl)}</b></td><td class="mono" style="color:#10b981">${fE(totRev)}</td><td><span class="rbadge ${totROAS>=3?'rg':totROAS>=1?'rw':'rb'}">${fR(totROAS)}</span></td><td class="np"></td></tr>`;
+}
+
+function renderMonthly(){
+  const b=document.getElementById('mBody');
+  if(!S.channels.length){b.innerHTML=`<tr><td colspan="15" style="text-align:center;padding:20px;color:#3d5370">Añade canales al plan.</td></tr>`;return;}
+  b.onclick=function(ev){
+    const btn=ev.target.closest('.mtog');
+    if(btn&&btn.dataset.uid){toggleM(parseInt(btn.dataset.uid),parseInt(btn.dataset.mi));}
+  };
+  b.innerHTML=S.channels.map((e,i)=>{const ch=getCh(e.channelId);const col=COLORS[i%COLORS.length];const m=e.months||Array(12).fill(true);const na=m.filter(Boolean).length;const inv=e.results?.inversion||0;const im=na>0?inv/na:0;const cells=m.map((on,mi)=>`<td><button class="mtog ${on?'on':''}" data-uid="${e.uid}" data-mi="${mi}">${on?'●':''}</button></td>`).join('');return`<tr><td class="cch"><div style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:${col};display:inline-block"></span><span style="font-size:12px;font-weight:600;color:#f0f6ff">${ch.icon} ${ch.name}</span></div></td>${cells}<td style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#38bdf8">${na}</td><td style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#94a3b8">${fE(im)}</td></tr>`;}).join('');
+}
+
+function toggleM(u,m){const e=S.channels.find(c=>c.uid===u);if(!e)return;if(!e.months)e.months=Array(12).fill(true);e.months[m]=!e.months[m];renderMonthly();}
+
+function renderSens(){
+  const sv=parseInt(document.getElementById('sensSlider').value);
+  document.getElementById('sensV').textContent=sv===0?'Base':sv>0?'+'+sv+'%':sv+'%';
+  const lv=S.channels.filter(c=>['conversion','variable','demo','direct','retention'].includes(getCh(c.channelId)?.kt));
+  const scenarios=[{l:'Pesimista -30%',m:0.7,c:'#ef4444'},{l:sv===0?'Base (plan actual)':sv>0?`CR +${sv}%`:`CR ${sv}%`,m:(100+sv)/100,c:sv>0?'#10b981':sv===0?'#0ea5e9':'#ef4444'},{l:'Optimista +30%',m:1.3,c:'#10b981'}];
+  document.getElementById('sensG').innerHTML=scenarios.map(sc=>{const totCl=lv.reduce((s,c)=>s+calcEntry(c,sc.m).clients,0);const totInv=S.channels.reduce((s,c)=>s+(c.results?.inversion||0),0);const totRev=lv.reduce((s,c)=>s+calcEntry(c,sc.m).ingreso,0);const roas=totInv>0?totRev/totInv:0;return`<div class="sc2"><span class="sc-lbl" style="color:${sc.c}">${sc.l}</span><span class="sc-main" style="color:${sc.c}">${fN(totCl)} clientes</span><span class="sc-s">ROAS: ${fR(roas)}</span><span class="sc-s">Ingreso: ${fE(totRev)}</span></div>`;}).join('');
+}
+
+function calcLTV(){
+  const totCl=S.channels.filter(c=>['conversion','variable','demo','direct','retention'].includes(getCh(c.channelId)?.kt)).reduce((s,c)=>s+(c.results?.clients||0),0);
+  document.getElementById('ltv_cc').textContent=fN(totCl);
+  const segs=['h','m','b'];let totRev=0,wLTV=0,totPct=0;
+  segs.forEach(sg=>{const p=(parseFloat(document.getElementById(`l${sg}_p`).value)||0)/100;const f=parseFloat(document.getElementById(`l${sg}_f`).value)||0;const y=parseFloat(document.getElementById(`l${sg}_y`).value)||0;const t=parseFloat(document.getElementById(`l${sg}_t`).value)||0;totPct+=p*100;const per=f*y*t;const cnt=totCl*p;const tot=cnt*per;totRev+=tot;wLTV+=p*per;document.getElementById(`l${sg}_per`).textContent=fE(per);document.getElementById(`l${sg}_cnt`).textContent=fN(cnt);document.getElementById(`l${sg}_tot`).textContent=fE(tot);});
+  const pN=parseFloat(document.getElementById('ln_p').value)||0;totPct+=pN;
+  document.getElementById('ln_cnt').textContent=fN(totCl*(pN/100));
+  document.getElementById('pct_warn').style.display=Math.abs(totPct-100)>1?'block':'none';
+  document.getElementById('ltv_avg').textContent=fE(wLTV);document.getElementById('ltv_ctot').textContent=fN(totCl);document.getElementById('ltv_rtot').textContent=fE(totRev);
+  S.ltvRev=totRev;S.ltvPerCl=wLTV;
+  const totInv=S.channels.reduce((s,c)=>s+(c.results?.inversion||0),0);const cac=totCl>0?totInv/totCl:0;const ltvCac=cac>0?wLTV/cac:0;
+  document.getElementById('ltv_ratio').textContent=fR(ltvCac)+' LTV/CAC';
+  renderSummary();
+}
+
+function renderSummary(){
+  const lv=S.channels.filter(c=>['conversion','variable','demo','direct','retention'].includes(getCh(c.channelId)?.kt));
+  const totInv=S.channels.reduce((s,c)=>s+(c.results?.inversion||0),0);const totCl=lv.reduce((s,c)=>s+(c.results?.clients||0),0);const totRev=lv.reduce((s,c)=>s+(c.results?.ingreso||0),0);
+  const ticket=annTk();const tp=document.getElementById('ticketType').value;const ticketLabel=tp==='mensual'?'€/mes × 12 = '+fE(ticket)+'/año':tp==='anual'?'€/año por cliente':'€ por venta';
+  const roas=totInv>0?totRev/totInv:0;const cac=totCl>0?totInv/totCl:0;const objCl=parseFloat(document.getElementById('obj_clients').value)||0;const cacMax=parseFloat(document.getElementById('obj_cac').value)||0;const ltvCac=cac>0?S.ltvPerCl/cac:0;
+  const maxYrs=Math.max(parseFloat(document.getElementById('lh_y').value)||0,parseFloat(document.getElementById('lm_y').value)||0,parseFloat(document.getElementById('lb_y').value)||0);
+  document.getElementById('s_inv').textContent=fE(totInv);document.getElementById('s_inv_s').textContent=S.channels.length+' canales · '+fP(totInv/Math.max(parseFloat(document.getElementById('obj_budget').value)||1,1)*100)+' del presupuesto';
+  document.getElementById('s_cli').textContent=fN(totCl);document.getElementById('s_cli_s').textContent='Objetivo: '+fN(objCl)+' ('+fP(objCl>0?totCl/objCl*100:0)+')';
+  document.getElementById('s_tck').textContent=fE(ticket);document.getElementById('s_tck_s').textContent=ticketLabel;
+  document.getElementById('s_rev').textContent=fE(totRev);document.getElementById('s_rev_s').textContent='ROAS: '+fR(roas)+(roas>=3?' ✅':roas>=1?' 👍':totRev>0?' ⚠️':'');
+  document.getElementById('s_cac').textContent=fE(cac);document.getElementById('s_cac_s').textContent=cacMax>0?(cac<=cacMax?'✅ Dentro del objetivo':'⚠️ Supera el CAC máx.'):'—';
+  document.getElementById('s_ltv').textContent=fE(S.ltvRev);document.getElementById('s_ltv_s').textContent=(maxYrs>0?`LTV a ${maxYrs} años · `:'')+'LTV/CAC: '+fR(ltvCac)+(ltvCac>=3?' ✅':ltvCac>=1?' 👍':ltvCac>0?' ⚠️':'—');
+}
+
+function saveToStorage(){try{const d={mode:S.mode,sector:S.sector,uidCtr:S.uidCtr,planMode:S.planMode,channels:S.channels,budget:document.getElementById('obj_budget').value,clients:document.getElementById('obj_clients').value,cac:document.getElementById('obj_cac').value,ticket:document.getElementById('globalTicket').value,ticketType:document.getElementById('ticketType').value,phase:document.getElementById('obj_phase').value,sectorVal:document.getElementById('sectorSelect').value,ltv:{lh_p:document.getElementById('lh_p').value,lh_f:document.getElementById('lh_f').value,lh_y:document.getElementById('lh_y').value,lh_t:document.getElementById('lh_t').value,lm_p:document.getElementById('lm_p').value,lm_f:document.getElementById('lm_f').value,lm_y:document.getElementById('lm_y').value,lm_t:document.getElementById('lm_t').value,lb_p:document.getElementById('lb_p').value,lb_f:document.getElementById('lb_f').value,lb_y:document.getElementById('lb_y').value,lb_t:document.getElementById('lb_t').value,ln_p:document.getElementById('ln_p').value}};localStorage.setItem('mpc_v3',JSON.stringify(d));showToast('💾 Plan guardado en el navegador');}catch(e){showToast('❌ Error al guardar');}}
+
+function loadFromStorage(){try{const raw=localStorage.getItem('mpc_v3');if(!raw){showToast('📂 No hay plan guardado');return;}applyData(JSON.parse(raw));showToast('📂 Plan cargado correctamente');}catch(e){showToast('❌ Error al cargar');}}
+
+function applyData(d){S.mode=d.mode||'B2C';S.sector=d.sector||null;S.uidCtr=d.uidCtr||0;S.planMode=d.planMode||'budget';S.channels=(d.channels||[]).map(c=>({...c,results:null}));if(d.budget)document.getElementById('obj_budget').value=d.budget;if(d.clients)document.getElementById('obj_clients').value=d.clients;if(d.cac)document.getElementById('obj_cac').value=d.cac;if(d.ticket)document.getElementById('globalTicket').value=d.ticket;if(d.ticketType)document.getElementById('ticketType').value=d.ticketType;if(d.phase)document.getElementById('obj_phase').value=d.phase;if(d.sectorVal)document.getElementById('sectorSelect').value=d.sectorVal;if(d.ltv)Object.entries(d.ltv).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.value=v;});document.getElementById('btnB2C').className='mode-btn'+(S.mode==='B2C'?' b2c':'');document.getElementById('btnB2B').className='mode-btn'+(S.mode==='B2B'?' b2b':'');document.querySelectorAll('#mpc-root .pm-btn').forEach(b=>b.classList.toggle('act',b.dataset.pm===S.planMode));document.getElementById('pm-help').style.display=S.planMode==='objective'?'block':'none';onSectorChange();onPhaseChange();recalcAll();}
+
+const EX={
+  ecom_b2c:{mode:'B2C',sectorVal:'moda',phase:'launch',planMode:'budget',budget:3500,clients:80,cac:44,ticket:120,ticketType:'por_venta',channels:[{uid:1,channelId:'META_BRAND',fields:{inv:600,cpm:7,frec:4},months:[1,1,1,1,1,1,0,0,1,1,1,1]},{uid:2,channelId:'META_PERF',fields:{inv:1200,cpm:8,ctr:1.5,deflaccion:25,cr:0.91,carrito2venta:35},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:3,channelId:'SEM',fields:{inv:700,cpc:1.8,deflaccion:20,cr:0.91,carrito2venta:35},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:4,channelId:'INF_BRAND',fields:{inv:600,n_inf:5,seg:15000,pct_imp:12},months:[1,1,1,0,0,1,0,0,1,1,1,0]},{uid:5,channelId:'EMAIL_OWN',fields:{inv:150,n_emails:3000,ctr:18,deflaccion:10,cr:0.91,carrito2venta:40},months:[0,1,0,1,0,1,0,1,0,1,0,1]},{uid:6,channelId:'LOYALTY',fields:{inv:250,base_cli:200,pct_activo:30,frec_compra:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]}],ltv:{lh_p:30,lh_f:3,lh_y:2,lh_t:120,lm_p:30,lm_f:2,lm_y:1,lm_t:80,lb_p:20,lb_f:1,lb_y:1,lb_t:50,ln_p:20}},
+  saas_b2b:{mode:'B2B',sectorVal:'servicios',phase:'growth',planMode:'budget',budget:6000,clients:20,cac:300,ticket:1200,ticketType:'anual',channels:[{uid:1,channelId:'LI_BRAND',fields:{inv:500,cpm:18,frec:4},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:2,channelId:'LINKEDIN_PERF',fields:{inv:1800,cpc:7,deflaccion:15,cr:4.01,lead2mql:40,mql2sql:55,demo2client:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:3,channelId:'SEM',fields:{inv:1200,cpc:5,deflaccion:15,cr:4.01,lead2mql:35,mql2sql:50,demo2client:20},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:4,channelId:'EMAIL_OUT',fields:{inv:500,n_emails:3000,ctr:3,deflaccion:20,cr:2},months:[1,1,1,1,1,1,0,0,1,1,1,1]},{uid:5,channelId:'SALESFORCE',fields:{inv:1800,n_demo:2,demos_por:25,cierre:22},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:6,channelId:'EMAIL_AUTO',fields:{inv:200,base_cli:500,pct_activo:20,frec_compra:20},months:[1,1,1,1,1,1,1,1,1,1,1,1]}],ltv:{lh_p:40,lh_f:1,lh_y:3,lh_t:1200,lm_p:35,lm_f:1,lm_y:2,lm_t:900,lb_p:15,lb_f:1,lb_y:1,lb_t:600,ln_p:10}},
+  academia:{mode:'B2C',sectorVal:'cursos',phase:'growth',planMode:'budget',budget:2200,clients:60,cac:37,ticket:350,ticketType:'por_venta',channels:[{uid:1,channelId:'RRSS_ORG_NOT',fields:{inv:200,posts_mes:20,alcance_post:2000},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:2,channelId:'META_PERF',fields:{inv:700,cpm:7,ctr:1.8,deflaccion:20,cr:0.7,carrito2venta:40},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:3,channelId:'EMAIL_OWN',fields:{inv:100,n_emails:6000,ctr:18,deflaccion:10,cr:0.7,carrito2venta:45},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:4,channelId:'WEBINAR',fields:{inv:300,invitaciones:3000,pct_reg:15,pct_asist:50},months:[0,1,0,1,0,1,0,1,0,1,0,1]},{uid:5,channelId:'AFILIACION',fields:{vis_est:4000,cr:0.7,com_pct:15},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:6,channelId:'LOYALTY',fields:{inv:200,base_cli:300,pct_activo:30,frec_compra:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]}],ltv:{lh_p:25,lh_f:2,lh_y:3,lh_t:350,lm_p:35,lm_f:1,lm_y:2,lm_t:250,lb_p:25,lb_f:1,lb_y:1,lb_t:150,ln_p:15}},
+};
+
+function loadExample(k){const ex=EX[k];if(!ex)return;const d={...ex,sectorVal:ex.sectorVal,uidCtr:ex.channels.length,channels:ex.channels.map(c=>({...c,results:null,months:c.months||Array(12).fill(true)}))};applyData(d);showToast('📦 Ejemplo cargado');}
+
+function showStorageInfo(){document.getElementById('storageModal').classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+
+// ===== ENFOLD: make all functions globally accessible =====
+window.setMode=setMode;window.setPlanMode=setPlanMode;window.setPhaseTab=setPhaseTab;
+window.onSectorChange=onSectorChange;window.onPhaseChange=onPhaseChange;
+window.selectCh=selectCh;window.cancelForm=cancelForm;window.toggleFT=toggleFT;
+window.onFI=onFI;window.addOrUpdate=addOrUpdate;window.removeChannel=removeChannel;
+window.editChannel=editChannel;window.toggleM=toggleM;window.renderSens=renderSens;
+window.loadExample=loadExample;window.saveToStorage=saveToStorage;window.loadFromStorage=loadFromStorage;
+window.showStorageInfo=showStorageInfo;window.closeModal=closeModal;
+function init(){renderChGrid();onSectorChange();onPhaseChange();updateBB();renderSens();calcLTV();renderSummary();renderMonthly();}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
