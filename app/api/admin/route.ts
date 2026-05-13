@@ -29,9 +29,9 @@ export async function GET(req: NextRequest) {
   if (action === 'stats') {
     const { count: totalUsers } = await supabase.from('plans').select('user_id', { count: 'exact', head: true })
     const { count: totalPlans } = await supabase.from('plans').select('*', { count: 'exact', head: true })
-    const { data: authUsers } = await supabase.auth.admin.listUsers({ perPage: 1 })
+    const { data: authUsers } = await supabase.auth.admin.listUsers({ perPage: 200 })
     return NextResponse.json({
-      totalUsers: authUsers?.total || 0,
+      totalUsers: authUsers?.users?.length || 0,
       totalPlans: totalPlans || 0,
     })
   }
