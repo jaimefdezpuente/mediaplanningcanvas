@@ -230,7 +230,7 @@ export default function DashboardPage() {
                 <div style={{ fontSize: 11, color: C.steel3, marginBottom: 16, fontFamily: "'Geist Mono',monospace" }}>
                   {new Date(pl.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </div>
-                <button onClick={() => router.push(`/plan/${pl.id}`)} style={{ marginTop: 'auto', width: '100%', padding: '10px', borderRadius: 6, background: C.paper, border: `1px solid ${C.steel1}`, color: C.navy, fontWeight: 500, fontSize: 13, cursor: 'pointer', fontFamily: "'Geist',sans-serif' }}>
+                <button onClick={() => router.push(`/plan/${pl.id}`)} style={{ marginTop: 'auto', width: '100%', padding: '10px', borderRadius: 6, background: C.paper, border: `1px solid ${C.steel1}`, color: C.navy, fontWeight: 500, fontSize: 13, cursor: 'pointer', fontFamily: "'Geist',sans-serif" }}>
                   Ver / Continuar →
                 </button>
               </div>
