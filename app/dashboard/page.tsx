@@ -30,6 +30,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
+  const [upgrading, setUpgrading] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
   const router = useRouter()
@@ -55,9 +56,23 @@ export default function DashboardPage() {
   async function handleUpgrade() {
     const email = user?.email
     if (!email) return
-    const res = await fetch('/api/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) })
-    const data = await res.json()
-    if (data.url) window.location.href = data.url
+    setUpgrading(true)
+    try {
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, plan: 'pro_monthly' })
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert('Error al iniciar el pago: ' + (data.error || 'Error desconocido'))
+      }
+    } catch (e) {
+      alert('Error de conexión. Inténtalo de nuevo.')
+    }
+    setUpgrading(false)
   }
   async function deletePlan(id: string) {
     if (!confirm('¿Eliminar este plan?')) return
@@ -196,8 +211,8 @@ export default function DashboardPage() {
               <div style={{ fontWeight: 600, color: C.paper, fontSize: 15, marginBottom: 3 }}>Estás en el plan gratuito</div>
               <div style={{ fontSize: 13, color: 'rgba(246,244,239,0.65)' }}>Pasa a Pro y accede a 10 planes/mes, 70 repensares, vídeos formativos y calculadora táctica avanzada.</div>
             </div>
-            <button onClick={handleUpgrade} style={{ padding: '10px 22px', borderRadius: 6, background: C.accent, border: 'none', color: C.paper, fontWeight: 600, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: "'Geist',sans-serif" }}>
-              Actualizar a Pro — 7 días gratis →
+            <button onClick={handleUpgrade} disabled={upgrading} style={{ padding: '10px 22px', borderRadius: 6, background: C.accent, border: 'none', color: C.paper, fontWeight: 600, fontSize: 13, cursor: upgrading ? 'wait' : 'pointer', whiteSpace: 'nowrap', fontFamily: "'Geist',sans-serif", opacity: upgrading ? 0.7 : 1 }}>
+              {upgrading ? 'Redirigiendo...' : 'Actualizar a Pro — 7 días gratis →'}
             </button>
           </div>
         )}
