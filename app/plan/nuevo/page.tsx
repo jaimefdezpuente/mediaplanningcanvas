@@ -633,31 +633,40 @@ export default function NuevoPlanPage() {
 
                 {plan.objectives.length>0&&(
                   <div style={{ marginBottom:12 }}>
-                    <div style={{ display:'grid', gridTemplateColumns:'120px 1fr 120px 100px auto', gap:8, marginBottom:6 }}>
+                    <div style={{ display:'grid', gridTemplateColumns:'130px 1fr 120px 100px auto', gap:8, marginBottom:6 }}>
                       {['Tipo','KPI','Dato','Tiempo',''].map((h,i)=><div key={i} style={{ fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.1em', fontFamily:"'Geist Mono',monospace" }}>{h}</div>)}
                     </div>
-                    {plan.objectives.map(r=>(
-                      <div key={r.id} style={{ display:'grid', gridTemplateColumns:'120px 1fr 120px 100px auto', gap:8, alignItems:'center', marginBottom:8 }}>
-                        <select value={r.tipo} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tipo:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer' }}>
-                          <option>Marketing</option><option>Comunicación</option>
-                        </select>
-                        <select value={r.kpi} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,kpi:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer' }}>
-                          <option value="">— KPI —</option>
-                          <optgroup label="Marketing">{KPI_MKT.map(k=><option key={k}>{k}</option>)}</optgroup>
-                          <optgroup label="Comunicación">{KPI_COM.map(k=><option key={k}>{k}</option>)}</optgroup>
-                        </select>
-                        <input style={{ ...INP, marginBottom:0, fontSize:13 }} placeholder="Ej: 1.000" value={r.dato} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,dato:e.target.value}:o)}))} />
-                        <select value={r.tiempo} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tiempo:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer' }}>
-                          <option value="mes">Al mes</option><option value="trimestre">Trimestre</option><option value="semestre">Semestre</option><option value="año">Al año</option>
-                        </select>
-                        <button onClick={()=>setPlan(p=>({...p,objectives:p.objectives.filter(o=>o.id!==r.id)}))} style={{ ...BTN_SM, padding:'8px 10px', color:C.accent, borderColor:'#FECACA', background:'#FEF2F2' }}>✕</button>
-                      </div>
-                    ))}
+                    {plan.objectives.map(r=>{
+                      const kpiList = r.tipo==='Marketing' ? KPI_MKT : KPI_COM
+                      const isCustom = r.kpi==='Otro...' || (!kpiList.includes(r.kpi) && r.kpi!=='')
+                      return(
+                        <div key={r.id} style={{ marginBottom:8 }}>
+                          <div style={{ display:'grid', gridTemplateColumns:'130px 1fr 120px 100px auto', gap:8, alignItems:'center' }}>
+                            <select value={r.tipo} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tipo:e.target.value,kpi:''}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer' }}>
+                              <option>Marketing</option><option>Comunicación</option>
+                            </select>
+                            <select value={isCustom?'Otro...':r.kpi} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,kpi:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer' }}>
+                              <option value="">— KPI —</option>
+                              {kpiList.map(k=><option key={k}>{k}</option>)}
+                            </select>
+                            <input style={{ ...INP, marginBottom:0, fontSize:13 }} placeholder="Ej: 1.000" value={r.dato} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,dato:e.target.value}:o)}))} />
+                            <select value={r.tiempo} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tiempo:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer' }}>
+                              <option value="mes">Al mes</option><option value="trimestre">Trimestre</option><option value="semestre">Semestre</option><option value="año">Al año</option>
+                            </select>
+                            <button onClick={()=>setPlan(p=>({...p,objectives:p.objectives.filter(o=>o.id!==r.id)}))} style={{ ...BTN_SM, padding:'8px 10px', color:C.accent, borderColor:'#FECACA', background:'#FEF2F2' }}>✕</button>
+                          </div>
+                          {isCustom&&(
+                            <div style={{ marginTop:4, paddingLeft:138 }}>
+                              <input style={{ ...INP, marginBottom:0, fontSize:13 }} placeholder="Escribe tu propio KPI..." value={r.kpi==='Otro...'?'':r.kpi} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,kpi:e.target.value||'Otro...'}:o)}))} autoFocus />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
                 )}
                 <div style={{ display:'flex', gap:8 }}>
                   <button onClick={()=>setPlan(p=>({...p,objectives:[...p.objectives,{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'mes'}]}))} style={BTN_SM}>+ Añadir objetivo</button>
-                  <button onClick={getObjectivosEstimados} style={{ ...BTN_SM, color:C.accent, borderColor:C.accent }} disabled={busy}>{busy?'⏳...':'◈ Calcular objetivos estimados con IA'}</button>
                 </div>
               </div>
 

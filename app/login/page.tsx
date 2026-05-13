@@ -3,9 +3,11 @@ export const dynamic = 'force-dynamic'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { MpcMark } from '@/lib/MpcLogo'
 
-const P = { bg:'#07090f', card:'#111826', border:'#1e2d45', acc:'#0ea5e9', txt:'#f0f6ff', txt2:'#94a3b8' }
-const INP: React.CSSProperties = { width:'100%', background:'#0d1117', border:`1px solid ${P.border}`, borderRadius:10, padding:'11px 14px', color:P.txt, fontSize:14, outline:'none', display:'block', marginBottom:14, boxSizing:'border-box' }
+const C = { paper:'#F6F4EF', navy:'#0F2942', steel:'#4A6B8A', steel1:'#DDE2E8', steel3:'#8AA0B5', accent:'#C75A3C', white:'#FFFFFF' }
+const INP: React.CSSProperties = { width:'100%', background:C.white, border:`1px solid ${C.steel1}`, borderRadius:6, padding:'11px 14px', color:C.navy, fontSize:15, outline:'none', display:'block', marginBottom:14, boxSizing:'border-box', fontFamily:"'Geist',sans-serif" }
+const LBL: React.CSSProperties = { display:'block', fontSize:11, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:6, fontFamily:"'Geist Mono',monospace" }
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -25,25 +27,27 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', padding:24, background:P.bg, position:'relative', zIndex:1 }}>
+    <div style={{ minHeight:'100vh', background:C.paper, display:'flex', alignItems:'center', justifyContent:'center', padding:24, fontFamily:"'Geist',sans-serif" }}>
       <div style={{ width:'100%', maxWidth:400 }}>
-        <a href="/" style={{ display:'block', textAlign:'center', marginBottom:28, textDecoration:'none', fontSize:13, color:P.txt2 }}>← Media Planning Canvas</a>
-        <div style={{ background:P.card, border:`1px solid ${P.border}`, borderRadius:20, padding:36 }}>
-          <div style={{ width:48, height:48, borderRadius:14, background:'linear-gradient(135deg,#0ea5e9,#8b5cf6)', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:20, color:'#000', margin:'0 auto 18px' }}>M</div>
-          <h1 style={{ fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:24, color:P.txt, textAlign:'center', marginBottom:6 }}>Bienvenido de vuelta</h1>
-          <p style={{ fontSize:13, color:P.txt2, textAlign:'center', marginBottom:26 }}>Accede a tus planes de marketing</p>
-          {error && <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:8, padding:'10px 14px', fontSize:13, color:'#f87171', marginBottom:14 }}>⚠️ {error}</div>}
+        <a href="/" style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, marginBottom:32, textDecoration:'none' }}>
+          <MpcMark size={22} />
+          <span style={{ fontSize:13, color:C.steel, fontWeight:500 }}>Media Planning Canvas</span>
+        </a>
+        <div style={{ background:C.white, border:`1px solid ${C.steel1}`, borderRadius:12, padding:36, boxShadow:'0 4px 12px rgba(15,41,66,0.08)' }}>
+          <h1 style={{ fontSize:22, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.02em' }}>Bienvenido de vuelta</h1>
+          <p style={{ fontSize:11, color:C.steel3, marginBottom:28, fontFamily:"'Geist Mono',monospace", letterSpacing:'0.05em', textTransform:'uppercase' }}>Accede a tus planes</p>
+          {error && <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:6, padding:'10px 14px', fontSize:13, color:'#B33A2E', marginBottom:16 }}>⚠️ {error}</div>}
           <form onSubmit={handleLogin}>
-            <label style={{ display:'block', fontSize:11, fontWeight:600, color:P.txt2, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:6 }}>Email</label>
+            <label style={LBL}>Email</label>
             <input style={INP} type="email" placeholder="tu@email.com" value={email} onChange={e=>setEmail(e.target.value)} />
-            <label style={{ display:'block', fontSize:11, fontWeight:600, color:P.txt2, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:6 }}>Contraseña</label>
+            <label style={LBL}>Contraseña</label>
             <input style={INP} type="password" placeholder="Tu contraseña" value={password} onChange={e=>setPassword(e.target.value)} />
-            <button type="submit" disabled={loading} style={{ width:'100%', padding:13, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#0284c7)', border:'none', color:'#000', fontWeight:700, fontSize:14, cursor:'pointer', marginTop:4 }}>
+            <button type="submit" disabled={loading} style={{ width:'100%', padding:'12px', borderRadius:6, background:C.navy, border:'none', color:C.paper, fontWeight:600, fontSize:14, cursor:'pointer', fontFamily:"'Geist',sans-serif", marginTop:4 }}>
               {loading ? 'Entrando...' : 'Entrar →'}
             </button>
           </form>
-          <p style={{ textAlign:'center', fontSize:12, color:P.txt2, marginTop:18 }}>
-            ¿No tienes cuenta? <a href="/registro" style={{ color:P.acc, textDecoration:'none' }}>Empieza gratis</a>
+          <p style={{ textAlign:'center', fontSize:13, color:C.steel3, marginTop:20 }}>
+            ¿No tienes cuenta? <a href="/registro" style={{ color:C.navy, textDecoration:'none', fontWeight:600 }}>Empieza gratis</a>
           </p>
         </div>
       </div>

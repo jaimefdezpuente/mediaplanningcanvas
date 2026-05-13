@@ -290,6 +290,141 @@ body::before { display: none !important; }
 #mpc-root .f-inp { background: #f8fafc !important; color: #0f172a !important; border-color: #e2e8f0 !important; }
 #mpc-root .f-inp:focus { border-color: #0284c7 !important; }
 #mpc-root select.fi option, #mpc-root .f-inp option { background: #ffffff !important; color: #0f172a !important; }
+
+/* ===== MPC BRAND OVERRIDES ===== */
+:root {
+  --mpc-navy: #0F2942;
+  --mpc-paper: #F6F4EF;
+  --mpc-paper2: #ECE8DF;
+  --mpc-steel: #4A6B8A;
+  --mpc-steel1: #DDE2E8;
+  --mpc-accent: #C75A3C;
+  --mpc-success: #2F7D5C;
+  --mpc-warn: #C28840;
+}
+
+/* Force white/paper background everywhere */
+body, #mpc-root { background: var(--mpc-paper) !important; color: var(--mpc-navy) !important; }
+body::before { display: none !important; }
+
+/* Header / nav bar */
+.bb, .nav-bar, .top-bar, [class*="header"] {
+  background: #fff !important;
+  border-bottom: 1px solid var(--mpc-steel1) !important;
+  box-shadow: 0 1px 2px rgba(15,41,66,0.05) !important;
+}
+
+/* Cards */
+.card, .card2, .ch-card, .sm, .ex-c, .prev-box, .scard, .ph-note, .hi, .mix-box {
+  background: #fff !important;
+  border-color: var(--mpc-steel1) !important;
+  color: var(--mpc-navy) !important;
+}
+
+/* All text that was dark-on-dark */
+.fl, .ch-nm, .stit, .seg-lbl, .lres, .logo-nm, .mono, .sc-val, .budget-num .val {
+  color: var(--mpc-navy) !important;
+}
+.fs, .sl, .sc-lbl, .logo-sb, .budget-num .lbl, .ltbl th, .mtbl th, .ptbl th {
+  color: var(--mpc-steel) !important;
+}
+
+/* Tables */
+.ptbl th, .ltbl th, .mtbl th {
+  background: var(--mpc-paper) !important;
+  border-bottom: 1px solid var(--mpc-steel1) !important;
+}
+.ptbl td, .ltbl td {
+  border-bottom: 1px solid var(--mpc-steel1) !important;
+  color: var(--mpc-navy) !important;
+}
+
+/* Inputs */
+input, select, textarea, .fi, .f-inp, .ltbl input {
+  background: var(--mpc-paper) !important;
+  color: var(--mpc-navy) !important;
+  border-color: var(--mpc-steel1) !important;
+}
+input:focus, select:focus, .fi:focus, .f-inp:focus {
+  border-color: var(--mpc-navy) !important;
+  outline: none !important;
+}
+input option, select option { background: #fff !important; color: var(--mpc-navy) !important; }
+
+/* Buttons — replace black with navy */
+button[style*="background: #0"], button[style*="background:#0"],
+button[style*="background: rgb(0"], .btn-dark, [class*="btn-primary"] {
+  background: var(--mpc-navy) !important;
+  color: var(--mpc-paper) !important;
+}
+
+/* Phase toggles — Maximizar vs Alcanzar */
+.mode-btn, .toggle-btn, [class*="mode"], [class*="toggle"] {
+  border: 1px solid var(--mpc-steel1) !important;
+}
+.mode-btn.active, .toggle-btn.active, [class*="active"] {
+  background: var(--mpc-navy) !important;
+  color: var(--mpc-paper) !important;
+  border-color: var(--mpc-navy) !important;
+}
+.mode-btn:not(.active), .toggle-btn:not(.active) {
+  background: #fff !important;
+  color: var(--mpc-steel) !important;
+}
+
+/* Channel preview — fix black-on-black */
+.ch-preview, .channel-detail, [class*="preview"] {
+  background: #fff !important;
+  color: var(--mpc-navy) !important;
+  border: 1px solid var(--mpc-steel1) !important;
+}
+
+/* Summary / resumen — was black bg */
+.summary, .resumen, [class*="summary"], [class*="total-row"] {
+  background: var(--mpc-paper) !important;
+  color: var(--mpc-navy) !important;
+}
+
+/* Sensitivity analysis */
+.sensitivity, [class*="sensitivity"], [class*="analisis"] {
+  background: #fff !important;
+  color: var(--mpc-navy) !important;
+  border-color: var(--mpc-steel1) !important;
+}
+
+/* LTV / CAC section — more padding */
+.ltv-section, .ltv-card, [class*="ltv"], [class*="cac"] {
+  padding: 20px 24px !important;
+}
+
+/* Phase labels colors */
+.ph-notoriedad, [class*="notoriedad"] { color: var(--mpc-warn) !important; }
+.ph-interaccion, [class*="interaccion"] { color: #1E40AF !important; }
+.ph-lead, [class*="lead"] { color: var(--mpc-success) !important; }
+.ph-fidelizacion, [class*="fidelizacion"] { color: #7C3AED !important; }
+
+/* B2C/B2B toggle */
+.b2c-btn, .b2b-btn { border: 1px solid var(--mpc-steel1) !important; }
+.b2c-btn.active, .b2b-btn.active {
+  background: #0EA5E9 !important;
+  color: #fff !important;
+  border-color: #0EA5E9 !important;
+}
+
+/* Accent color buttons (Guardar, PDF etc.) */
+.btn-accent, .btn-save, .btn-pdf {
+  background: var(--mpc-navy) !important;
+  color: var(--mpc-paper) !important;
+  border: none !important;
+}
+
+/* Remove any dark overlays */
+[style*="background: #07"], [style*="background:#07"],
+[style*="background: #0d"], [style*="background:#0d"],
+[style*="background: #11"], [style*="background:#11"] {
+  background: var(--mpc-paper) !important;
+  color: var(--mpc-navy) !important;
+}
 </style>
 </head>
 <body>
