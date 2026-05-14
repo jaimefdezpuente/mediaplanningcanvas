@@ -1460,7 +1460,7 @@ body, button, input, select, textarea {
 /* Kill any inline green bg */
 #mpc-root .fflow[style] { background: #FFFFFF !important; color: #0F2942 !important; }
 
-#mpc-root span.fl { display: none !important; }
+
 
 #mpc-root span.fstep, #mpc-root .fstep {
   background: #7e8084 !important;
@@ -1487,7 +1487,7 @@ html, body { overflow-x: hidden !important; }
   font-family: 'Geist', sans-serif !important;
   white-space: nowrap !important;
 }
-#mpc-root .fl { display: none !important; }
+
 #mpc-root .fstep { background: #7e8084 !important; color: #FFFFFF !important; border-radius: 6px !important; }
 /* Ensure fflow wrapper is visible */
 #mpc-root .fflow-wrap { background: #F6F4EF !important; padding: 10px 12px !important; border-radius: 8px !important; }
@@ -1501,6 +1501,10 @@ html, body { overflow-x: hidden !important; }
 body { overflow: hidden !important; overflow-x: hidden !important; }
 
 /* fflow last-child - white not green */
+#mpc-root .fflow:last-child { background: #FFFFFF !important; color: #0F2942 !important; }
+
+/* fflow fixes */
+#mpc-root .fflow { background: #FFFFFF !important; color: #0F2942 !important; border: 1px solid #DDE2E8 !important; border-radius: 6px !important; padding: 5px 10px !important; font-size: 12px !important; font-family: 'Geist', sans-serif !important; white-space: nowrap !important; }
 #mpc-root .fflow:last-child { background: #FFFFFF !important; color: #0F2942 !important; }
 </style>
 
@@ -1527,6 +1531,8 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 </head>
 <body>
 <div id="mpc-root" style="background-color:#07090f;color:#e2e8f0;min-height:100vh;display:block;font-family:'DM Sans',sans-serif;font-size:14px;position:relative">
+<div aria-hidden="true" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;overflow:hidden;"><button id="btnB2C" class="mode-btn b2c act">B2C</button><button id="btnB2B" class="mode-btn">B2B</button></div>
+
 <div class="inn">
 
 <!-- HEADER -->
@@ -2204,7 +2210,7 @@ window.onSectorChange=onSectorChange;window.onPhaseChange=onPhaseChange;
 window.selectCh=selectCh;window.cancelForm=cancelForm;window.toggleFT=toggleFT;
 window.onFI=onFI;window.addOrUpdate=addOrUpdate;window.removeChannel=removeChannel;
 window.editChannel=editChannel;window.toggleM=toggleM;window.renderSens=renderSens;
-window.loadExample=loadExample;window.saveToStorage=saveToStorage;window.loadFromStorage=loadFromStorage;
+window.loadExample=loadExample;window.recalcAll=recalcAll;window.saveToStorage=saveToStorage;window.loadFromStorage=loadFromStorage;
 window.showStorageInfo=showStorageInfo;window.closeModal=closeModal;
 function init(){renderChGrid();onSectorChange();onPhaseChange();updateBB();renderSens();calcLTV();renderSummary();renderMonthly();}
 document.addEventListener('DOMContentLoaded',init);
