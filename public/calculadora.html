@@ -1548,6 +1548,14 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
       <div class="bb-n"><span class="l">% Asignado</span><span class="v" id="bb-pct">0%</span></div>
     </div>
     <span id="bb-alrt" style="font-size:12px;color:#ef4444;display:none">⚠️ Presupuesto superado</span>
+    <!-- B2C / B2B toggle — visible, siempre en la barra sticky -->
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+      <span style="font-size:10px;font-weight:600;color:#8AA0B5;font-family:'Geist Mono',monospace;text-transform:uppercase;letter-spacing:0.1em">Modelo</span>
+      <div style="display:inline-flex;background:#ECE8DF;border-radius:100px;padding:3px;gap:2px;border:1px solid #DDE2E8">
+        <button id="visB2C" onclick="setMode('B2C')" style="padding:6px 18px;border-radius:100px;border:none;cursor:pointer;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;transition:all 0.15s;background:#0F2942;color:#F6F4EF;box-shadow:0 1px 3px rgba(15,41,66,0.2)">B2C</button>
+        <button id="visB2B" onclick="setMode('B2B')" style="padding:6px 18px;border-radius:100px;border:none;cursor:pointer;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;transition:all 0.15s;background:transparent;color:#4A6B8A">B2B</button>
+      </div>
+    </div>
   </div>
   <div class="bb-track"><div class="bb-fill" id="bb-fill" style="width:0%;background:#10b981"></div></div>
 </div>
@@ -2008,7 +2016,21 @@ function updateBB(){
   document.getElementById('bb-alrt').style.display=used>tot&&tot>0?'block':'none';
 }
 
-function setMode(m){S.mode=m;document.getElementById('btnB2C').className='mode-btn'+(m==='B2C'?' b2c':'');document.getElementById('btnB2B').className='mode-btn'+(m==='B2B'?' b2b':'');onSectorChange();onPhaseChange();recalcAll();if(S.selectedCh)renderForm(S.selectedCh);showToast(m==='B2B'?'📊 Modo B2B':'🛒 Modo B2C');}
+function setMode(m){
+  S.mode=m;
+  // Sync hidden state buttons
+  document.getElementById('btnB2C').className='mode-btn'+(m==='B2C'?' b2c':'');
+  document.getElementById('btnB2B').className='mode-btn'+(m==='B2B'?' b2b':'');
+  // Sync visible sticky toggle
+  const vB2C=document.getElementById('visB2C');
+  const vB2B=document.getElementById('visB2B');
+  if(vB2C&&vB2B){
+    const navyBg='#0F2942',navyTxt='#F6F4EF',offBg='transparent',offTxt='#4A6B8A',shadow='0 1px 3px rgba(15,41,66,0.2)';
+    vB2C.style.background=m==='B2C'?navyBg:offBg; vB2C.style.color=m==='B2C'?navyTxt:offTxt; vB2C.style.boxShadow=m==='B2C'?shadow:'none';
+    vB2B.style.background=m==='B2B'?navyBg:offBg; vB2B.style.color=m==='B2B'?navyTxt:offTxt; vB2B.style.boxShadow=m==='B2B'?shadow:'none';
+  }
+  onSectorChange();onPhaseChange();recalcAll();if(S.selectedCh)renderForm(S.selectedCh);showToast(m==='B2B'?'📊 Modo B2B':'🛒 Modo B2C');
+}
 
 function setPlanMode(pm){S.planMode=pm;document.querySelectorAll('#mpc-root .pm-btn').forEach(b=>b.classList.toggle('act',b.dataset.pm===pm));document.getElementById('pm-help').style.display=pm==='objective'?'block':'none';const bl=document.getElementById('budgetLabel');const bh=document.getElementById('budgetHint');if(pm==='objective'){bl.textContent='Inversión estimada (€)';bh.textContent='Se calcula automáticamente';}else{bl.textContent='Presupuesto Total (€)';bh.textContent='Techo máximo de inversión';}if(S.selectedCh)renderForm(S.selectedCh);recalcAll();}
 
@@ -2157,7 +2179,7 @@ function renderSens(){
 
 function calcLTV(){
   const totCl=S.channels.filter(c=>['conversion','variable','demo','direct','retention'].includes(getCh(c.channelId)?.kt)).reduce((s,c)=>s+(c.results?.clients||0),0);
-  document.getElementById('ltv_cc').textContent=fN(totCl);
+  const _elCC=document.getElementById('ltv_cc');if(_elCC)_elCC.textContent=fN(totCl);
   const segs=['h','m','b'];let totRev=0,wLTV=0,totPct=0;
   segs.forEach(sg=>{const p=(parseFloat(document.getElementById(`l${sg}_p`).value)||0)/100;const f=parseFloat(document.getElementById(`l${sg}_f`).value)||0;const y=parseFloat(document.getElementById(`l${sg}_y`).value)||0;const t=parseFloat(document.getElementById(`l${sg}_t`).value)||0;totPct+=p*100;const per=f*y*t;const cnt=totCl*p;const tot=cnt*per;totRev+=tot;wLTV+=p*per;document.getElementById(`l${sg}_per`).textContent=fE(per);document.getElementById(`l${sg}_cnt`).textContent=fN(cnt);document.getElementById(`l${sg}_tot`).textContent=fE(tot);});
   const pN=parseFloat(document.getElementById('ln_p').value)||0;totPct+=pN;
@@ -2166,7 +2188,7 @@ function calcLTV(){
   document.getElementById('ltv_avg').textContent=fE(wLTV);document.getElementById('ltv_ctot').textContent=fN(totCl);document.getElementById('ltv_rtot').textContent=fE(totRev);
   S.ltvRev=totRev;S.ltvPerCl=wLTV;
   const totInv=S.channels.reduce((s,c)=>s+(c.results?.inversion||0),0);const cac=totCl>0?totInv/totCl:0;const ltvCac=cac>0?wLTV/cac:0;
-  document.getElementById('ltv_ratio').textContent=fR(ltvCac)+' LTV/CAC';
+  const _elR=document.getElementById('ltv_ratio');if(_elR)_elR.textContent=fR(ltvCac)+' LTV/CAC';
   renderSummary();
 }
 
@@ -2188,7 +2210,14 @@ function saveToStorage(){try{const d={mode:S.mode,sector:S.sector,uidCtr:S.uidCt
 
 function loadFromStorage(){try{const raw=localStorage.getItem('mpc_v3');if(!raw){showToast('📂 No hay plan guardado');return;}applyData(JSON.parse(raw));showToast('📂 Plan cargado correctamente');}catch(e){showToast('❌ Error al cargar');}}
 
-function applyData(d){S.mode=d.mode||'B2C';S.sector=d.sector||null;S.uidCtr=d.uidCtr||0;S.planMode=d.planMode||'budget';S.channels=(d.channels||[]).map(c=>({...c,results:null}));if(d.budget)document.getElementById('obj_budget').value=d.budget;if(d.clients)document.getElementById('obj_clients').value=d.clients;if(d.cac)document.getElementById('obj_cac').value=d.cac;if(d.ticket)document.getElementById('globalTicket').value=d.ticket;if(d.ticketType)document.getElementById('ticketType').value=d.ticketType;if(d.phase)document.getElementById('obj_phase').value=d.phase;if(d.sectorVal)document.getElementById('sectorSelect').value=d.sectorVal;if(d.ltv)Object.entries(d.ltv).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.value=v;});document.getElementById('btnB2C').className='mode-btn'+(S.mode==='B2C'?' b2c':'');document.getElementById('btnB2B').className='mode-btn'+(S.mode==='B2B'?' b2b':'');document.querySelectorAll('#mpc-root .pm-btn').forEach(b=>b.classList.toggle('act',b.dataset.pm===S.planMode));document.getElementById('pm-help').style.display=S.planMode==='objective'?'block':'none';onSectorChange();onPhaseChange();recalcAll();}
+function applyData(d){S.mode=d.mode||'B2C';S.sector=d.sector||null;S.uidCtr=d.uidCtr||0;S.planMode=d.planMode||'budget';S.channels=(d.channels||[]).map(c=>({...c,results:null}));if(d.budget)document.getElementById('obj_budget').value=d.budget;if(d.clients)document.getElementById('obj_clients').value=d.clients;if(d.cac)document.getElementById('obj_cac').value=d.cac;if(d.ticket)document.getElementById('globalTicket').value=d.ticket;if(d.ticketType)document.getElementById('ticketType').value=d.ticketType;if(d.phase)document.getElementById('obj_phase').value=d.phase;if(d.sectorVal)document.getElementById('sectorSelect').value=d.sectorVal;if(d.ltv)Object.entries(d.ltv).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.value=v;});
+  // Sync hidden buttons
+  document.getElementById('btnB2C').className='mode-btn'+(S.mode==='B2C'?' b2c':'');
+  document.getElementById('btnB2B').className='mode-btn'+(S.mode==='B2B'?' b2b':'');
+  // Sync visible sticky toggle
+  const vB2C=document.getElementById('visB2C');const vB2B=document.getElementById('visB2B');
+  if(vB2C&&vB2B){const navyBg='#0F2942',navyTxt='#F6F4EF',offBg='transparent',offTxt='#4A6B8A',shadow='0 1px 3px rgba(15,41,66,0.2)';vB2C.style.background=S.mode==='B2C'?navyBg:offBg;vB2C.style.color=S.mode==='B2C'?navyTxt:offTxt;vB2C.style.boxShadow=S.mode==='B2C'?shadow:'none';vB2B.style.background=S.mode==='B2B'?navyBg:offBg;vB2B.style.color=S.mode==='B2B'?navyTxt:offTxt;vB2B.style.boxShadow=S.mode==='B2B'?shadow:'none';}
+  document.querySelectorAll('#mpc-root .pm-btn').forEach(b=>b.classList.toggle('act',b.dataset.pm===S.planMode));document.getElementById('pm-help').style.display=S.planMode==='objective'?'block':'none';const bl=document.getElementById('budgetLabel');const bh=document.getElementById('budgetHint');if(bl&&bh){if(S.planMode==='objective'){bl.textContent='Inversión estimada (€)';bh.textContent='Se calcula automáticamente';}else{bl.textContent='Presupuesto Total (€)';bh.textContent='Techo máximo de inversión';}}onSectorChange();onPhaseChange();recalcAll();}
 
 const EX={
   ecom_b2c:{mode:'B2C',sectorVal:'moda',phase:'launch',planMode:'budget',budget:3500,clients:80,cac:44,ticket:120,ticketType:'por_venta',channels:[{uid:1,channelId:'META_BRAND',fields:{inv:600,cpm:7,frec:4},months:[1,1,1,1,1,1,0,0,1,1,1,1]},{uid:2,channelId:'META_PERF',fields:{inv:1200,cpm:8,ctr:1.5,deflaccion:25,cr:0.91,carrito2venta:35},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:3,channelId:'SEM',fields:{inv:700,cpc:1.8,deflaccion:20,cr:0.91,carrito2venta:35},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:4,channelId:'INF_BRAND',fields:{inv:600,n_inf:5,seg:15000,pct_imp:12},months:[1,1,1,0,0,1,0,0,1,1,1,0]},{uid:5,channelId:'EMAIL_OWN',fields:{inv:150,n_emails:3000,ctr:18,deflaccion:10,cr:0.91,carrito2venta:40},months:[0,1,0,1,0,1,0,1,0,1,0,1]},{uid:6,channelId:'LOYALTY',fields:{inv:250,base_cli:200,pct_activo:30,frec_compra:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]}],ltv:{lh_p:30,lh_f:3,lh_y:2,lh_t:120,lm_p:30,lm_f:2,lm_y:1,lm_t:80,lb_p:20,lb_f:1,lb_y:1,lb_t:50,ln_p:20}},
