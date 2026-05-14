@@ -654,13 +654,13 @@ function WizardInner() {
             </div>
           )}
 
-          {/* iframe — no scroll, auto-height */}
-          <div style={{ position:'relative', marginBottom:32, width:'100%' }}>
+          {/* iframe — auto-height via postMessage */}
+          <div style={{ position:'relative', marginBottom:32, width:'100%', overflow:'hidden' }}>
             <iframe
               id="tactico-iframe"
               key={plan.tipo_negocio}
               src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}&mode=${plan.tipo_negocio==='B2B'?'B2B':'B2C'}&readonly=${userPlan==='free'?'1':'0'}&noheader=1`}
-              style={{ width:'100%', height:100, border:'none', display:'block', minHeight:200 }}
+              style={{ width:'100%', height:600, border:'none', display:'block', minHeight:600 }}
               scrolling="no"
               title="Calculadora"
             />

@@ -1442,6 +1442,9 @@ body, button, input, select, textarea {
 
 /* Hide B2C/B2B toggle from header (now in wizard) */
 #mpc-root .hdr .mode-tog { display: none !important; }
+
+/* Force .inn to full width, matching wizard */
+#mpc-root .inn { max-width: 100% !important; width: 100% !important; padding: 0 !important; }
 </style>
 
 <script>
@@ -1450,12 +1453,7 @@ body, button, input, select, textarea {
   var p = new URLSearchParams(location.search);
   if (p.get('noheader') === '1') {
     document.addEventListener('DOMContentLoaded', function() {
-      // Hide the header entirely - B2C/B2B is now in wizard
-      var hdr = document.querySelector('.hdr');
-      if (hdr) hdr.style.display = 'none';
-      // Also hide budget bar top margin
-      var bb = document.querySelector('.bb');
-      if (bb) bb.style.marginTop = '0';
+      // Header already removed from HTML
     });
   }
   // Auto-set mode from URL
@@ -1475,16 +1473,7 @@ body, button, input, select, textarea {
 <div class="inn">
 
 <!-- HEADER -->
-<div class="hdr">
-  
-  <div class="hdr-act">
-    <div class="mode-tog">
-      <button class="mode-btn b2c" id="btnB2C" onclick="setMode('B2C')">B2C</button>
-      <button class="mode-btn" id="btnB2B" onclick="setMode('B2B')">B2B</button>
-    </div>
-    
-  </div>
-</div>
+
 
 <!-- BUDGET BAR -->
 <div class="bb np">
@@ -2395,28 +2384,34 @@ document.addEventListener('DOMContentLoaded', function() {
 // Auto-resize iframe from inside - tell parent our actual height
 (function() {
   var lastH = 0;
+  var tries = 0;
   function reportHeight() {
-    var h = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
-    h += 50; // padding
-    if (Math.abs(h - lastH) > 20) {
+    // Use scrollHeight of the body content div
+    var inn = document.querySelector('.inn');
+    var h = inn ? inn.offsetHeight : document.body.scrollHeight;
+    h = Math.max(h, document.body.scrollHeight) + 60;
+    if (Math.abs(h - lastH) > 10) {
       lastH = h;
       if (window.parent !== window) {
         window.parent.postMessage({ type: 'mpc-height', height: h }, '*');
       }
     }
+    tries++;
+    if (tries < 20) setTimeout(reportHeight, 300);
   }
   function startReporting() {
+    // Report every 300ms for first 6 seconds, then every 1.5s
     reportHeight();
-    var obs = new MutationObserver(function() { setTimeout(reportHeight, 100); });
-    obs.observe(document.body, { subtree: true, childList: true, attributes: true, characterData: true });
-    setInterval(reportHeight, 500);
+    var obs = new MutationObserver(function() { setTimeout(reportHeight, 200); });
+    obs.observe(document.body, { subtree: true, childList: true });
+    setInterval(reportHeight, 1500);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', startReporting);
   } else {
     startReporting();
   }
-  window.addEventListener('load', function() { setTimeout(reportHeight, 300); });
+  window.addEventListener('load', function() { tries = 0; setTimeout(reportHeight, 100); });
 })();
 </script>
 </body>
