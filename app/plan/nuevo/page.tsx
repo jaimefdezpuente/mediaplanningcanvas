@@ -323,9 +323,9 @@ function WizardInner() {
   // Listen for iframe height changes
   useEffect(() => {
     function handleMsg(e: MessageEvent) {
-      if (e.data?.type === 'mpc-height' && typeof e.data.height === 'number') {
-        const iframe = document.querySelector('#tactico-iframe') as HTMLIFrameElement
-        if (iframe && e.data.height > 600) iframe.style.height = e.data.height + 'px'
+      if (e.data?.type === 'mpc-height' && typeof e.data.height === 'number' && e.data.height > 200) {
+        const iframe = document.getElementById('tactico-iframe') as HTMLIFrameElement
+        if (iframe) iframe.style.height = e.data.height + 'px'
       }
     }
     window.addEventListener('message', handleMsg)
@@ -629,20 +629,38 @@ function WizardInner() {
       {/* TÁCTICO — same width as other steps */}
       {step===4&&(
         <div style={{ maxWidth:1040, margin:'0 auto', padding:'40px 24px 0' }}>
+          {/* Title */}
           <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.02em' }}>Táctico & Presupuesto</h1>
-          <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>{plan.sector} · {plan.pais} · {plan.tipo_negocio}</p>
+          <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>{plan.sector} · {plan.pais}</p>
+
+          {/* Video */}
           <VideoBlock vimeoId="1103392013" title="Distribución táctica de presupuesto" />
+
+          {/* B2C/B2B Toggle — prominent, below video */}
+          <div style={{ display:'flex', justifyContent:'center', marginBottom:24, marginTop:8 }}>
+            <div style={{ background:C.paper2, borderRadius:100, padding:4, display:'inline-flex', gap:4, border:`1px solid ${C.steel1}` }}>
+              {(['B2C','B2B'] as const).map(m=>(
+                <button key={m} onClick={()=>upd('tipo_negocio',m)} style={{ padding:'10px 36px', borderRadius:100, border:'none', cursor:'pointer', fontFamily:"'Geist',sans-serif", fontWeight:600, fontSize:14, transition:'all 0.2s', background:plan.tipo_negocio===m?C.navy:'transparent', color:plan.tipo_negocio===m?C.paper:C.steel, boxShadow:plan.tipo_negocio===m?'0 2px 6px rgba(15,41,66,0.18)':'none' }}>
+                  {m}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {userPlan==='free'&&(
             <div style={{ background:'#FFFBEB', border:`1px solid #FDE68A`, borderRadius:8, padding:'12px 16px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
               <div style={{ fontSize:13, color:C.warn }}>⚠️ <strong>Plan Gratuito:</strong> Solo lectura. Activa Pro para modificar.</div>
               <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_SM, color:C.accent, borderColor:C.accent, whiteSpace:'nowrap' }}>Activar Pro →</button>
             </div>
           )}
-          <div style={{ position:'relative', marginBottom:32 }}>
+
+          {/* iframe — no scroll, auto-height */}
+          <div style={{ position:'relative', marginBottom:32, width:'100%' }}>
             <iframe
               id="tactico-iframe"
-              src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}&mode=${plan.tipo_negocio==='B2B'?'B2B':'B2C'}&readonly=${userPlan==='free'?'1':'0'}`}
-              style={{ width:'100%', height:4500, border:'none', display:'block' }}
+              key={plan.tipo_negocio}
+              src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}&mode=${plan.tipo_negocio==='B2B'?'B2B':'B2C'}&readonly=${userPlan==='free'?'1':'0'}&noheader=1`}
+              style={{ width:'100%', height:100, border:'none', display:'block', minHeight:200 }}
               scrolling="no"
               title="Calculadora"
             />
@@ -650,6 +668,7 @@ function WizardInner() {
               <div onClick={()=>setShowUpgrade(true)} style={{ position:'absolute', inset:0, cursor:'pointer', zIndex:10 }} title="Activa Pro para editar" />
             )}
           </div>
+
           <div style={{ display:'flex', justifyContent:'space-between', paddingBottom:40 }}>
             <button onClick={()=>setStep(3)} style={BTN_S}>← Atrás</button>
             <button onClick={()=>{markDone(4);setStep(5)}} style={BTN_P}>Ver Resumen →</button>

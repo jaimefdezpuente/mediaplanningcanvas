@@ -1412,7 +1412,63 @@ body, button, input, select, textarea {
 /* B2C/B2B toggle always clickable */
 #mpc-root .mode-btn { pointer-events: auto !important; cursor: pointer !important; }
 /* LTV expand - increase iframe height via JS */
+
+/* Vista previa del canal - minimal, no colores fuertes */
+#mpc-root .prev-box { background: #FFFFFF !important; border: 1px solid #DDE2E8 !important; border-radius: 8px !important; padding: 14px !important; }
+#mpc-root .fflow-wrap { background: transparent !important; }
+#mpc-root .fflow {
+  background: #ECE8DF !important;
+  color: #0F2942 !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  font-family: 'Geist', sans-serif !important;
+  white-space: nowrap !important;
+}
+#mpc-root .fflow-arrow { color: #8AA0B5 !important; font-size: 16px !important; }
+#mpc-root .prev-box * { color: #0F2942 !important; }
+/* Remove green background from flow items */
+#mpc-root .fflow[style*="background: #10b981"],
+#mpc-root .fflow[style*="background:#10b981"],
+#mpc-root .fflow[style*="background: var(--ok)"],
+#mpc-root [style*="background:#10b981"] { background: #F0FDF4 !important; color: #166534 !important; }
+#mpc-root [style*="background:#0ea5e9"],
+#mpc-root [style*="background: #0ea5e9"] { background: #EFF6FF !important; color: #1E40AF !important; }
+#mpc-root [style*="background:#f59e0b"],
+#mpc-root [style*="background: #f59e0b"] { background: #FFFBEB !important; color: #92400E !important; }
+/* Fix the "VISTA PREVIA" label */
+#mpc-root .prev-lbl { font-size: 10px !important; font-weight: 600 !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; color: #8AA0B5 !important; font-family: 'Geist Mono', monospace !important; margin-bottom: 8px !important; }
+
+/* Hide B2C/B2B toggle from header (now in wizard) */
+#mpc-root .hdr .mode-tog { display: none !important; }
 </style>
+
+<script>
+// Handle noheader param - hide logo area, keep B2C/B2B
+(function() {
+  var p = new URLSearchParams(location.search);
+  if (p.get('noheader') === '1') {
+    document.addEventListener('DOMContentLoaded', function() {
+      // Hide the header entirely - B2C/B2B is now in wizard
+      var hdr = document.querySelector('.hdr');
+      if (hdr) hdr.style.display = 'none';
+      // Also hide budget bar top margin
+      var bb = document.querySelector('.bb');
+      if (bb) bb.style.marginTop = '0';
+    });
+  }
+  // Auto-set mode from URL
+  var mode = p.get('mode');
+  if (mode === 'B2B' || mode === 'B2C') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        if (typeof setMode === 'function') setMode(mode);
+      }, 100);
+    });
+  }
+})();
+</script>
 </head>
 <body>
 <div id="mpc-root" style="background-color:#07090f;color:#e2e8f0;min-height:100vh;display:block;font-family:'DM Sans',sans-serif;font-size:14px;position:relative">
@@ -2336,21 +2392,32 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-// Auto-resize iframe from inside
-window.addEventListener('load', function() {
-  // Tell parent our height
+// Auto-resize iframe from inside - tell parent our actual height
+(function() {
+  var lastH = 0;
   function reportHeight() {
-    const h = document.body.scrollHeight + 100;
-    if (window.parent !== window) {
-      window.parent.postMessage({ type: 'mpc-height', height: h }, '*');
+    var h = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    h += 50; // padding
+    if (Math.abs(h - lastH) > 20) {
+      lastH = h;
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'mpc-height', height: h }, '*');
+      }
     }
   }
-  // Report height on load and on changes
-  reportHeight();
-  new MutationObserver(reportHeight).observe(document.body, { subtree: true, childList: true, attributes: true });
-  window.addEventListener('resize', reportHeight);
-  setInterval(reportHeight, 1000);
-});
+  function startReporting() {
+    reportHeight();
+    var obs = new MutationObserver(function() { setTimeout(reportHeight, 100); });
+    obs.observe(document.body, { subtree: true, childList: true, attributes: true, characterData: true });
+    setInterval(reportHeight, 500);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startReporting);
+  } else {
+    startReporting();
+  }
+  window.addEventListener('load', function() { setTimeout(reportHeight, 300); });
+})();
 </script>
 </body>
 </html>
