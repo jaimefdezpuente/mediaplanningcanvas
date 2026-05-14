@@ -149,10 +149,10 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Plan badge */}
-            <a href="/perfil?tab=plan" style={{ padding: '4px 10px', borderRadius: 4, background: isPro ? C.navy : C.paper2, color: isPro ? C.paper : C.steel, fontSize: 11, fontWeight: 600, fontFamily: "'Geist Mono',monospace", letterSpacing: '0.08em', textTransform: 'uppercase', border: isPro ? 'none' : `1px solid ${C.steel1}`, textDecoration: 'none', cursor: 'pointer' }} title="Gestionar plan">
-              {planKey} ↑
-            </a>
+            {/* Plan badge - just informative */}
+            <div style={{ padding: '4px 10px', borderRadius: 4, background: isPro ? C.navy : C.paper2, color: isPro ? C.paper : C.steel, fontSize: 11, fontWeight: 600, fontFamily: "'Geist Mono',monospace", letterSpacing: '0.08em', textTransform: 'uppercase', border: isPro ? 'none' : `1px solid ${C.steel1}` }}>
+              {planKey}
+            </div>
 
             {/* User menu */}
             <div ref={menuRef} style={{ position: 'relative' }}>

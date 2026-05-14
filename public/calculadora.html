@@ -11,7 +11,7 @@
   --bg:#F6F4EF;--bg2:#ECE8DF;--card:#FFFFFF;--card2:#F6F4EF;--bdr:#DDE2E8;--bdr2:#B5C2D0;
   --acc:#0F2942;--acc2:#163659;--glow:rgba(15,41,66,.1);
   --ok:#2F7D5C;--warn:#C28840;--err:#B33A2E;--pur:#7C3AED;--pnk:#C75A3C;--org:#C28840;
-  --txt:#0B1B2C;--txt2:#4A6B8A;--txt3:#8AA0B5;
+  --txt:#0B1B2C;--txt2:#2D4A63;--txt3:#6B8A9E;
   --not:#C28840;--int:#1E40AF;--lv:#2F7D5C;--fid:#7C3AED;
   --mono:'Geist Mono',monospace;--disp:'Geist',sans-serif;
 }
@@ -25,7 +25,7 @@
 #mpc-root .inn{position:relative!important;z-index:1!important;max-width:1440px!important;margin:0 auto!important;padding:0 28px 100px!important}
 #mpc-root .hdr{display:flex!important;align-items:center!important;justify-content:space-between!important;padding:22px 0 24px!important;gap:12px!important;flex-wrap:wrap!important;border-bottom:1px solid #1e2d45!important;margin-bottom:24px!important}
 #mpc-root .logo{display:flex!important;align-items:center!important;gap:12px!important}
-#mpc-root .logo-ic{width:42px!important;height:42px!important;background:linear-gradient(135deg,#0ea5e9,#8b5cf6)!important;border-radius:10px!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:20px!important;flex-shrink:0!important}
+#mpc-root .logo-ic{width:36px!important;height:36px!important;background:none!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important}
 #mpc-root .logo-nm{font-family:'Syne',sans-serif!important;font-size:18px!important;font-weight:800!important;letter-spacing:-.5px!important;color:#e2e8f0!important;line-height:1.2!important}
 #mpc-root .logo-sb{font-size:11px!important;color:#94a3b8!important;line-height:1.3!important;margin-top:2px!important}
 #mpc-root .hdr-act{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important}
@@ -1128,6 +1128,75 @@ body, button, input, select, textarea {
 #mpc-root p, #mpc-root span, #mpc-root div, #mpc-root label {
   color: inherit;
 }
+
+/* Start options - match example card style */
+#mpc-root .start-opt {
+  background: #FFFFFF !important;
+  border: 1.5px solid #DDE2E8 !important;
+  border-radius: 8px !important;
+  padding: 20px 18px !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  min-height: 100px !important;
+}
+#mpc-root .start-opt:hover {
+  border-color: #0F2942 !important;
+  box-shadow: 0 2px 10px rgba(15,41,66,0.1) !important;
+}
+#mpc-root .start-opt > div:first-child { font-size: 22px !important; }
+#mpc-root .start-opt > div:nth-child(2) { 
+  font-weight: 600 !important; 
+  font-size: 15px !important; 
+  color: #0F2942 !important;
+}
+#mpc-root .start-opt > div:nth-child(3) { 
+  font-size: 12px !important; 
+  color: #4A6B8A !important;
+  line-height: 1.5 !important;
+}
+/* Make start grid match example card grid */
+#mpc-root .np:has(.start-opt) {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+}
+
+/* Fix summary card labels - make more readable */
+#mpc-root .sm .l { color: #4A6B8A !important; font-size: 11px !important; text-transform: uppercase !important; letter-spacing: 0.08em !important; font-weight: 600 !important; }
+#mpc-root .sm .v { color: #0F2942 !important; font-size: 22px !important; font-weight: 600 !important; font-family: 'Geist Mono', monospace !important; }
+#mpc-root .sm .s { color: #4A6B8A !important; font-size: 12px !important; }
+/* Fix any other gray text that's too light */
+#mpc-root [style*="color:#94a3b8"], #mpc-root [style*="color: #94a3b8"] { color: #4A6B8A !important; }
+#mpc-root [style*="color:#64748b"], #mpc-root [style*="color: #64748b"] { color: #4A6B8A !important; }
+#mpc-root [style*="color:#475569"] { color: #2D4A63 !important; }
+#mpc-root [style*="color:#cbd5e1"] { color: #4A6B8A !important; }
+/* Fix table text */
+#mpc-root .ptbl td, #mpc-root .ltbl td { color: #0F2942 !important; }
+#mpc-root .ptbl td span, #mpc-root .ltbl td span { color: #0F2942 !important; }
+#mpc-root .ptbl .ch-nm { color: #0F2942 !important; font-weight: 600 !important; }
+#mpc-root .ptbl .ch-lbl { color: #4A6B8A !important; font-size: 11px !important; }
+/* Fix score dots tooltip */
+#mpc-root .score-wrap { position: relative !important; }
+#mpc-root .score-wrap:hover::after {
+  content: attr(data-tip) !important;
+  position: absolute !important;
+  bottom: 100% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: #0F2942 !important;
+  color: #F6F4EF !important;
+  padding: 5px 10px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  white-space: nowrap !important;
+  z-index: 100 !important;
+  pointer-events: none !important;
+}
+/* Investment/value text */
+#mpc-root .fv, #mpc-root .fc { color: #0F2942 !important; }
+#mpc-root .fi-label { color: #4A6B8A !important; }
 </style>
 </head>
 <body>
@@ -1160,7 +1229,7 @@ body, button, input, select, textarea {
       <button class="mode-btn b2c" id="btnB2C" onclick="setMode('B2C')">B2C</button>
       <button class="mode-btn" id="btnB2B" onclick="setMode('B2B')">B2B</button>
     </div>
-    <button class="ic-btn np" onclick="showStorageInfo()">💾 Guardar</button>
+    <button class="ic-btn np" onclick="saveToStorage()">💾 Guardar</button>
     
     <button class="ic-btn np" onclick="window.print()">🖨️ PDF</button>
   </div>
@@ -1444,23 +1513,16 @@ body, button, input, select, textarea {
 <div class="overlay" id="storageModal">
   <div class="mbox">
     <button class="mclose" onclick="closeModal('storageModal')">✕</button>
-    <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:12px;color:#e2e8f0">💾 ¿Cómo funciona Guardar?</div>
-    <div style="font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:16px">
-      El plan se guarda en el <strong style="color:#38bdf8">localStorage de tu navegador</strong>, directamente en este dispositivo. No se sube a ningún servidor.<br><br>
-      ✅ <strong style="color:#10b981">Lo que sí funciona:</strong><br>
-      · Guardado instantáneo sin registro<br>
-      · Cargar el plan en la misma sesión o más tarde<br>
-      · Funciona sin conexión<br><br>
-      ⚠️ <strong style="color:#f59e0b">Lo que NO funciona:</strong><br>
-      · Si borras la caché del navegador, el plan desaparece<br>
-      · No funciona en modo incógnito<br>
-      · No se sincroniza entre dispositivos<br><br>
-      📤 <strong style="color:#e2e8f0">Para compartir o hacer backup permanente:</strong> usa el botón <strong>🖨️ PDF</strong>, que genera un documento imprimible con todo el plan visible.
+    <div id="storageModal" class="modal-bg" style="display:none;position:fixed;inset:0;background:rgba(15,41,66,0.4);z-index:9999;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#FFFFFF;border-radius:14px;padding:32px;max-width:380px;width:100%;box-shadow:0 24px 48px rgba(15,41,66,0.25)">
+    <div style="font-size:18px;font-weight:600;color:#0F2942;margin-bottom:8px;font-family:'Geist',sans-serif">Guardar plan táctico</div>
+    <p style="font-size:13px;color:#4A6B8A;line-height:1.7;margin-bottom:20px">El plan táctico se guarda en el panel de tu plan de marketing. Para guardarlo en tu cuenta necesitas estar en el wizard del plan.</p>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeModal('storageModal')" style="flex:1;padding:10px;border-radius:6px;border:1px solid #DDE2E8;background:transparent;color:#4A6B8A;font-weight:500;font-size:13px;cursor:pointer;font-family:'Geist',sans-serif">Cerrar</button>
+      <button class="btn-p" onclick="saveToStorage();closeModal('storageModal')" style="flex:2;padding:10px;border-radius:6px;border:none;background:#0F2942;color:#F6F4EF;font-weight:600;font-size:13px;cursor:pointer;font-family:'Geist',sans-serif">Guardar ✓</button>
     </div>
-    <button class="btn-p" onclick="saveToStorage();closeModal('storageModal')">💾 Guardar ahora</button>
   </div>
-</div>
-</div><!-- /mpc-root -->
+</div></div><!-- /mpc-root -->
 
 <script>
 const SECTORS={alimentacion:{crB2C:2.67,crB2C_lo:0.80,crB2C_hi:4.54,crB2B:1.86},moda:{crB2C:0.91,crB2C_lo:0.71,crB2C_hi:1.10,crB2B:null},salud:{crB2C:1.88,crB2C_lo:0.73,crB2C_hi:3.04,crB2B:4.66},deporte:{crB2C:1.27,crB2C_lo:0.76,crB2C_hi:1.78,crB2B:null},hogar:{crB2C:0.50,crB2C_lo:0.27,crB2C_hi:0.73,crB2B:3.87},bricolaje:{crB2C:0.26,crB2C_lo:null,crB2C_hi:null,crB2B:6.33},tecnologia:{crB2C:null,crB2C_lo:null,crB2C_hi:null,crB2B:0.42},cursos:{crB2C:0.70,crB2C_lo:0.47,crB2C_hi:0.94,crB2B:2.74},viajes:{crB2C:1.28,crB2C_lo:0.91,crB2C_hi:1.65,crB2B:1.00},food_delivery:{crB2C:10.62,crB2C_lo:null,crB2C_hi:null,crB2B:3.35},servicios:{crB2C:null,crB2C_lo:null,crB2C_hi:null,crB2B:4.01},automovil:{crB2C:null,crB2C_lo:null,crB2C_hi:null,crB2B:3.20},seguros:{crB2C:0.08,crB2C_lo:null,crB2C_hi:null,crB2B:6.07},otros:{crB2C:1.01,crB2C_lo:null,crB2C_hi:null,crB2B:4.33}};

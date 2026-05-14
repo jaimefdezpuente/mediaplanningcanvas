@@ -554,12 +554,16 @@ function WizardInner() {
           {plan.projectName&&<input value={plan.projectName} onChange={e=>upd('projectName',e.target.value)} style={{ fontSize:12, color:C.steel, flexShrink:0, maxWidth:160, background:'transparent', border:'none', outline:'none', borderBottom:`1px dashed ${C.steel2}`, fontFamily:"'Geist',sans-serif", padding:'1px 4px', fontStyle:'italic' }} title="Editar nombre del proyecto" />}
           {userPlan!=='free'&&<span style={{ fontSize:10, color:autoSaving?C.accent:C.steel3, fontFamily:"'Geist Mono',monospace", flexShrink:0 }}>{autoSaving?'Guardando...':'✓ Auto-guardado'}</span>}
           <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
-            <span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:userPlan==='free'?C.paper2:C.navy, color:userPlan==='free'?C.steel:C.paper, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.06em', cursor:'pointer' }} onClick={()=>setShowUpgrade(true)}>{userPlan}</span>
+            <span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:userPlan==='free'?C.paper2:C.navy, color:userPlan==='free'?C.steel:C.paper, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.06em' }}>{userPlan}</span>
             {userPlan!=='enterprise'&&<>
               <span title="Análisis IA disponibles" style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>◈ {limits.analisis-usedAnalisis}/{limits.analisis}</span>
               <span title="Mejoras IA disponibles" style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>✨ {limits.mejoras-usedMejoras}/{limits.mejoras}</span>
             </>}
             <span style={{ fontSize:11, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>{step+1}/{PHASES.length}</span>
+            {/* User icon */}
+            <a href="/perfil" style={{ width:30, height:30, borderRadius:'50%', background:C.navy, color:C.paper, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:600, fontSize:11, textDecoration:'none', fontFamily:"'Geist',sans-serif", flexShrink:0 }} title="Mi perfil y plan">
+              {userPlan?.[0]?.toUpperCase()||'U'}
+            </a>
           </div>
         </div>
       </header>
@@ -906,8 +910,22 @@ function WizardInner() {
               </div>
 
               <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:6, letterSpacing:'-0.01em' }}>Selección de Canales</h2>
-                <p style={{ fontSize:13, color:C.steel, marginBottom:16 }}>Elige los canales con los que vas a trabajar. La IA recomendará el mix óptimo.</p>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:6, flexWrap:'wrap', gap:10 }}>
+                  <div>
+                    <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, letterSpacing:'-0.01em' }}>Selección de Canales</h2>
+                    <p style={{ fontSize:13, color:C.steel, marginTop:4 }}>Elige los canales con los que vas a trabajar. Luego la IA creará la estrategia.</p>
+                  </div>
+                  <AiBtn
+                    label="Recomendar canales con IA"
+                    used={usedAnalisis} max={limits.analisis}
+                    onClick={()=>{
+                      const v=validateObjectivesForStrategy()
+                      if(!v.ok){setAlert({title:'Añade más objetivos',body:`Para recomendar canales necesitas al menos 2 objetivos de Marketing y 2 de Comunicación. Tienes ${v.mkt} Marketing y ${v.com} Comunicación.`});return}
+                      createStrategy()
+                    }}
+                    disabled={busy}
+                  />
+                </div>
                 <div style={{ background:C.paper, borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:13, color:C.navy, fontWeight:500 }}>
                   ✓ <strong>{plan.selectedChannels.length}</strong> canales seleccionados
                 </div>
@@ -971,7 +989,12 @@ function WizardInner() {
                                 <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:4 }}>
                                   <span style={{ fontSize:15, fontWeight:600, color:C.navy }}>{ss(ch.canal)}</span>
                                   <span style={{ fontSize:11, color:C.steel3 }}>{ss(ch.kpi)}</span>
-                                  {ch.score_ia&&<div style={{ display:'flex', gap:2 }}>{[1,2,3,4,5].map(n=><div key={n} style={{ width:8, height:8, borderRadius:2, background:n<=Number(ch.score_ia)?phCol[ph]:C.steel1 }}/>)}</div>}
+                                  {ch.score_ia&&(
+                                    <div title={`Puntuación IA: ${ch.score_ia}/5 — ${Number(ch.score_ia)>=4?'Muy recomendado':Number(ch.score_ia)>=3?'Recomendado':'Puede funcionar'}`} style={{ display:'flex', gap:2, cursor:'help' }}>
+                                      {[1,2,3,4,5].map(n=><div key={n} style={{ width:8, height:8, borderRadius:2, background:n<=Number(ch.score_ia)?phCol[ph]:C.steel1 }}/>)}
+                                      <span style={{ fontSize:10, color:C.steel3, marginLeft:4, alignSelf:'center' }}>{String(ch.score_ia)}/5</span>
+                                    </div>
+                                  )}
                                   <span style={{ fontSize:12, color:C.steel3, marginLeft:'auto' }}>{ss(ch.presupuesto_pct)}%</span>
                                 </div>
                                 <div style={{ fontSize:13, color:C.steel, marginBottom:2 }}>{ss(ch.accion)}</div>
