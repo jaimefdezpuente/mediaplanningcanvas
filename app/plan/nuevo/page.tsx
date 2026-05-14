@@ -143,8 +143,8 @@ function AlertModal({ title, body, btn, onClose }: { title:string; body:string; 
   )
 }
 
-function SaveModal({ onSave, onClose, busy }: { onSave:(name:string)=>void; onClose:()=>void; busy:boolean }) {
-  const [n, setN] = useState('')
+function SaveModal({ onSave, onClose, busy, defaultName }: { onSave:(name:string)=>void; onClose:()=>void; busy:boolean; defaultName?:string }) {
+  const [n, setN] = useState(defaultName||'')
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.45)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
       <div style={{ background:C.white, borderRadius:12, padding:32, maxWidth:460, width:'100%', boxShadow:'0 24px 48px -12px rgba(15,41,66,0.3)' }}>
@@ -574,7 +574,7 @@ function WizardInner() {
     <div style={{ minHeight:'100vh', background:C.paper }}>
       {aiModal&&<AiModal msg={aiModal}/>}
       {alert&&<AlertModal title={alert.title} body={alert.body} btn="Entendido" onClose={()=>setAlert(null)}/>}
-      {saveModal&&<SaveModal onSave={handleSave} onClose={()=>setSaveModal(false)} busy={busy}/>}
+      {saveModal&&<SaveModal onSave={handleSave} onClose={()=>setSaveModal(false)} busy={busy} defaultName={plan.projectName||`Plan ${plan.sector||'nuevo'}`}/>}
       {showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)}/>}
 
       {/* HEADER */}
