@@ -252,6 +252,8 @@ export default function NuevoPlanPage() {
   const [userPlan, setUserPlan] = useState('free')
   const [usedMejoras, setUsedMejoras] = useState(0)
   const [usedAnalisis, setUsedAnalisis] = useState(0)
+  const [savedPlanId, setSavedPlanId] = useState<string|null>(null)
+  const [autoSaving, setAutoSaving] = useState(false)
   const [plan, setPlan] = useState<PlanData>({
     projectName:'', pais:'España', sector:'', producto:'', web:'',
     tipo_negocio:'B2C', competidores:'', presupuesto:'', fase_negocio:'launch', usp:'',
@@ -351,7 +353,7 @@ export default function NuevoPlanPage() {
     if(plan.entorno){markDone(0);setStep(1);return}
     if(!canUseAnalisis()) return
     const r = await callAI('entorno')
-    if(r){setPlan(p=>({...p,entorno:r}));markDone(0);setStep(1);trackAnalisis()}
+    if(r){setPlan(p=>({...p,entorno:r}));markDone(0);setStep(1);trackAnalisis();autoSave({entorno:r as Obj})}
   }
 
   async function s1next() {
@@ -364,7 +366,7 @@ export default function NuevoPlanPage() {
       const rawSteps = ga(r,'escalera_valor')
       const steps:ValStep[] = rawSteps.map(s=>{const o=s as Obj;return{id:uid(),tipo:ss(o.tipo)||'MOFU',accion:ss(o.accion)||'',objetivo:ss(o.objetivo)||''}})
       setPlan(p=>({...p,target:r as Obj,valueSteps:steps}));markDone(1);setStep(2)
-      trackAnalisis()
+      trackAnalisis();autoSave({target:r as Obj})
     }
   }
 
@@ -426,16 +428,54 @@ export default function NuevoPlanPage() {
     }
   }
 
-  async function handleSave(name:string) {
+  async function autoSave(extra?: Partial<PlanData>) {
+    if (userPlan === 'free') return // Free users can't save
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    const current = { ...plan, ...extra }
+    setAutoSaving(true)
+    try {
+      if (savedPlanId) {
+        await supabase.from('plans').update({
+          name: current.projectName || `Plan ${current.sector}`,
+          pais: current.pais, sector: current.sector, producto: current.producto,
+          tipo_negocio: current.tipo_negocio, fase_negocio: current.fase_negocio,
+          usp: current.usp, entorno: current.entorno, target: current.target,
+          estrategia: current.estrategia, status: 'in_progress', updated_at: new Date().toISOString(),
+        }).eq('id', savedPlanId)
+      } else {
+        const { data } = await supabase.from('plans').insert({
+          user_id: user.id,
+          name: current.projectName || `Plan ${current.sector || 'nuevo'}`,
+          pais: current.pais, sector: current.sector, producto: current.producto,
+          tipo_negocio: current.tipo_negocio, fase_negocio: current.fase_negocio,
+          usp: current.usp, entorno: current.entorno, target: current.target,
+          estrategia: current.estrategia, status: 'in_progress',
+        }).select('id').single()
+        if (data?.id) setSavedPlanId(data.id)
+      }
+    } catch { /* silent fail */ }
+    setAutoSaving(false)
+  }
+
+  async function handleSave(name: string) {
     setBusy(true)
-    const{data:{user}}=await supabase.auth.getUser()
-    if(!user){router.push('/login');return}
-    await supabase.from('plans').insert({
-      user_id:user.id, name:name.trim(),
-      pais:plan.pais, sector:plan.sector, producto:plan.producto,
-      tipo_negocio:plan.tipo_negocio, fase_negocio:plan.fase_negocio,
-      usp:plan.usp, entorno:plan.entorno, target:plan.target, estrategia:plan.estrategia, status:'completed',
-    })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { router.push('/login'); return }
+    if (savedPlanId) {
+      await supabase.from('plans').update({
+        name: name.trim(), usp: plan.usp,
+        entorno: plan.entorno, target: plan.target, estrategia: plan.estrategia, status: 'completed',
+        updated_at: new Date().toISOString(),
+      }).eq('id', savedPlanId)
+    } else {
+      await supabase.from('plans').insert({
+        user_id: user.id, name: name.trim(),
+        pais: plan.pais, sector: plan.sector, producto: plan.producto,
+        tipo_negocio: plan.tipo_negocio, fase_negocio: plan.fase_negocio,
+        usp: plan.usp, entorno: plan.entorno, target: plan.target, estrategia: plan.estrategia, status: 'completed',
+      })
+    }
     router.push('/dashboard?saved=true')
     setBusy(false)
   }
@@ -469,6 +509,7 @@ export default function NuevoPlanPage() {
             })}
           </div>
           {plan.projectName&&<input value={plan.projectName} onChange={e=>upd('projectName',e.target.value)} style={{ fontSize:12, color:C.steel, flexShrink:0, maxWidth:160, background:'transparent', border:'none', outline:'none', borderBottom:`1px dashed ${C.steel2}`, fontFamily:"'Geist',sans-serif", padding:'1px 4px', fontStyle:'italic' }} title="Editar nombre del proyecto" />}
+          {userPlan!=='free'&&<span style={{ fontSize:10, color:autoSaving?C.accent:C.steel3, fontFamily:"'Geist Mono',monospace", flexShrink:0 }}>{autoSaving?'Guardando...':'✓ Auto-guardado'}</span>}
           <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
             <span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:userPlan==='free'?C.paper2:C.navy, color:userPlan==='free'?C.steel:C.paper, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.06em', cursor:'pointer' }} onClick={()=>setShowUpgrade(true)}>{userPlan}</span>
             {userPlan!=='enterprise'&&<>
@@ -939,32 +980,214 @@ export default function NuevoPlanPage() {
           {/* ── STEP 5: RESUMEN ─── */}
           {step===5&&(
             <div>
-              <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:6, letterSpacing:'-0.02em' }}>Resumen Ejecutivo</h1>
-              <p style={{ fontSize:15, color:C.steel, marginBottom:28 }}>Tu plan de marketing está completo. Dale un nombre y guárdalo.</p>
-              <div style={{ background:'#F0F9FF', border:`1px solid #BAE6FD`, borderRadius:12, padding:28, textAlign:'center', marginBottom:24 }}>
-                <div style={{ fontSize:20, fontWeight:600, color:C.navy, marginBottom:4 }}>{plan.projectName||`Plan ${plan.sector} — ${plan.pais}`}</div>
-                <div style={{ fontSize:13, color:C.steel, marginBottom:20 }}>{plan.pais} · {plan.tipo_negocio} · {plan.fase_negocio}</div>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, maxWidth:380, margin:'0 auto' }}>
-                  {[{lb:'Mercado',ok:!!plan.entorno},{lb:'Target',ok:!!plan.target},{lb:'Estrategia',ok:!!plan.estrategia},{lb:'Táctico',ok:plan.completed.includes(4)}].map((it,i)=>(
-                    <div key={i} style={{ background:it.ok?'#F0FDF4':'#F8FAFC', border:`1px solid ${it.ok?'#BBF7D0':C.steel1}`, borderRadius:8, padding:'12px 14px', display:'flex', alignItems:'center', gap:10 }}>
-                      <div style={{ flex:1, textAlign:'left' }}>
-                        <div style={{ fontSize:11, color:C.steel3, fontFamily:"'Geist Mono',monospace", letterSpacing:'0.08em', textTransform:'uppercase' }}>Fase {i+1}</div>
-                        <div style={{ fontSize:14, fontWeight:600, color:C.navy }}>{it.lb}</div>
-                      </div>
-                      <span style={{ fontWeight:700, color:it.ok?C.success:C.steel3 }}>{it.ok?'✓':'—'}</span>
-                    </div>
-                  ))}
+              <style>{`
+                @media print {
+                  body * { visibility: hidden !important; }
+                  #plan-pdf, #plan-pdf * { visibility: visible !important; }
+                  #plan-pdf { position: absolute; top: 0; left: 0; width: 100%; padding: 32px; background: white; }
+                  .no-print { display: none !important; }
+                }
+              `}</style>
+              <div className="no-print" style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:24, flexWrap:'wrap', gap:12 }}>
+                <div>
+                  <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.02em' }}>Resumen Ejecutivo</h1>
+                  <p style={{ fontSize:14, color:C.steel }}>Tu plan completo de marketing</p>
+                </div>
+                <div style={{ display:'flex', gap:10 }}>
+                  <button onClick={()=>setStep(4)} style={BTN_S}>← Táctico</button>
+                  <button onClick={()=>setSaveModal(true)} style={BTN_P}>
+                    {savedPlanId?'✓ Actualizar plan':'Guardar plan'}
+                  </button>
+                  <button onClick={()=>window.print()} style={{ ...BTN_S, borderColor:C.navy, color:C.navy, fontWeight:600 }}>↓ Exportar PDF</button>
                 </div>
               </div>
-              <div style={{ display:'flex', gap:10, justifyContent:'center', flexWrap:'wrap' }}>
-                <button onClick={()=>setSaveModal(true)} style={{ ...BTN_P, padding:'13px 28px', fontSize:15 }}>Guardar Plan</button>
-                <button style={BTN_S}>Exportar PDF</button>
+
+              <div id="plan-pdf">
+                {/* HEADER */}
+                <div style={{ background:C.navy, borderRadius:12, padding:28, marginBottom:16, color:C.paper }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexWrap:'wrap', gap:12 }}>
+                    <div>
+                      <div style={{ fontFamily:"'Geist Mono',monospace", fontSize:10, letterSpacing:'0.12em', textTransform:'uppercase', color:'rgba(246,244,239,0.55)', marginBottom:6 }}>Media Planning Canvas</div>
+                      <h2 style={{ fontSize:24, fontWeight:600, letterSpacing:'-0.02em', marginBottom:4 }}>{plan.projectName||`Plan ${plan.sector}`}</h2>
+                      <div style={{ fontSize:13, color:'rgba(246,244,239,0.7)' }}>{plan.pais} · {plan.sector} · {plan.tipo_negocio} · {plan.fase_negocio}</div>
+                    </div>
+                    <div style={{ textAlign:'right' }}>
+                      <div style={{ fontSize:11, color:'rgba(246,244,239,0.5)', marginBottom:4 }}>{new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}</div>
+                      {plan.web&&<div style={{ fontSize:12, color:'rgba(246,244,239,0.7)' }}>{plan.web}</div>}
+                      {ed('usp',plan.usp)&&<div style={{ fontSize:13, fontStyle:'italic', color:'rgba(246,244,239,0.85)', maxWidth:280, marginTop:6 }}>"{ed('usp',plan.usp)}"</div>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* MERCADO */}
+                {plan.entorno&&(
+                  <div style={{ ...CARD, marginBottom:12 }}>
+                    <div style={{ fontFamily:"'Geist Mono',monospace", fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:12 }}>01 · Mercado</div>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:4 }}>Entorno</div>
+                        <div style={{ fontSize:13, color:C.navy, lineHeight:1.6 }}>{ed('e_res',gn(plan.entorno,'situacion_pais','resumen'))}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:4 }}>Mercado</div>
+                        <div style={{ fontSize:13, color:C.navy, lineHeight:1.6 }}>{ed('e_mkt',gn(plan.entorno,'mercado','descripcion'))}</div>
+                        <div style={{ fontSize:12, color:C.steel, marginTop:4 }}>{ed('e_siz',gn(plan.entorno,'mercado','tamano_estimado'))}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:600, color:C.success, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:4 }}>Oportunidades</div>
+                        <div style={{ fontSize:13, color:C.navy, whiteSpace:'pre-line', lineHeight:1.6 }}>{ed('d_op',gn(plan.entorno,'dafo','oportunidades'))}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:600, color:C.warn, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:4 }}>Amenazas</div>
+                        <div style={{ fontSize:13, color:C.navy, whiteSpace:'pre-line', lineHeight:1.6 }}>{ed('d_am',gn(plan.entorno,'dafo','amenazas'))}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:600, color:'#1E40AF', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:4 }}>Fortalezas</div>
+                        <div style={{ fontSize:13, color:C.navy, whiteSpace:'pre-line', lineHeight:1.6 }}>{ed('d_fo','')}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:600, color:'#7E22CE', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:4 }}>Debilidades</div>
+                        <div style={{ fontSize:13, color:C.navy, whiteSpace:'pre-line', lineHeight:1.6 }}>{ed('d_de','')}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* TARGET */}
+                {plan.target&&(
+                  <div style={{ ...CARD, marginBottom:12 }}>
+                    <div style={{ fontFamily:"'Geist Mono',monospace", fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:12 }}>02 · Target & Buyer Persona</div>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14 }}>
+                      <div style={{ background:C.paper, borderRadius:8, padding:14 }}>
+                        <div style={{ fontSize:11, fontWeight:600, color:C.navy, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>Core Target</div>
+                        <div style={{ fontSize:13, color:C.navy, marginBottom:4 }}>{ed('t_cor',gn(plan.target,'core_target','descripcion'))}</div>
+                        <div style={{ fontSize:11, color:C.steel3 }}>Volumen: {ed('t_vol',gn(plan.target,'core_target','volumen_estimado'))} · Edad: {ed('t_soc',gn(plan.target,'core_target','sociodemografico','edad'))}</div>
+                      </div>
+                      <div style={{ background:C.paper, borderRadius:8, padding:14 }}>
+                        <div style={{ fontSize:11, fontWeight:600, color:C.steel, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>Broad Target</div>
+                        <div style={{ fontSize:13, color:C.navy, marginBottom:4 }}>{ed('t_bro',gn(plan.target,'broad_target','descripcion'))}</div>
+                        <div style={{ fontSize:11, color:C.steel3 }}>Volumen: {ed('t_bvol',gn(plan.target,'broad_target','volumen_estimado'))}</div>
+                      </div>
+                    </div>
+                    <div style={{ background:C.paper, borderRadius:8, padding:16, marginBottom:12 }}>
+                      <div style={{ fontSize:11, fontWeight:600, color:C.navy, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>
+                        Buyer Persona — {gn(plan.target,'buyer_persona','nombre')}
+                      </div>
+                      <div style={{ fontSize:13, color:C.navy, lineHeight:1.7, marginBottom:10 }}>{ed('bp_nar',gn(plan.target,'buyer_persona','descripcion_narrativa'))}</div>
+                      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                        {[
+                          {lb:'Barreras a la compra',k:'bp_bar',src:gn(plan.target,'buyer_persona','barreras_compra')},
+                          {lb:'Consumer Insight',k:'bp_ins',src:gn(plan.target,'buyer_persona','consumer_insight')},
+                        ].map(f=>(
+                          <div key={f.k}>
+                            <div style={{ fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:4 }}>{f.lb}</div>
+                            <div style={{ fontSize:12, color:C.navy, whiteSpace:'pre-line', lineHeight:1.6 }}>{ed(f.k,f.src)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {plan.valueSteps.length>0&&(
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>Escalera de Valor</div>
+                        <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                          {plan.valueSteps.map((s,i)=>{
+                            const cols:Record<string,string>={TOFU:'#92400E',MOFU:'#1E40AF',BOFU:C.success,FIDELIZACIÓN:'#7E22CE',RETENTION:'#831843'}
+                            return(
+                              <div key={s.id} style={{ flex:1, minWidth:140, background:C.paper, borderRadius:8, padding:'10px 12px', borderLeft:`3px solid ${cols[s.tipo]||C.steel2}` }}>
+                                <div style={{ fontSize:9, fontWeight:600, color:cols[s.tipo]||C.steel3, textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:4 }}>{s.tipo} · {i+1}</div>
+                                <div style={{ fontSize:12, fontWeight:600, color:C.navy, marginBottom:2 }}>{s.accion}</div>
+                                <div style={{ fontSize:11, color:C.steel }}>{s.objetivo}</div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* OBJETIVOS */}
+                {plan.objectives.filter(o=>o.kpi).length>0&&(
+                  <div style={{ ...CARD, marginBottom:12 }}>
+                    <div style={{ fontFamily:"'Geist Mono',monospace", fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:12 }}>03 · Objetivos del Plan</div>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                      {['Marketing','Comunicación'].map(tipo=>(
+                        <div key={tipo}>
+                          <div style={{ fontSize:11, fontWeight:600, color:tipo==='Marketing'?C.navy:C.steel, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>{tipo}</div>
+                          {plan.objectives.filter(o=>o.tipo===tipo&&o.kpi).map((o,i)=>(
+                            <div key={o.id} style={{ display:'flex', justifyContent:'space-between', padding:'7px 10px', background:C.paper, borderRadius:6, marginBottom:4 }}>
+                              <span style={{ fontSize:13, color:C.navy, fontWeight:500 }}>{o.kpi}</span>
+                              <span style={{ fontSize:12, color:C.steel, fontFamily:"'Geist Mono',monospace" }}>{o.dato}/{o.tiempo}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ESTRATEGIA */}
+                {plan.estrategia&&(
+                  <div style={{ ...CARD, marginBottom:12 }}>
+                    <div style={{ fontFamily:"'Geist Mono',monospace", fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:12 }}>04 · Estrategia de Canales</div>
+                    <div style={{ fontSize:14, color:C.navy, lineHeight:1.7, marginBottom:14 }}>{gn(plan.estrategia,'estrategia_resumen')}</div>
+                    {['notoriedad','interaccion','lead_venta','fidelizacion'].map(ph=>{
+                      const phLabel:Record<string,string>={notoriedad:'Notoriedad',interaccion:'Interacción',lead_venta:'Lead / Venta',fidelizacion:'Fidelización'}
+                      const phCol:Record<string,string>={notoriedad:C.warn,interaccion:'#1E40AF',lead_venta:C.success,fidelizacion:'#7E22CE'}
+                      const channels=ga(plan.estrategia,'canales_por_fase',ph) as Obj[]
+                      if(!channels||channels.length===0) return null
+                      return(
+                        <div key={ph} style={{ marginBottom:10 }}>
+                          <div style={{ fontSize:11, fontWeight:600, color:phCol[ph], textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>{phLabel[ph]}</div>
+                          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:6 }}>
+                            {channels.map((ch,i)=>(
+                              <div key={i} style={{ background:C.paper, borderRadius:6, padding:'8px 10px', borderLeft:`2px solid ${phCol[ph]}` }}>
+                                <div style={{ fontSize:13, fontWeight:600, color:C.navy, marginBottom:2 }}>{ss(ch.canal)}</div>
+                                <div style={{ fontSize:11, color:C.steel }}>{ss(ch.accion)}</div>
+                                <div style={{ fontSize:10, color:C.steel3, marginTop:2 }}>KPI: {ss(ch.kpi)} · {ss(ch.presupuesto_pct)}%</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
+                    {ga(plan.estrategia,'quick_wins').length>0&&(
+                      <div style={{ marginTop:12 }}>
+                        <div style={{ fontSize:11, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>Quick Wins</div>
+                        <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                          {ga(plan.estrategia,'quick_wins').map((qw,i)=>(
+                            <div key={i} style={{ background:'#F0FDF4', border:'1px solid #BBF7D0', borderRadius:6, padding:'6px 10px', fontSize:12, color:C.navy }}>✓ {ss(qw)}</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* COMPETIDORES */}
+                {plan.competidores&&(
+                  <div style={{ ...CARD, marginBottom:12 }}>
+                    <div style={{ fontFamily:"'Geist Mono',monospace", fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:8 }}>Competidores</div>
+                    <div style={{ fontSize:13, color:C.navy }}>{plan.competidores}</div>
+                  </div>
+                )}
+
+                {/* FOOTER PDF */}
+                <div style={{ textAlign:'center', padding:'16px 0', marginTop:8 }}>
+                  <div style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>Media Planning Canvas · mediaplanningcanvas.com · {new Date().getFullYear()}</div>
+                </div>
               </div>
-              <div style={{ marginTop:16, display:'flex', justifyContent:'flex-start' }}>
-                <button onClick={()=>setStep(4)} style={BTN_S}>← Volver al Táctico</button>
-              </div>
+
+              {/* Save button bottom */}
+              {userPlan==='free'&&(
+                <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:8, padding:'12px 16px', marginTop:16, display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:10 }}>
+                  <span style={{ fontSize:13, color:C.warn }}>⚠️ Con el plan gratuito no puedes guardar tu plan. Activa Pro para guardarlo.</span>
+                  <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_P, background:C.accent, padding:'9px 18px', fontSize:13 }}>Activar Pro →</button>
+                </div>
+              )}
             </div>
           )}
+
         </div>
       )}
     </div>

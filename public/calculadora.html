@@ -632,6 +632,103 @@ select option { background: var(--mpc-white) !important; color: var(--mpc-navy) 
 
 /* Start options hover */
 .start-opt:hover { border-color: var(--mpc-navy) !important; box-shadow: 0 2px 8px rgba(15,41,66,0.08) !important; }
+
+/* ═══ FINAL VISUAL FIXES ═══ */
+
+/* Fix LTV padding */
+.ltv-row td, .ltbl td { padding: 14px 18px !important; }
+.ltv-row th, .ltbl th { padding: 10px 18px !important; }
+.scard { padding: 22px 24px !important; margin-bottom: 14px !important; }
+.sc-g { gap: 12px !important; }
+.sc-main { font-size: 22px !important; font-weight: 500 !important; }
+
+/* Fix any remaining dark text on dark bg */
+.fflow, .lv-desc, .ch-desc, .f-desc {
+  color: var(--mpc-navy) !important;
+  background: var(--mpc-paper) !important;
+}
+
+/* Fix progress bar */
+.prog-bar { background: var(--mpc-steel1) !important; border-radius: 4px !important; overflow: hidden !important; }
+.prog-fill { background: var(--mpc-navy) !important; border-radius: 4px !important; }
+
+/* Fix modal/overlay if any */
+.modal-bg { background: rgba(15,41,66,0.5) !important; }
+.modal-card { background: var(--mpc-white) !important; color: var(--mpc-navy) !important; border-radius: 12px !important; }
+
+/* Fix select dropdown arrow */
+select { 
+  -webkit-appearance: auto !important;
+  background-image: none !important;
+}
+
+/* Fix info tooltips */
+.tip, .tooltip, [data-tip] {
+  background: var(--mpc-navy) !important;
+  color: var(--mpc-paper) !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+}
+
+/* Ensure all text in dark sections is readable */
+.dark-section, [style*="color: #e2e8f0"],
+[style*="color:#e2e8f0"], [style*="color:#f0f6ff"],
+[style*="color: #f0f6ff"], [style*="color: white"],
+[style*="color:white"] {
+  color: var(--mpc-navy) !important;
+}
+
+/* B2C/B2B active state fix */
+.b2c-btn.active, .b2b-btn.active,
+button.active[data-mode], button.on[data-mode] {
+  background: var(--mpc-navy) !important;
+  color: var(--mpc-paper) !important;
+  border-color: var(--mpc-navy) !important;
+}
+
+/* Score stars for channel recommendations */
+.score-dot.filled { background: var(--mpc-navy) !important; }
+.score-dot { background: var(--mpc-steel1) !important; }
+
+/* Fix channel phase labels */
+.phase-not { color: var(--mpc-warn) !important; }
+.phase-int { color: #1E40AF !important; }
+.phase-lead { color: var(--mpc-success) !important; }
+.phase-fid { color: #7C3AED !important; }
+
+/* Active tab underline */
+.ph-tab.act::after {
+  content: '';
+  display: block;
+  height: 2px;
+  background: var(--mpc-navy);
+  border-radius: 1px;
+  margin-top: 4px;
+}
+
+/* Bench / benchmark tips background */
+.bench-row td { 
+  background: var(--mpc-paper) !important;
+  color: var(--mpc-steel) !important;
+  font-size: 12px !important;
+}
+
+/* Monthly distribution toggle */
+.mo-tog { 
+  background: var(--mpc-paper2) !important;
+  border-radius: 6px !important;
+  padding: 2px !important;
+}
+.mo-btn { border: none !important; background: transparent !important; color: var(--mpc-steel) !important; font-size: 11px !important; }
+.mo-btn.on { background: var(--mpc-white) !important; color: var(--mpc-navy) !important; font-weight: 600 !important; border-radius: 4px !important; }
+
+/* Ensure Geist font loads */
+body, button, input, select, textarea {
+  font-family: 'Geist', -apple-system, system-ui, sans-serif !important;
+}
+.mono, .mpc-mono, code, [class*="mono"] {
+  font-family: 'Geist Mono', ui-monospace, monospace !important;
+}
 </style>
 </head>
 <body>
@@ -665,7 +762,7 @@ select option { background: var(--mpc-white) !important; color: var(--mpc-navy) 
       <button class="mode-btn" id="btnB2B" onclick="setMode('B2B')">B2B</button>
     </div>
     <button class="ic-btn np" onclick="showStorageInfo()">💾 Guardar</button>
-    <button class="ic-btn np" onclick="loadFromStorage()">📂 Cargar</button>
+    
     <button class="ic-btn np" onclick="window.print()">🖨️ PDF</button>
   </div>
 </div>
