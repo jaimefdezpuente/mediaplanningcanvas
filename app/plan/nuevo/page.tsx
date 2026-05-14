@@ -67,7 +67,7 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
   }
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
-      <div style={{ background:'#fff', borderRadius:14, padding:36, maxWidth:400, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.25)', textAlign:'center' }}>
+      <div style={{ background:'#fff', borderRadius:14, padding:36, maxWidth:440, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.25)', textAlign:'center' }}>
         <div style={{ fontSize:32, marginBottom:12 }}>⭐</div>
         <h3 style={{ fontSize:20, fontWeight:600, color:C.navy, marginBottom:8, letterSpacing:'-0.02em' }}>Función de plan Pro</h3>
         <p style={{ fontSize:14, color:C.steel, lineHeight:1.7, marginBottom:24 }}>
@@ -133,7 +133,7 @@ function AiModal({ msg }: { msg: string }) {
 function AlertModal({ title, body, btn, onClose }: { title:string; body:string; btn:string; onClose:()=>void }) {
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.45)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
-      <div style={{ background:C.white, borderRadius:12, padding:32, maxWidth:400, width:'100%', boxShadow:'0 24px 48px -12px rgba(15,41,66,0.3)' }}>
+      <div style={{ background:C.white, borderRadius:12, padding:32, maxWidth:440, width:'100%', boxShadow:'0 24px 48px -12px rgba(15,41,66,0.3)' }}>
         <div style={{ fontSize:24, marginBottom:12 }}>⚠️</div>
         <h3 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:10 }}>{title}</h3>
         <p style={{ fontSize:14, color:C.steel, lineHeight:1.6, marginBottom:24 }}>{body}</p>
@@ -147,7 +147,7 @@ function SaveModal({ onSave, onClose, busy }: { onSave:(name:string)=>void; onCl
   const [n, setN] = useState('')
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.45)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
-      <div style={{ background:C.white, borderRadius:12, padding:32, maxWidth:420, width:'100%', boxShadow:'0 24px 48px -12px rgba(15,41,66,0.3)' }}>
+      <div style={{ background:C.white, borderRadius:12, padding:32, maxWidth:460, width:'100%', boxShadow:'0 24px 48px -12px rgba(15,41,66,0.3)' }}>
         <h3 style={{ fontSize:20, fontWeight:600, color:C.navy, marginBottom:8 }}>Guardar plan</h3>
         <p style={{ fontSize:14, color:C.steel, marginBottom:20 }}>Dale un nombre para encontrarlo en tu dashboard.</p>
         <label style={LBL}>Nombre del proyecto</label>
@@ -408,7 +408,15 @@ function WizardInner() {
     const r = await callAI('target')
     if(r){
       const rawSteps = ga(r,'escalera_valor')
-      const steps:ValStep[] = rawSteps.map(s=>{const o=s as Obj;return{id:uid(),tipo:ss(o.tipo)||'MOFU',accion:ss(o.accion)||'',objetivo:ss(o.objetivo)||''}})
+      let steps:ValStep[] = rawSteps.map(s=>{const o=s as Obj;return{id:uid(),tipo:ss(o.tipo)||'MOFU',accion:ss(o.accion)||'',objetivo:ss(o.objetivo)||''}})
+      // Ensure minimum 4 steps
+      const defaultSteps = [
+        {id:uid(),tipo:'TOFU',accion:'',objetivo:'Captación de leads'},
+        {id:uid(),tipo:'MOFU',accion:'',objetivo:'Consideración'},
+        {id:uid(),tipo:'BOFU',accion:'',objetivo:'Conversión'},
+        {id:uid(),tipo:'FIDELIZACIÓN',accion:'',objetivo:'Retención'},
+      ]
+      while(steps.length < 4) steps.push(defaultSteps[steps.length])
       setPlan(p=>({...p,target:r as Obj,valueSteps:steps}));markDone(1);setStep(2)
       trackAnalisis();autoSave({target:r as Obj})
     }
@@ -608,18 +616,32 @@ function WizardInner() {
 
       {/* TÁCTICO — same width as other steps */}
       {step===4&&(
-        <div style={{ maxWidth:860, margin:'0 auto', padding:'40px 24px 0' }}>
-          <VideoBlock vimeoId="1103392013" title="Distribución táctica de presupuesto" />
+        <div style={{ maxWidth:1040, margin:'0 auto', padding:'40px 24px 0' }}>
           <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.02em' }}>Táctico & Presupuesto</h1>
           <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>{plan.sector} · {plan.pais} · {plan.tipo_negocio}</p>
+          <VideoBlock vimeoId="1103392013" title="Distribución táctica de presupuesto" />
           {userPlan==='free'&&(
             <div style={{ background:'#FFFBEB', border:`1px solid #FDE68A`, borderRadius:8, padding:'12px 16px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
-              <div style={{ fontSize:13, color:C.warn }}>⚠️ <strong>Plan Gratuito:</strong> La calculadora táctica es de solo lectura. Activa Pro para modificar.</div>
+              <div style={{ fontSize:13, color:C.warn }}>⚠️ <strong>Plan Gratuito:</strong> Solo lectura. Activa Pro para modificar.</div>
               <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_SM, color:C.accent, borderColor:C.accent, whiteSpace:'nowrap' }}>Activar Pro →</button>
             </div>
           )}
-          <div style={{ position:'relative', borderRadius:10, overflow:'hidden', border:`1px solid ${C.steel1}`, height:'calc(100vh - 240px)', minHeight:600, marginBottom:24, boxShadow:'0 1px 4px rgba(15,41,66,0.06)' }}>
-            <iframe src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}&readonly=${userPlan==='free'?'1':'0'}`} style={{ width:'100%', height:'100%', border:'none' }} title="Calculadora" />
+          <div style={{ position:'relative', marginBottom:32 }}>
+            <iframe
+              src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}&mode=${plan.tipo_negocio==='B2B'?'B2B':'B2C'}&readonly=${userPlan==='free'?'1':'0'}`}
+              style={{ width:'100%', height:3200, border:'none', display:'block' }}
+              scrolling="no"
+              title="Calculadora"
+              onLoad={(e)=>{
+                // Try to resize iframe to its content height
+                try {
+                  const iframe = e.target as HTMLIFrameElement
+                  if(iframe.contentDocument?.body){
+                    iframe.style.height = (iframe.contentDocument.body.scrollHeight + 40) + 'px'
+                  }
+                } catch {}
+              }}
+            />
             {userPlan==='free'&&(
               <div onClick={()=>setShowUpgrade(true)} style={{ position:'absolute', inset:0, cursor:'pointer', zIndex:10 }} title="Activa Pro para editar" />
             )}
@@ -632,15 +654,15 @@ function WizardInner() {
       )}
 
       {step!==4&&(
-        <div style={{ maxWidth:860, margin:'0 auto', padding:'40px 24px 80px' }}>
+        <div style={{ maxWidth:1040, margin:'0 auto', padding:'40px 24px 80px' }}>
           {err&&<div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:8, padding:'10px 16px', fontSize:14, color:'#B33A2E', marginBottom:16 }}>⚠️ {err}</div>}
 
           {/* ── STEP 0: PROYECTO ─── */}
           {step===0&&(
             <div>
-              <VideoBlock vimeoId="1103392013" title="Cómo empezar tu Media Planning Canvas" />
               <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:6, letterSpacing:'-0.02em' }}>Datos del proyecto</h1>
-              <p style={{ fontSize:15, color:C.steel, marginBottom:28, lineHeight:1.6 }}>La IA analizará tu mercado con esta información.</p>
+              <p style={{ fontSize:15, color:C.steel, marginBottom:16, lineHeight:1.6 }}>La IA analizará tu mercado con esta información.</p>
+              <VideoBlock vimeoId="1103392013" title="Cómo empezar tu Media Planning Canvas" />
               <div style={CARD}>
                 <label style={LBL}>Nombre del proyecto *</label>
                 <input style={INP} type="text" placeholder="Ej: Lanzamiento App Q3 2025" value={plan.projectName} onChange={e=>upd('projectName',e.target.value)} />
@@ -877,7 +899,7 @@ function WizardInner() {
                 </div>
                 <div style={{ display:'flex', gap:8, marginTop:10 }}>
                   <button onClick={()=>setPlan(p=>({...p,valueSteps:[...p.valueSteps,{id:uid(),tipo:'MOFU',accion:'',objetivo:''}]}))} style={BTN_SM}>+ Añadir paso</button>
-                  <AiBtn label="Más análisis con IA" used={usedAnalisis} max={limits.analisis} onClick={getValIdeas} disabled={busy} small />
+                  <AiBtn label="Ideas de Escalera IA" used={usedAnalisis} max={limits.analisis} onClick={getValIdeas} disabled={busy} small />
                 </div>
               </div>
 
@@ -1064,7 +1086,7 @@ function WizardInner() {
                   <div style={{ display:'flex', justifyContent:'space-between' }}>
                     <div style={{ display:'flex', gap:8 }}>
                       <button onClick={()=>setStep(2)} style={BTN_S}>← Atrás</button>
-                      <button onClick={()=>setShowStrategy(false)} style={BTN_S}>↺ Regenerar</button>
+                      <button onClick={()=>{setShowStrategy(false);}} style={BTN_S}>↺ Rehacer estrategia</button>
                     </div>
                     <button onClick={()=>{markDone(3);setStep(4)}} style={BTN_P}>Táctico & Presupuesto →</button>
                   </div>
@@ -1092,7 +1114,7 @@ function WizardInner() {
                 <div style={{ display:'flex', gap:10 }}>
                   <button onClick={()=>setStep(4)} style={BTN_S}>← Táctico</button>
                   <button onClick={()=>setSaveModal(true)} style={BTN_P}>
-                    {savedPlanId?'✓ Actualizar plan':'Guardar plan'}
+                    {'💾 Guardar plan'}
                   </button>
                   <button onClick={()=>window.print()} style={{ ...BTN_S, borderColor:C.navy, color:C.navy, fontWeight:600 }}>↓ Exportar PDF</button>
                 </div>

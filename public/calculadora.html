@@ -1197,6 +1197,197 @@ body, button, input, select, textarea {
 /* Investment/value text */
 #mpc-root .fv, #mpc-root .fc { color: #0F2942 !important; }
 #mpc-root .fi-label { color: #4A6B8A !important; }
+
+/* ═══ FINAL COMPREHENSIVE FIX ═══ */
+
+/* All text forced dark for readability */
+#mpc-root { color: #0F2942 !important; }
+#mpc-root * { color: inherit; }
+
+/* Channel title in plan table - was gray */
+#mpc-root .ptbl .ch-nm,
+#mpc-root .ptbl td strong,
+#mpc-root .ptbl td b,
+#mpc-root .ptbl .ch-name { 
+  color: #0F2942 !important; 
+  font-weight: 600 !important; 
+}
+#mpc-root .ptbl .ch-ph,
+#mpc-root .ptbl td span:not(.badge) { color: #4A6B8A !important; }
+
+/* ALL BUTTONS - remove black, use MPC style */
+#mpc-root button:not(.ph-tab):not(.mode-btn):not(.mtog):not(.pm-btn) {
+  background: #F6F4EF !important;
+  color: #0F2942 !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 6px !important;
+  font-family: 'Geist', sans-serif !important;
+}
+#mpc-root button.btn-p,
+#mpc-root button[class*="prim"],
+#mpc-root .btn-add {
+  background: #0F2942 !important;
+  color: #F6F4EF !important;
+  border-color: #0F2942 !important;
+}
+#mpc-root button.btn-p:hover { background: #163659 !important; }
+#mpc-root button.btn-s, #mpc-root button.btn-sec {
+  background: transparent !important;
+  color: #4A6B8A !important;
+  border: 1px solid #DDE2E8 !important;
+}
+/* Force Añadir al Plan button */
+#mpc-root [onclick*="addChannel"],
+#mpc-root [onclick*="addPlan"],
+#mpc-root [onclick*="add"] {
+  background: #0F2942 !important;
+  color: #F6F4EF !important;
+  border: none !important;
+}
+
+/* B2C/B2B toggle - elegant */
+#mpc-root .mode-tog {
+  background: #ECE8DF !important;
+  border-radius: 100px !important;
+  padding: 3px !important;
+  display: inline-flex !important;
+  gap: 2px !important;
+  border: 1px solid #DDE2E8 !important;
+}
+#mpc-root .mode-btn {
+  border-radius: 100px !important;
+  padding: 6px 16px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  transition: all 0.15s !important;
+}
+#mpc-root .mode-btn.act {
+  background: #0F2942 !important;
+  color: #F6F4EF !important;
+  box-shadow: 0 1px 3px rgba(15,41,66,0.2) !important;
+}
+#mpc-root .mode-btn:not(.act) {
+  background: transparent !important;
+  color: #4A6B8A !important;
+}
+
+/* LTV Section - elegant cards */
+#mpc-root .scard {
+  background: #FFFFFF !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 10px !important;
+  padding: 20px 22px !important;
+  margin-bottom: 12px !important;
+  box-shadow: 0 1px 2px rgba(15,41,66,0.04) !important;
+}
+#mpc-root .sc-g {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+  gap: 12px !important;
+}
+#mpc-root .sc-lbl2 {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: #8AA0B5 !important;
+  font-family: 'Geist Mono', monospace !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+}
+#mpc-root .sc-val {
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+  color: #0F2942 !important;
+}
+/* The blue/purple LTV boxes */
+#mpc-root .ltv-box, #mpc-root [class*="ltv"] {
+  background: #EFF6FF !important;
+  border: 1px solid #BFDBFE !important;
+  border-radius: 8px !important;
+  color: #1E40AF !important;
+  padding: 14px 16px !important;
+}
+#mpc-root .ltv-box .ltv-val { 
+  font-size: 28px !important; 
+  font-weight: 600 !important; 
+  color: #1E40AF !important;
+  font-family: 'Geist Mono', monospace !important;
+}
+#mpc-root .ltv-box .ltv-lbl { 
+  font-size: 11px !important; 
+  color: #3B82F6 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+}
+/* ltvcac purple box */
+#mpc-root .ltvcac-box, #mpc-root [class*="cac"] {
+  background: #F5F3FF !important;
+  border: 1px solid #DDD6FE !important;
+  border-radius: 8px !important;
+  color: #7C3AED !important;
+  padding: 14px 16px !important;
+}
+
+/* Channel expand form - all dark text */
+#mpc-root .ch-form,
+#mpc-root .ch-expand,
+#mpc-root [class*="expand"] {
+  background: #F6F4EF !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+}
+#mpc-root .ch-form *, #mpc-root .ch-expand * { color: #0F2942 !important; }
+#mpc-root .ch-form input, #mpc-root .ch-expand input {
+  background: #FFFFFF !important;
+  color: #0F2942 !important;
+  border: 1px solid #DDE2E8 !important;
+}
+
+/* Vista previa flow items */
+#mpc-root .fflow {
+  background: #0F2942 !important;
+  color: #F6F4EF !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+#mpc-root .fflow-warn {
+  background: #FFFBEB !important;
+  color: #92400E !important;
+  border: 1px solid #FDE68A !important;
+  border-radius: 6px !important;
+}
+
+/* Guardar / PDF buttons in header - override to match MPC */
+#mpc-root .ic-btn {
+  background: #FFFFFF !important;
+  color: #0F2942 !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 6px !important;
+  padding: 7px 14px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+}
+#mpc-root .ic-btn:hover {
+  border-color: #0F2942 !important;
+  background: #F6F4EF !important;
+}
+
+/* Resumen cards at bottom */
+#mpc-root .sm-row { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
+#mpc-root .sm {
+  background: #FFFFFF !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 8px !important;
+  padding: 14px 16px !important;
+  flex: 1 !important;
+  min-width: 120px !important;
+}
 </style>
 </head>
 <body>
