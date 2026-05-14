@@ -261,6 +261,7 @@ function WizardInner() {
   const [usedAnalisis, setUsedAnalisis] = useState(0)
   const [savedPlanId, setSavedPlanId] = useState<string|null>(null)
   const [autoSaving, setAutoSaving] = useState(false)
+  const [headerMenu, setHeaderMenu] = useState(false)
   const [plan, setPlan] = useState<PlanData>({
     projectName:'', pais:'España', sector:'', producto:'', web:'',
     tipo_negocio:'B2C', competidores:'', presupuesto:'', fase_negocio:'launch', usp:'',
@@ -421,7 +422,30 @@ function WizardInner() {
   async function createStrategy() {
     const objText = plan.objectives.map(o=>`${o.tipo}: ${o.kpi} = ${o.dato} / ${o.tiempo}`).join(' | ')
     const r = await callAI('estrategia',{objetivos:objText,canales_seleccionados:plan.selectedChannels.join(', ')||'Sin selección',fortalezas:ed('d_fo','')})
-    if(r){setPlan(p=>({...p,estrategia:r as Obj}));setShowStrategy(true)}
+    if(r){
+      // Extract recommended channels from strategy and mark them selected
+      const phases = ['notoriedad','interaccion','lead_venta','fidelizacion']
+      const recommendedNames: string[] = []
+      phases.forEach(ph=>{
+        const chs = (r as Obj).canales_por_fase
+        if(chs && typeof chs==='object' && !Array.isArray(chs)){
+          const phArr = (chs as Obj)[ph]
+          if(Array.isArray(phArr)){
+            phArr.forEach((ch:Jv)=>{
+              if(ch&&typeof ch==='object'&&!Array.isArray(ch)){
+                const name = (ch as Obj).canal
+                if(typeof name==='string'&&name) recommendedNames.push(name)
+              }
+            })
+          }
+        }
+      })
+      // Merge existing selection with recommended
+      const merged = Array.from(new Set([...plan.selectedChannels, ...recommendedNames]))
+      setPlan(p=>({...p, estrategia:r as Obj, selectedChannels:merged}))
+      setShowStrategy(true)
+      autoSave({estrategia:r as Obj})
+    }
   }
 
   async function getValIdeas() {
@@ -454,7 +478,7 @@ function WizardInner() {
   function validateObjectivesForStrategy(): {ok:boolean; mkt:number; com:number} {
     const mkt = plan.objectives.filter(o=>o.tipo==='Marketing'&&o.kpi&&o.kpi!=='').length
     const com = plan.objectives.filter(o=>o.tipo==='Comunicación'&&o.kpi&&o.kpi!=='').length
-    return {ok: mkt>=2&&com>=2, mkt, com}
+    return {ok: mkt>=2, mkt, com}
   }
 
   async function getObjectivosEstimados() {
@@ -535,7 +559,7 @@ function WizardInner() {
 
       {/* HEADER */}
       <header style={{ background:C.white, borderBottom:`1px solid ${C.steel1}`, position:'sticky', top:0, zIndex:20, boxShadow:'0 1px 2px rgba(15,41,66,0.05)' }}>
-        <div style={{ maxWidth:step===4?'100%':920, margin:'0 auto', padding:'0 24px', height:56, display:'flex', alignItems:'center', gap:16 }}>
+        <div style={{ maxWidth:'100%', margin:'0 auto', padding:'0 24px', height:56, display:'flex', alignItems:'center', gap:16 }}>
           <a href="/dashboard" style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:6 }}>
             <MpcMark size={22} />
           </a>
@@ -560,43 +584,49 @@ function WizardInner() {
               <span title="Mejoras IA disponibles" style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>✨ {limits.mejoras-usedMejoras}/{limits.mejoras}</span>
             </>}
             <span style={{ fontSize:11, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>{step+1}/{PHASES.length}</span>
-            {/* User icon */}
-            <a href="/perfil" style={{ width:30, height:30, borderRadius:'50%', background:C.navy, color:C.paper, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:600, fontSize:11, textDecoration:'none', fontFamily:"'Geist',sans-serif", flexShrink:0 }} title="Mi perfil y plan">
-              {userPlan?.[0]?.toUpperCase()||'U'}
-            </a>
+            {/* User menu */}
+            <div style={{ position:'relative', flexShrink:0 }}>
+              <button onClick={()=>setHeaderMenu(m=>!m)} style={{ width:30, height:30, borderRadius:'50%', background:C.navy, color:C.paper, border:'none', cursor:'pointer', fontWeight:600, fontSize:12, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Geist',sans-serif" }}>
+                {userPlan?.[0]?.toUpperCase()||'U'}
+              </button>
+              {headerMenu&&(
+                <div style={{ position:'absolute', right:0, top:38, background:C.white, border:`1px solid ${C.steel1}`, borderRadius:10, boxShadow:'0 8px 24px -8px rgba(15,41,66,0.15)', minWidth:180, zIndex:100, overflow:'hidden' }}>
+                  {[
+                    {label:'Mi perfil', href:'/perfil'},
+                    {label:'Cambiar contraseña', href:'/perfil?tab=password'},
+                    {label:'Cambiar de plan', href:'/perfil?tab=plan'},
+                    {label:'Dashboard', href:'/dashboard'},
+                  ].map((item,i)=>(
+                    <a key={i} href={item.href} style={{ display:'block', padding:'10px 16px', fontSize:13, color:C.navy, textDecoration:'none', borderBottom:i<3?`1px solid ${C.steel1}`:'none' }}>{item.label}</a>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
-      {/* TÁCTICO — fullscreen */}
+      {/* TÁCTICO — same width as other steps */}
       {step===4&&(
-        <div style={{ display:'flex', flexDirection:'column', height:'calc(100vh - 56px)' }}>
-          <div style={{ background:C.white, borderBottom:`1px solid ${C.steel1}`, padding:'12px 24px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <div>
-              <span style={{ fontSize:16, fontWeight:600, color:C.navy }}>Táctico & Presupuesto</span>
-              <span style={{ fontSize:13, color:C.steel, marginLeft:12 }}>{plan.sector} · {plan.pais} · {plan.tipo_negocio}</span>
-            </div>
-            <div style={{ display:'flex', gap:10 }}>
-              <button onClick={()=>setStep(3)} style={BTN_S}>← Atrás</button>
-              {userPlan==='free'&&(
-                <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_P, background:C.accent }}>⭐ Activar Pro para editar</button>
-              )}
-              <button onClick={()=>{markDone(4);setStep(5)}} style={BTN_P}>Ver Resumen →</button>
-            </div>
-          </div>
+        <div style={{ maxWidth:860, margin:'0 auto', padding:'40px 24px 0' }}>
+          <VideoBlock vimeoId="1103392013" title="Distribución táctica de presupuesto" />
+          <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.02em' }}>Táctico & Presupuesto</h1>
+          <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>{plan.sector} · {plan.pais} · {plan.tipo_negocio}</p>
           {userPlan==='free'&&(
-            <div style={{ background:'#FFFBEB', borderBottom:`1px solid #FDE68A`, padding:'10px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
-              <div style={{ fontSize:13, color:C.warn }}>
-                ⚠️ <strong>Plan Gratuito:</strong> La calculadora táctica es de solo lectura. Activa Pro para modificar canales, presupuestos y KPIs.
-              </div>
-              <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_SM, color:C.accent, borderColor:C.accent, whiteSpace:'nowrap', flexShrink:0 }}>Activar Pro →</button>
+            <div style={{ background:'#FFFBEB', border:`1px solid #FDE68A`, borderRadius:8, padding:'12px 16px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
+              <div style={{ fontSize:13, color:C.warn }}>⚠️ <strong>Plan Gratuito:</strong> La calculadora táctica es de solo lectura. Activa Pro para modificar.</div>
+              <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_SM, color:C.accent, borderColor:C.accent, whiteSpace:'nowrap' }}>Activar Pro →</button>
             </div>
           )}
-          <div style={{ flex:1, position:'relative' }}>
+          <div style={{ position:'relative', borderRadius:10, overflow:'hidden', border:`1px solid ${C.steel1}`, height:'calc(100vh - 240px)', minHeight:600, marginBottom:24, boxShadow:'0 1px 4px rgba(15,41,66,0.06)' }}>
             <iframe src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}&readonly=${userPlan==='free'?'1':'0'}`} style={{ width:'100%', height:'100%', border:'none' }} title="Calculadora" />
             {userPlan==='free'&&(
-              <div onClick={()=>setShowUpgrade(true)} style={{ position:'absolute', inset:0, cursor:'pointer', zIndex:10 }} title="Activa Pro para editar la calculadora táctica" />
+              <div onClick={()=>setShowUpgrade(true)} style={{ position:'absolute', inset:0, cursor:'pointer', zIndex:10 }} title="Activa Pro para editar" />
             )}
+          </div>
+          <div style={{ display:'flex', justifyContent:'space-between', paddingBottom:40 }}>
+            <button onClick={()=>setStep(3)} style={BTN_S}>← Atrás</button>
+            <button onClick={()=>{markDone(4);setStep(5)}} style={BTN_P}>Ver Resumen →</button>
           </div>
         </div>
       )}
@@ -952,16 +982,16 @@ function WizardInner() {
 
               {!showStrategy&&(
                 <div style={{ textAlign:'center', padding:'24px 0 32px' }}>
-                  <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>Necesitas al menos 2 objetivos de Marketing y 2 de Comunicación para crear la estrategia.</p>
+                  <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>Necesitas al menos 2 objetivos de Marketing para crear la estrategia.</p>
                   {(()=>{const v=validateObjectivesForStrategy();return !v.ok&&(
                     <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:8, padding:'10px 14px', fontSize:13, color:C.warn, marginBottom:16, textAlign:'left', maxWidth:500, margin:'0 auto 16px' }}>
-                      ⚠️ Tienes {v.mkt}/2 objetivos de Marketing y {v.com}/2 de Comunicación. Añade los que faltan arriba.
+                      ⚠️ Tienes {v.mkt}/2 objetivos de Marketing mínimos. Añade los que faltan arriba.
                     </div>
                   )})()}
                   <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
                     <button onClick={()=>setStep(2)} style={BTN_S}>← Atrás</button>
                     <AiBtn label={busy?'Creando...':'Crear Estrategia'} used={usedAnalisis} max={limits.analisis}
-                      onClick={()=>{const v=validateObjectivesForStrategy();if(!v.ok){setAlert({title:'Objetivos insuficientes',body:`Añade al menos 2 objetivos de Marketing y 2 de Comunicación antes de crear la estrategia. Ahora tienes ${v.mkt} Marketing y ${v.com} Comunicación.`});return;}createStrategy()}}
+                      onClick={()=>{const v=validateObjectivesForStrategy();if(!v.ok){setAlert({title:'Objetivos insuficientes',body:`Necesitas al menos 2 objetivos de Marketing para crear la estrategia. Ahora tienes ${v.mkt}. Añade los que faltan arriba.`});return;}createStrategy()}}
                       disabled={busy} />
                   </div>
                 </div>
@@ -990,7 +1020,7 @@ function WizardInner() {
                                   <span style={{ fontSize:15, fontWeight:600, color:C.navy }}>{ss(ch.canal)}</span>
                                   <span style={{ fontSize:11, color:C.steel3 }}>{ss(ch.kpi)}</span>
                                   {ch.score_ia&&(
-                                    <div title={`Puntuación IA: ${ch.score_ia}/5 — ${Number(ch.score_ia)>=4?'Muy recomendado':Number(ch.score_ia)>=3?'Recomendado':'Puede funcionar'}`} style={{ display:'flex', gap:2, cursor:'help' }}>
+                                    <div title={`Puntuación IA: ${Number(ch.score_ia)}/5 — ${Number(ch.score_ia)>=4?"Muy recomendado":Number(ch.score_ia)>=3?"Recomendado":"Posible opción"}`} style={{ display:'flex', gap:2, cursor:'help', position:'relative' }}>
                                       {[1,2,3,4,5].map(n=><div key={n} style={{ width:8, height:8, borderRadius:2, background:n<=Number(ch.score_ia)?phCol[ph]:C.steel1 }}/>)}
                                       <span style={{ fontSize:10, color:C.steel3, marginLeft:4, alignSelf:'center' }}>{String(ch.score_ia)}/5</span>
                                     </div>
