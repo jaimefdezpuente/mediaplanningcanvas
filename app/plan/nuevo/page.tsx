@@ -257,6 +257,7 @@ function WizardInner() {
   const [suggestedComps, setSuggestedComps] = useState<{nombre:string;descripcion:string;url:string}[]>([])
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [userPlan, setUserPlan] = useState('free')
+  const [userAvatar, setUserAvatar] = useState('')
   const [usedMejoras, setUsedMejoras] = useState(0)
   const [usedAnalisis, setUsedAnalisis] = useState(0)
   const [savedPlanId, setSavedPlanId] = useState<string|null>(null)
@@ -281,6 +282,7 @@ function WizardInner() {
       setUserPlan(planKey)
       setUsedMejoras(Number(user.user_metadata?.used_mejoras || 0))
       setUsedAnalisis(Number(user.user_metadata?.used_analisis || 0))
+      if (user.user_metadata?.avatar_url) setUserAvatar(user.user_metadata.avatar_url)
 
       // Load existing plan if plan_id in URL
       const planId = searchParams.get('plan_id')
@@ -606,8 +608,8 @@ function WizardInner() {
             <span style={{ fontSize:11, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>{step+1}/{PHASES.length}</span>
             {/* User menu */}
             <div style={{ position:'relative', flexShrink:0 }}>
-              <button onClick={()=>setHeaderMenu(m=>!m)} style={{ width:30, height:30, borderRadius:'50%', background:C.navy, color:C.paper, border:'none', cursor:'pointer', fontWeight:600, fontSize:12, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Geist',sans-serif" }}>
-                {userPlan?.[0]?.toUpperCase()||'U'}
+              <button onClick={()=>setHeaderMenu(m=>!m)} style={{ width:30, height:30, borderRadius:'50%', background:C.navy, color:C.paper, border:'none', cursor:'pointer', fontWeight:600, fontSize:12, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Geist',sans-serif", padding:0, overflow:'hidden' }}>
+                {userAvatar ? <img src={userAvatar} style={{width:30,height:30,objectFit:'cover',borderRadius:'50%'}} alt="avatar" /> : (userPlan?.[0]?.toUpperCase()||'U')}
               </button>
               {headerMenu&&(
                 <div style={{ position:'absolute', right:0, top:38, background:C.white, border:`1px solid ${C.steel1}`, borderRadius:10, boxShadow:'0 8px 24px -8px rgba(15,41,66,0.15)', minWidth:180, zIndex:100, overflow:'hidden' }}>

@@ -156,8 +156,10 @@ export default function DashboardPage() {
 
             {/* User menu */}
             <div ref={menuRef} style={{ position: 'relative' }}>
-              <button onClick={() => setMenuOpen(!menuOpen)} style={{ width: 34, height: 34, borderRadius: '50%', background: C.navy, color: C.paper, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Geist',sans-serif" }}>
-                {initials}
+              <button onClick={() => setMenuOpen(!menuOpen)} style={{ width: 34, height: 34, borderRadius: '50%', background: C.navy, color: C.paper, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Geist',sans-serif", padding: 0, overflow: 'hidden' }}>
+                {user?.user_metadata?.avatar_url
+                  ? <img src={user.user_metadata.avatar_url} alt="avatar" style={{ width: 34, height: 34, objectFit: 'cover', borderRadius: '50%' }} />
+                  : initials}
               </button>
               {menuOpen && (
                 <div style={{ position: 'absolute', right: 0, top: 42, background: C.white, border: `1px solid ${C.steel1}`, borderRadius: 10, boxShadow: '0 8px 24px -8px rgba(15,41,66,0.15)', minWidth: 200, zIndex: 50, overflow: 'hidden' }}>

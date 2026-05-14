@@ -48,6 +48,9 @@ function PerfilInner() {
   const [pwCurrent, setPwCurrent] = useState('')
   const [pwNew, setPwNew] = useState('')
   const [pwConfirm, setPwConfirm] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const [syncing, setSyncing] = useState(false)
 
   const supabase = createClient()
   const router = useRouter()
@@ -62,6 +65,7 @@ function PerfilInner() {
       setUser(user)
       setName(user.user_metadata?.full_name || '')
       setEmail(user.email || '')
+      if (user.user_metadata?.avatar_url) setAvatarUrl(user.user_metadata.avatar_url)
       setLoading(false)
     }
     load()
@@ -136,6 +140,41 @@ function PerfilInner() {
   const isPro = currentPlan !== 'free'
   const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
 
+  async function syncPlan() {
+    if (!user?.email) return
+    setSyncing(true)
+    try {
+      const r = await fetch('/api/sync-plan', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email: user.email}) })
+      const d = await r.json()
+      if (d.plan) {
+        await supabase.auth.updateUser({ data: { plan: d.plan } })
+        setUser(u => u ? {...u, user_metadata: {...(u.user_metadata||{}), plan: d.plan}} : u)
+        showMsg('ok', `Plan sincronizado: ${d.plan}`)
+        setTimeout(()=>window.location.reload(), 1000)
+      } else showMsg('err', d.error || 'Error al sincronizar')
+    } catch { showMsg('err', 'Error de red') }
+    setSyncing(false)
+  }
+
+  async function uploadAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !user) return
+    setAvatarUploading(true)
+    try {
+      const ext = file.name.split('.').pop()
+      const path = `${user.id}.${ext}`
+      const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true })
+      if (upErr) throw upErr
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+      await supabase.auth.updateUser({ data: { avatar_url: publicUrl } })
+      setAvatarUrl(publicUrl)
+      showMsg('ok', 'Foto de perfil actualizada')
+    } catch (err) {
+      showMsg('err', 'Error al subir imagen')
+    }
+    setAvatarUploading(false)
+  }
+
   const TABS = [
     { key: 'perfil', label: 'Mi perfil' },
     { key: 'password', label: 'Contraseña' },
@@ -158,12 +197,24 @@ function PerfilInner() {
 
         {/* User summary */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: C.navy, color: C.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 20, flexShrink: 0 }}>{initials}</div>
-          <div>
+          {/* Avatar with click-to-upload */}
+          <label style={{ cursor: 'pointer', flexShrink: 0, position: 'relative', display: 'block' }} title="Cambiar foto">
+            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={uploadAvatar} disabled={avatarUploading} />
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="avatar" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${C.steel1}` }} />
+            ) : (
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: C.navy, color: C.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 20 }}>{initials}</div>
+            )}
+            <div style={{ position: 'absolute', bottom: 0, right: 0, width: 18, height: 18, borderRadius: '50%', background: C.steel, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#fff', border: '2px solid #fff' }}>✎</div>
+          </label>
+          <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 22, fontWeight: 600, color: C.navy, marginBottom: 2, letterSpacing: '-0.02em' }}>{name || email}</h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 13, color: C.steel }}>{user?.email}</span>
               <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, background: isPro ? C.navy : C.paper2, color: isPro ? C.paper : C.steel, fontFamily: "'Geist Mono',monospace", textTransform: 'uppercase', letterSpacing: '0.06em' }}>{currentPlan}</span>
+              <button onClick={syncPlan} disabled={syncing} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, border: `1px solid ${C.steel1}`, background: 'transparent', color: C.steel3, cursor: 'pointer', fontFamily: "'Geist Mono',monospace" }}>
+                {syncing ? 'Sincronizando...' : '↻ Sincronizar plan'}
+              </button>
             </div>
           </div>
         </div>
