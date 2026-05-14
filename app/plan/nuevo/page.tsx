@@ -669,10 +669,12 @@ function WizardInner() {
             )}
           </div>
 
-          <div style={{ display:'flex', justifyContent:'space-between', paddingBottom:40 }}>
+          {/* Sticky bottom bar with nav buttons */}
+          <div style={{ position:'sticky', bottom:0, background:C.paper, borderTop:`1px solid ${C.steel1}`, padding:'12px 0', display:'flex', justifyContent:'space-between', zIndex:10 }}>
             <button onClick={()=>setStep(3)} style={BTN_S}>← Atrás</button>
-            <button onClick={()=>{markDone(4);setStep(5)}} style={BTN_P}>Ver Resumen →</button>
+            <button onClick={()=>{markDone(4);setStep(5)}} style={{ ...BTN_P, padding:'12px 32px' }}>Ver Resumen →</button>
           </div>
+          <div style={{ height:24 }} />
         </div>
       )}
 

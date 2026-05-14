@@ -1445,6 +1445,60 @@ body, button, input, select, textarea {
 
 /* Force .inn to full width, matching wizard */
 #mpc-root .inn { max-width: 100% !important; width: 100% !important; padding: 0 !important; }
+
+/* fflow - white bg, dark text, NO green */
+#mpc-root .fflow {
+  background: #FFFFFF !important;
+  color: #0F2942 !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  font-family: 'Geist', sans-serif !important;
+}
+/* Kill any inline green bg */
+#mpc-root .fflow[style] { background: #FFFFFF !important; color: #0F2942 !important; }
+
+#mpc-root span.fl { display: none !important; }
+
+#mpc-root span.fstep, #mpc-root .fstep {
+  background: #7e8084 !important;
+  color: #fff !important;
+  border-radius: 4px !important;
+  padding: 3px 8px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+/* Prevent body from growing beyond content */
+html, body { overflow-x: hidden !important; }
+#mpc-root { min-height: auto !important; }
+
+/* FFLOW fix */
+#mpc-root .fflow {
+  background: #FFFFFF !important;
+  color: #0F2942 !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  font-family: 'Geist', sans-serif !important;
+  white-space: nowrap !important;
+}
+#mpc-root .fl { display: none !important; }
+#mpc-root .fstep { background: #7e8084 !important; color: #FFFFFF !important; border-radius: 6px !important; }
+/* Ensure fflow wrapper is visible */
+#mpc-root .fflow-wrap { background: #F6F4EF !important; padding: 10px 12px !important; border-radius: 8px !important; }
+
+/* Force inn to full width, no overflow scroll */
+#mpc-root, #mpc-root .inn {
+  overflow: visible !important;
+  overflow-x: hidden !important;
+}
+#mpc-root .inn { max-width: 100% !important; width: 100% !important; }
+body { overflow: hidden !important; overflow-x: hidden !important; }
 </style>
 
 <script>
@@ -2381,37 +2435,49 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-// Auto-resize iframe from inside - tell parent our actual height
+// Stable one-shot height reporter — no infinite loop
 (function() {
+  var sent = false;
   var lastH = 0;
-  var tries = 0;
-  function reportHeight() {
-    // Use scrollHeight of the body content div
+  var stable = 0;
+
+  function measure() {
+    // Use offsetHeight of inn, NOT scrollHeight (avoids loop)
     var inn = document.querySelector('.inn');
-    var h = inn ? inn.offsetHeight : document.body.scrollHeight;
-    h = Math.max(h, document.body.scrollHeight) + 60;
-    if (Math.abs(h - lastH) > 10) {
+    if (!inn) return;
+    var h = inn.offsetHeight + 60;
+    if (Math.abs(h - lastH) < 20) {
+      stable++;
+    } else {
+      stable = 0;
       lastH = h;
+    }
+    if (stable >= 2 && !sent) {
+      sent = true;
       if (window.parent !== window) {
         window.parent.postMessage({ type: 'mpc-height', height: h }, '*');
       }
     }
-    tries++;
-    if (tries < 20) setTimeout(reportHeight, 300);
   }
-  function startReporting() {
-    // Report every 300ms for first 6 seconds, then every 1.5s
-    reportHeight();
-    var obs = new MutationObserver(function() { setTimeout(reportHeight, 200); });
-    obs.observe(document.body, { subtree: true, childList: true });
-    setInterval(reportHeight, 1500);
+
+  // Poll 20 times (every 250ms = 5 seconds), then stop
+  var count = 0;
+  function tick() {
+    measure();
+    count++;
+    if (count < 20) setTimeout(tick, 250);
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startReporting);
-  } else {
-    startReporting();
-  }
-  window.addEventListener('load', function() { tries = 0; setTimeout(reportHeight, 100); });
+
+  // Re-enable on user action (adding channel)
+  document.addEventListener('click', function(e) {
+    sent = false; stable = 0;
+    setTimeout(function() { count = 0; tick(); }, 400);
+  });
+
+  window.addEventListener('load', function() {
+    setTimeout(tick, 300);
+  });
+  if (document.readyState !== 'loading') setTimeout(tick, 300);
 })();
 </script>
 </body>
