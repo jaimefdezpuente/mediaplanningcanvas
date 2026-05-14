@@ -7,17 +7,17 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ===== ENFOLD ISOLATION — todos los estilos bajo #mpc-root ===== */
-#mpc-root{display:block!important;font-family:'DM Sans',sans-serif!important;font-size:14px!important;line-height:1.5!important;color:#f0f6ff!important;background:#07090f!important;min-height:100vh!important;overflow-x:hidden!important;position:relative!important;
-  --bg:#07090f;--bg2:#0d1117;--card:#111826;--card2:#161f2e;--bdr:#1e2d45;--bdr2:#243449;
-  --acc:#0ea5e9;--acc2:#38bdf8;--glow:rgba(14,165,233,.2);
-  --ok:#10b981;--warn:#f59e0b;--err:#ef4444;--pur:#8b5cf6;--pnk:#ec4899;--org:#f97316;
-  --txt:#f0f6ff;--txt2:#94a3b8;--txt3:#3d5370;
-  --not:#f59e0b;--int:#3b82f6;--lv:#10b981;--fid:#8b5cf6;
-  --mono:'JetBrains Mono',monospace;--disp:'Syne',sans-serif;
+#mpc-root{display:block!important;font-family:'Geist',sans-serif!important;font-size:14px!important;line-height:1.5!important;color:#f0f6ff!important;background:#F6F4EF!important;min-height:100vh!important;overflow-x:hidden!important;position:relative!important;
+  --bg:#F6F4EF;--bg2:#ECE8DF;--card:#FFFFFF;--card2:#F6F4EF;--bdr:#DDE2E8;--bdr2:#B5C2D0;
+  --acc:#0F2942;--acc2:#163659;--glow:rgba(15,41,66,.1);
+  --ok:#2F7D5C;--warn:#C28840;--err:#B33A2E;--pur:#7C3AED;--pnk:#C75A3C;--org:#C28840;
+  --txt:#0B1B2C;--txt2:#4A6B8A;--txt3:#8AA0B5;
+  --not:#C28840;--int:#1E40AF;--lv:#2F7D5C;--fid:#7C3AED;
+  --mono:'Geist Mono',monospace;--disp:'Geist',sans-serif;
 }
-#mpc-root::before{content:''!important;position:absolute!important;inset:0!important;z-index:0!important;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(14,165,233,.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(139,92,246,.05) 0%,transparent 60%)!important;pointer-events:none!important;z-index:0!important}
-#mpc-root *,#mpc-root *::before,#mpc-root *::after{box-sizing:border-box!important;margin:0!important;padding:0!important;font-family:'DM Sans',sans-serif!important}
-#mpc-root input,#mpc-root select,#mpc-root textarea,#mpc-root button{font-family:'DM Sans',sans-serif!important;font-size:14px!important;line-height:1.4!important;border-radius:0!important;appearance:none!important;-webkit-appearance:none!important;box-shadow:none!important;outline:none!important}
+#mpc-root::before{display:none!important}
+#mpc-root *,#mpc-root *::before,#mpc-root *::after{box-sizing:border-box!important;margin:0!important;padding:0!important;font-family:'Geist',sans-serif!important}
+#mpc-root input,#mpc-root select,#mpc-root textarea,#mpc-root button{font-family:'Geist',sans-serif!important;font-size:14px!important;line-height:1.4!important;border-radius:0!important;appearance:none!important;-webkit-appearance:none!important;box-shadow:none!important;outline:none!important}
 #mpc-root input[type=number]::-webkit-inner-spin-button,#mpc-root input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none!important;margin:0!important}
 #mpc-root table{border-collapse:collapse!important;border-spacing:0!important}
 #mpc-root td,#mpc-root th{padding:0!important}
@@ -729,6 +729,405 @@ body, button, input, select, textarea {
 .mono, .mpc-mono, code, [class*="mono"] {
   font-family: 'Geist Mono', ui-monospace, monospace !important;
 }
+
+/* ═══ MPC FINAL BRAND FIX — TARGETED SECTIONS ═══ */
+
+/* Reset ALL background/color in entire calculator */
+#mpc-root * {
+  border-color: var(--bdr) !important;
+}
+
+/* Header */
+#mpc-root .hdr {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #DDE2E8 !important;
+  box-shadow: 0 1px 2px rgba(15,41,66,0.05) !important;
+}
+#mpc-root .hdr, #mpc-root .hdr * { color: #0F2942 !important; }
+#mpc-root .logo-ic { 
+  background: none !important; 
+  box-shadow: none !important;
+}
+
+/* Budget bar */
+#mpc-root .bb {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #DDE2E8 !important;
+}
+#mpc-root .bb * { color: #0F2942 !important; }
+#mpc-root .bb .val { color: #0F2942 !important; font-weight: 600 !important; }
+#mpc-root .bb .l { color: #8AA0B5 !important; font-size: 10px !important; text-transform: uppercase !important; letter-spacing: 0.08em !important; }
+
+/* Main body */
+#mpc-root, #mpc-root .inn {
+  background: #F6F4EF !important;
+  color: #0F2942 !important;
+}
+
+/* All cards */
+#mpc-root .card, #mpc-root .card2, #mpc-root .ch-card,
+#mpc-root .scard, #mpc-root .sc2, #mpc-root .sm,
+#mpc-root .hi, #mpc-root .ph-note, #mpc-root .mix-box,
+#mpc-root .prev-box, #mpc-root .ex-c, #mpc-root .f-hdr {
+  background: #FFFFFF !important;
+  border: 1px solid #DDE2E8 !important;
+  color: #0F2942 !important;
+  box-shadow: 0 1px 2px rgba(15,41,66,0.05) !important;
+}
+
+/* Distribución Mensual - force white */
+#mpc-root .mtbl, #mpc-root .mtbl * {
+  background: #FFFFFF !important;
+  color: #0F2942 !important;
+}
+#mpc-root .mtbl th {
+  background: #F6F4EF !important;
+  color: #8AA0B5 !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  border-bottom: 1px solid #DDE2E8 !important;
+  font-weight: 600 !important;
+}
+#mpc-root .mtbl td { 
+  border-bottom: 1px solid #F6F4EF !important;
+  padding: 8px 10px !important;
+}
+/* Monthly toggle buttons */
+#mpc-root .mtog {
+  background: #F6F4EF !important;
+  color: #8AA0B5 !important;
+  border: 1px solid #DDE2E8 !important;
+  font-size: 11px !important;
+  border-radius: 4px !important;
+  padding: 3px 7px !important;
+}
+#mpc-root .mtog.on {
+  background: #0F2942 !important;
+  color: #F6F4EF !important;
+  border-color: #0F2942 !important;
+}
+
+/* Mode toggle (Maximizar/Alcanzar) */
+#mpc-root .pm-tog {
+  background: #ECE8DF !important;
+  border-radius: 8px !important;
+  padding: 3px !important;
+  display: flex !important;
+  gap: 3px !important;
+}
+#mpc-root .pm-btn {
+  background: transparent !important;
+  color: #4A6B8A !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 10px 16px !important;
+  font-family: 'Geist', sans-serif !important;
+}
+#mpc-root .pm-btn.act {
+  background: #FFFFFF !important;
+  color: #0F2942 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(15,41,66,0.1) !important;
+}
+#mpc-root .pm-btn span { color: inherit !important; }
+
+/* Phase tabs */
+#mpc-root .ph-tab {
+  background: transparent !important;
+  color: #4A6B8A !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  padding: 8px 14px !important;
+}
+#mpc-root .ph-tab.act {
+  color: #0F2942 !important;
+  border-bottom-color: #0F2942 !important;
+  font-weight: 600 !important;
+}
+#mpc-root .ph-tabs {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #DDE2E8 !important;
+}
+
+/* B2C/B2B toggle */
+#mpc-root .mode-tog {
+  background: #ECE8DF !important;
+  border-radius: 8px !important;
+  padding: 3px !important;
+}
+#mpc-root .mode-btn {
+  background: transparent !important;
+  color: #4A6B8A !important;
+  border: none !important;
+  border-radius: 6px !important;
+}
+#mpc-root .mode-btn.act {
+  background: #0F2942 !important;
+  color: #F6F4EF !important;
+  font-weight: 600 !important;
+}
+
+/* All inputs */
+#mpc-root input, #mpc-root select, #mpc-root textarea {
+  background: #F6F4EF !important;
+  color: #0F2942 !important;
+  border: 1px solid #DDE2E8 !important;
+  font-family: 'Geist', sans-serif !important;
+}
+#mpc-root input:focus, #mpc-root select:focus {
+  border-color: #0F2942 !important;
+  background: #FFFFFF !important;
+  outline: none !important;
+}
+#mpc-root select option {
+  background: #FFFFFF !important;
+  color: #0F2942 !important;
+}
+
+/* All buttons */
+#mpc-root button { font-family: 'Geist', sans-serif !important; }
+#mpc-root .btn-p, #mpc-root .ic-btn-p {
+  background: #0F2942 !important;
+  color: #F6F4EF !important;
+  border: none !important;
+  border-radius: 6px !important;
+}
+#mpc-root .btn-s, #mpc-root .ic-btn {
+  background: transparent !important;
+  color: #4A6B8A !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 6px !important;
+}
+
+/* Plan table */
+#mpc-root .ptbl { background: #FFFFFF !important; }
+#mpc-root .ptbl th {
+  background: #F6F4EF !important;
+  color: #8AA0B5 !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  border-bottom: 1px solid #DDE2E8 !important;
+  padding: 10px 14px !important;
+  font-weight: 600 !important;
+}
+#mpc-root .ptbl td {
+  color: #0F2942 !important;
+  border-bottom: 1px solid #F6F4EF !important;
+  padding: 10px 14px !important;
+}
+#mpc-root .ptbl tfoot td {
+  background: #F6F4EF !important;
+  border-top: 2px solid #DDE2E8 !important;
+  font-weight: 600 !important;
+}
+
+/* Analisis de sensibilidad */
+#mpc-root .sens-g, #mpc-root [class*="sens"] {
+  background: transparent !important;
+}
+#mpc-root .sc2 {
+  background: #FFFFFF !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+}
+#mpc-root .sc2 .sc-lbl, #mpc-root .sc-lbl {
+  color: #8AA0B5 !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  font-weight: 600 !important;
+}
+#mpc-root .sc2 .sc-main, #mpc-root .sc-main {
+  color: #0F2942 !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 22px !important;
+  font-weight: 500 !important;
+}
+#mpc-root .sc2 .sc-s { color: #4A6B8A !important; font-size: 12px !important; }
+#mpc-root input[type="range"] { accent-color: #0F2942 !important; }
+#mpc-root .sens-v { color: #0F2942 !important; font-weight: 600 !important; }
+
+/* LTV Section */
+#mpc-root .scard {
+  background: #FFFFFF !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 8px !important;
+  padding: 20px 24px !important;
+}
+#mpc-root .ltbl { background: #FFFFFF !important; }
+#mpc-root .ltbl th {
+  background: #F6F4EF !important;
+  color: #8AA0B5 !important;
+  padding: 12px 16px !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  border-bottom: 1px solid #DDE2E8 !important;
+}
+#mpc-root .ltbl td {
+  color: #0F2942 !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #F6F4EF !important;
+}
+#mpc-root .ltbl input {
+  background: #F6F4EF !important;
+  color: #0F2942 !important;
+  border: 1px solid #DDE2E8 !important;
+}
+#mpc-root .sc-val { color: #0F2942 !important; font-family: 'Geist Mono', monospace !important; }
+#mpc-root .sc-lbl2 { color: #8AA0B5 !important; font-size: 11px !important; text-transform: uppercase !important; }
+
+/* Resumen del Plan - summary section */
+#mpc-root .sum-row, #mpc-root .sum-g, #mpc-root .sum-card, 
+#mpc-root [class*="sum"], #mpc-root #resumen {
+  background: transparent !important;
+}
+#mpc-root .sm {
+  background: #FFFFFF !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 8px !important;
+  padding: 14px 16px !important;
+}
+#mpc-root .sm .l {
+  color: #8AA0B5 !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  font-family: 'Geist Mono', monospace !important;
+}
+#mpc-root .sm .v {
+  color: #0F2942 !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+#mpc-root .sm .s { color: #4A6B8A !important; font-size: 11px !important; }
+
+/* Health indicators */
+#mpc-root .hi { padding: 12px 14px !important; }
+#mpc-root .h-lbl { color: #8AA0B5 !important; font-size: 10px !important; text-transform: uppercase !important; }
+#mpc-root .h-val { color: #0F2942 !important; font-family: 'Geist Mono', monospace !important; font-weight: 500 !important; }
+
+/* Mix box */
+#mpc-root #mixBox, #mpc-root .mix-box {
+  background: #EFF6FF !important;
+  border: 1px solid #BAE6FD !important;
+  border-radius: 8px !important;
+}
+#mpc-root #mixBox * { color: #0F2942 !important; }
+
+/* Channel cards */
+#mpc-root .ch-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 8px !important;
+}
+#mpc-root .ch-nm { color: #0F2942 !important; font-weight: 600 !important; }
+#mpc-root .ch-ds { color: #8AA0B5 !important; font-size: 11px !important; }
+#mpc-root .ch-card:hover {
+  border-color: #0F2942 !important;
+  box-shadow: 0 2px 8px rgba(15,41,66,0.08) !important;
+}
+
+/* Channel form */
+#mpc-root .fl { color: #0F2942 !important; font-weight: 500 !important; }
+#mpc-root .fs { color: #8AA0B5 !important; font-size: 11px !important; }
+#mpc-root .fi { 
+  background: #F6F4EF !important;
+  color: #0F2942 !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 6px !important;
+}
+#mpc-root .fi:focus { border-color: #0F2942 !important; background: #FFFFFF !important; }
+
+/* Phase colors */
+#mpc-root .ph-not { color: #C28840 !important; }
+#mpc-root .ph-int { color: #1E40AF !important; }
+#mpc-root .ph-lead { color: #2F7D5C !important; }
+#mpc-root .ph-fid { color: #7C3AED !important; }
+
+/* Section labels */
+#mpc-root .slbl { background: transparent !important; }
+#mpc-root .snum {
+  background: #0F2942 !important;
+  color: #F6F4EF !important;
+  border-radius: 4px !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  padding: 3px 7px !important;
+}
+#mpc-root .stit { color: #0F2942 !important; font-weight: 600 !important; font-size: 16px !important; }
+#mpc-root .ssub { color: #4A6B8A !important; font-size: 13px !important; }
+
+/* Start options */
+#mpc-root .start-opt {
+  background: #FFFFFF !important;
+  border: 1.5px solid #DDE2E8 !important;
+  border-radius: 8px !important;
+  color: #0F2942 !important;
+}
+#mpc-root .start-opt:hover {
+  border-color: #0F2942 !important;
+  box-shadow: 0 2px 8px rgba(15,41,66,0.08) !important;
+}
+
+/* Examples */
+#mpc-root .ex-c {
+  background: #FFFFFF !important;
+  border: 1.5px solid #DDE2E8 !important;
+  color: #0F2942 !important;
+  border-radius: 8px !important;
+}
+#mpc-root .ex-c:hover { border-color: #0F2942 !important; }
+#mpc-root .ex-tt { color: #0F2942 !important; font-weight: 600 !important; }
+#mpc-root .ex-ds { color: #4A6B8A !important; }
+#mpc-root .ex-bg { color: #8AA0B5 !important; font-size: 11px !important; }
+
+/* Tags */
+#mpc-root .tag { border-radius: 4px !important; font-size: 10px !important; font-weight: 600 !important; padding: 2px 7px !important; }
+#mpc-root .tb2c { background: #EFF6FF !important; color: #1E40AF !important; }
+#mpc-root .tb2b { background: #F0FDF4 !important; color: #166534 !important; }
+#mpc-root .tlaunch { background: #ECE8DF !important; color: #4A6B8A !important; }
+#mpc-root .tgrow { background: #FFFBEB !important; color: #92400E !important; }
+
+/* Toast */
+#mpc-root .toast { background: #0F2942 !important; color: #F6F4EF !important; border-radius: 8px !important; }
+
+/* Score dots (channel recommendation 1-5) */
+#mpc-root .sc-dot { background: #DDE2E8 !important; width: 8px !important; height: 8px !important; border-radius: 2px !important; }
+#mpc-root .sc-dot.on { background: #0F2942 !important; }
+
+/* Benchmark tip */
+#mpc-root .bench-tip, #mpc-root .info-box {
+  background: #EFF6FF !important;
+  border: 1px solid #BAE6FD !important;
+  color: #1E40AF !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+}
+
+/* Empty state */
+#mpc-root .empty { color: #8AA0B5 !important; }
+
+/* Mono text */
+#mpc-root .mono, #mpc-root [class*="mono"] {
+  font-family: 'Geist Mono', monospace !important;
+  color: #0F2942 !important;
+}
+
+/* Progress bars */
+#mpc-root .prog { background: #DDE2E8 !important; border-radius: 4px !important; overflow: hidden !important; height: 6px !important; }
+#mpc-root .prog-fill { background: #0F2942 !important; height: 100% !important; border-radius: 4px !important; }
+
+/* Ensure all text is readable */
+#mpc-root p, #mpc-root span, #mpc-root div, #mpc-root label {
+  color: inherit;
+}
 </style>
 </head>
 <body>
@@ -752,8 +1151,8 @@ body, button, input, select, textarea {
       </svg>
     </div>
     <div>
-      <div class="logo-nm">Media Planning Canvas</div>
-      <div class="logo-sb">Jaime Fernández de la Puente-Campano</div>
+      <div class="logo-nm" style="font-family:'Geist',sans-serif;font-weight:600;color:#0F2942">Media Planning Canvas</div>
+      <div class="logo-sb" style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#8AA0B5">The Marketing Plan Generator</div>
     </div>
   </div>
   <div class="hdr-act">
@@ -1568,6 +1967,114 @@ window.addEventListener('DOMContentLoaded', function(){
       if(title) title.style.color = '#0F2942';
     }
   }
+});
+</script>
+
+<script>
+// MPC Brand Fix — runs after DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Color mapping: dark → light
+  const colorMap = {
+    '#07090f': '#F6F4EF', '#0d1117': '#ECE8DF', '#111826': '#FFFFFF',
+    '#161f2e': '#F6F4EF', '#1e2d45': '#DDE2E8', '#243449': '#B5C2D0',
+    '#0b1117': '#ECE8DF', '#0f172a': '#FFFFFF', '#131d2e': '#F6F4EF',
+    'rgb(7, 9, 15)': '#F6F4EF', 'rgb(13, 17, 23)': '#ECE8DF',
+    'rgb(17, 24, 38)': '#FFFFFF', 'rgb(22, 31, 46)': '#F6F4EF',
+    '#f0f6ff': '#0B1B2C', '#e2e8f0': '#0F2942', '#cbd5e1': '#4A6B8A',
+    '#94a3b8': '#4A6B8A', '#64748b': '#8AA0B5',
+    'rgb(240, 246, 255)': '#0B1B2C', 'rgb(226, 232, 240)': '#0F2942',
+  };
+
+  function fixElement(el) {
+    const style = el.style;
+    if (!style) return;
+    
+    // Fix background colors
+    const bg = style.backgroundColor || style.background;
+    if (bg) {
+      const bgLower = bg.toLowerCase();
+      for (const [dark, light] of Object.entries(colorMap)) {
+        if (bgLower.includes(dark)) {
+          style.backgroundColor = light;
+          style.background = light;
+          break;
+        }
+      }
+    }
+    
+    // Fix text colors
+    const color = style.color;
+    if (color) {
+      const colorLower = color.toLowerCase();
+      for (const [dark, light] of Object.entries(colorMap)) {
+        if (colorLower === dark || colorLower.includes(dark)) {
+          style.color = light;
+          break;
+        }
+      }
+    }
+
+    // Fix border colors
+    const border = style.borderColor;
+    if (border) {
+      const borderLower = border.toLowerCase();
+      for (const [dark, light] of Object.entries(colorMap)) {
+        if (borderLower.includes(dark)) {
+          style.borderColor = '#DDE2E8';
+          break;
+        }
+      }
+    }
+  }
+
+  // Fix all elements
+  document.querySelectorAll('*').forEach(fixElement);
+
+  // Re-run after any dynamic content loads
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      m.addedNodes.forEach(function(node) {
+        if (node.nodeType === 1) {
+          fixElement(node);
+          node.querySelectorAll && node.querySelectorAll('*').forEach(fixElement);
+        }
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // Fix Distribución Mensual specifically
+  document.querySelectorAll('.mtbl, .mtbl tr, .mtbl td, .mtbl th').forEach(el => {
+    if (el.style.backgroundColor && el.style.backgroundColor.includes('rgb(')) {
+      el.style.backgroundColor = '#FFFFFF';
+      el.style.color = '#0F2942';
+    }
+  });
+
+  // Fix dark toggle buttons
+  document.querySelectorAll('.mtog, .mode-btn, .pm-btn, .ph-tab').forEach(el => {
+    if (!el.classList.contains('on') && !el.classList.contains('act') && !el.classList.contains('active')) {
+      el.style.background = 'transparent';
+      el.style.color = '#4A6B8A';
+      el.style.borderColor = '#DDE2E8';
+    }
+  });
+
+  // Fix sensitivity analysis dark cards
+  document.querySelectorAll('.sc2, .sens-card, .sensitivity').forEach(el => {
+    el.style.background = '#FFFFFF';
+    el.style.color = '#0F2942';
+    el.style.border = '1px solid #DDE2E8';
+    el.style.borderRadius = '8px';
+  });
+
+  // Fix resumen/summary dark sections
+  document.querySelectorAll('.sum-row, .sum-card, .res-card, #resumen .card').forEach(el => {
+    el.style.background = '#FFFFFF';
+    el.style.color = '#0F2942';
+  });
+
+  console.log('MPC Brand Fix applied');
 });
 </script>
 </body>
