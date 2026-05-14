@@ -50,7 +50,7 @@ const KPI_COM = ['Notoriedad de marca','Cobertura','Alcance','Seguidores RRSS','
 
 // ─── PLAN LIMITS ─────────────────────────────────────────────────────────────
 const PLAN_LIMITS: Record<string, { plans: number; mejoras: number; analisis: number }> = {
-  free:       { plans: 1,   mejoras: 10,  analisis: 1 },
+  free:       { plans: 1,   mejoras: 10,  analisis: 0 },
   pro:        { plans: 10,  mejoras: 70,  analisis: 20 },
   business:   { plans: 30,  mejoras: 150, analisis: 60 },
   enterprise: { plans: 999, mejoras: 999, analisis: 999 },
@@ -349,22 +349,27 @@ export default function NuevoPlanPage() {
   async function s0next() {
     if(!plan.sector||!plan.producto) { setErr('Rellena sector y descripción del producto'); return }
     if(plan.entorno){markDone(0);setStep(1);return}
+    if(!canUseAnalisis()) return
     const r = await callAI('entorno')
-    if(r){setPlan(p=>({...p,entorno:r}));markDone(0);setStep(1)}
+    if(r){setPlan(p=>({...p,entorno:r}));markDone(0);setStep(1);trackAnalisis()}
   }
 
   async function s1next() {
-    if(!ed('d_fo','')) { setAlert({title:'Fortalezas obligatorias',body:'Las fortalezas de tu producto son clave para que la IA cree una estrategia personalizada. Por favor, rellena al menos las fortalezas antes de continuar.'}); return }
+    if(!ed('d_fo','')) { setAlert({title:'Fortalezas obligatorias',body:'Las fortalezas son necesarias para que la IA cree una estrategia personalizada.'}); return }
+    if(!ed('d_de','')) { setAlert({title:'Debilidades obligatorias',body:'Las debilidades son igual de importantes. Ayudan a la IA a crear una estrategia realista.'}); return }
+    if(!canUseAnalisis()) return
     if(plan.target){markDone(1);setStep(2);return}
     const r = await callAI('target')
     if(r){
       const rawSteps = ga(r,'escalera_valor')
       const steps:ValStep[] = rawSteps.map(s=>{const o=s as Obj;return{id:uid(),tipo:ss(o.tipo)||'MOFU',accion:ss(o.accion)||'',objetivo:ss(o.objetivo)||''}})
       setPlan(p=>({...p,target:r as Obj,valueSteps:steps}));markDone(1);setStep(2)
+      trackAnalisis()
     }
   }
 
   function s2next() {
+    if(!ed('usp',plan.usp).trim()) { setAlert({title:'USP obligatoria',body:'Define tu Propuesta Única de Valor antes de continuar. Es la base de toda tu estrategia.'}); return }
     markDone(2);setStep(3);setShowStrategy(false)
   }
 
@@ -375,12 +380,36 @@ export default function NuevoPlanPage() {
   }
 
   async function getValIdeas() {
+    if(!canUseAnalisis()) return
     const cur = plan.valueSteps.map(s=>`${s.tipo}: ${s.accion}`).join(' | ')
     const r = await callAI('escalera_ideas',{pasos_actuales:cur})
     if(r&&Array.isArray(r.nuevos_pasos)){
       const newS:ValStep[] = (r.nuevos_pasos as Obj[]).map(s=>({id:uid(),tipo:ss(s.tipo)||'MOFU',accion:ss(s.accion)||'',objetivo:ss(s.objetivo)||''}))
       setPlan(p=>({...p,valueSteps:[...p.valueSteps,...newS]}))
+      trackAnalisis()
     }
+  }
+
+  async function suggestUSP() {
+    if(!canUseMejora()) return
+    const r = await callAI('refine',{field_key:'usp',current_value:ed('usp',plan.usp)||'',user_prompt:`Crea una USP impactante y única para este producto: ${plan.producto}. Sector: ${plan.sector}. Tipo: ${plan.tipo_negocio}. En UNA sola frase corta, sin clichés.`})
+    if(r&&typeof r.refined_text==='string'){se('usp',r.refined_text);upd('usp',r.refined_text);trackMejora()}
+  }
+
+  async function getQuickWinsIA() {
+    if(!canUseAnalisis()) return
+    const objText = plan.objectives.map(o=>`${o.tipo}: ${o.kpi}`).join(' | ')
+    const r = await callAI('refine',{field_key:'quick_wins',current_value:'',user_prompt:`Genera 3 quick wins de marketing para: Producto: ${plan.producto}, Sector: ${plan.sector}, Objetivos: ${objText}. Deben ser acciones concretas de bajo coste y resultado rápido (menos de 30 días). Devuelve solo las 3 acciones como texto con saltos de línea.`})
+    if(r&&typeof r.refined_text==='string'){
+      se('qw_extra',r.refined_text)
+      trackAnalisis()
+    }
+  }
+
+  function validateObjectivesForStrategy(): {ok:boolean; mkt:number; com:number} {
+    const mkt = plan.objectives.filter(o=>o.tipo==='Marketing'&&o.kpi&&o.kpi!=='').length
+    const com = plan.objectives.filter(o=>o.tipo==='Comunicación'&&o.kpi&&o.kpi!=='').length
+    return {ok: mkt>=2&&com>=2, mkt, com}
   }
 
   async function getObjectivosEstimados() {
@@ -439,10 +468,13 @@ export default function NuevoPlanPage() {
               )
             })}
           </div>
-          {plan.projectName&&<div style={{ fontSize:12, color:C.steel3, fontStyle:'italic', flexShrink:0, maxWidth:140, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{plan.projectName}</div>}
+          {plan.projectName&&<input value={plan.projectName} onChange={e=>upd('projectName',e.target.value)} style={{ fontSize:12, color:C.steel, flexShrink:0, maxWidth:160, background:'transparent', border:'none', outline:'none', borderBottom:`1px dashed ${C.steel2}`, fontFamily:"'Geist',sans-serif", padding:'1px 4px', fontStyle:'italic' }} title="Editar nombre del proyecto" />}
           <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
-            <span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:userPlan==='free'?C.paper2:C.navy, color:userPlan==='free'?C.steel:C.paper, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.06em' }}>{userPlan}</span>
-            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>✨ {limits.mejoras-usedMejoras}/{limits.mejoras}</span>
+            <span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:userPlan==='free'?C.paper2:C.navy, color:userPlan==='free'?C.steel:C.paper, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.06em', cursor:'pointer' }} onClick={()=>setShowUpgrade(true)}>{userPlan}</span>
+            {userPlan!=='enterprise'&&<>
+              <span title="Análisis IA disponibles" style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>◈ {limits.analisis-usedAnalisis}/{limits.analisis}</span>
+              <span title="Mejoras IA disponibles" style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>✨ {limits.mejoras-usedMejoras}/{limits.mejoras}</span>
+            </>}
             <span style={{ fontSize:11, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>{step+1}/{PHASES.length}</span>
           </div>
         </div>
@@ -602,13 +634,16 @@ export default function NuevoPlanPage() {
                 <VideoBlock vimeoId="1103392013" title="Cómo construir tu DAFO" />
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
                   {[
-                    {k:'d_op',lb:'Oportunidades (IA)',src:gn(plan.entorno,'dafo','oportunidades'),bg:'#F0FDF4',col:C.success,ph:''},
-                    {k:'d_am',lb:'Amenazas (IA)',src:gn(plan.entorno,'dafo','amenazas'),bg:'#FFFBEB',col:C.warn,ph:''},
-                    {k:'d_fo',lb:'Fortalezas (tú) *',src:'',bg:'#EFF6FF',col:'#1E40AF',ph:'Precio, tecnología propia, equipo...'},
-                    {k:'d_de',lb:'Debilidades (tú)',src:'',bg:'#FDF4FF',col:'#7E22CE',ph:'Marca nueva, equipo pequeño...'},
+                    {k:'d_op',lb:'Oportunidades (IA)',src:gn(plan.entorno,'dafo','oportunidades'),bg:'#F0FDF4',col:C.success,ph:'',ia:true},
+                    {k:'d_am',lb:'Amenazas (IA)',src:gn(plan.entorno,'dafo','amenazas'),bg:'#FFFBEB',col:C.warn,ph:'',ia:true},
+                    {k:'d_fo',lb:'Fortalezas (tú) *',src:'',bg:'#EFF6FF',col:'#1E40AF',ph:'Precio, tecnología propia, equipo...',ia:false},
+                    {k:'d_de',lb:'Debilidades (tú) *',src:'',bg:'#FDF4FF',col:'#7E22CE',ph:'Marca nueva, equipo pequeño...',ia:false},
                   ].map(item=>(
                     <div key={item.k} style={{ background:item.bg, borderRadius:8, padding:14 }}>
-                      <div style={{ fontSize:11, fontWeight:600, color:item.col, marginBottom:8, fontFamily:"'Geist Mono',monospace", letterSpacing:'0.1em', textTransform:'uppercase' }}>{item.lb}</div>
+                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                        <div style={{ fontSize:11, fontWeight:600, color:item.col, fontFamily:"'Geist Mono',monospace", letterSpacing:'0.1em', textTransform:'uppercase' }}>{item.lb}</div>
+                        {item.ia&&<AiBtn label="Mejorar" used={usedMejoras} max={limits.mejoras} onClick={()=>refine(item.k,ed(item.k,item.src),'Mejora este análisis haciéndolo más específico y accionable')} disabled={busy} small />}
+                      </div>
                       <textarea style={{ ...INP, minHeight:80, background:C.white, fontSize:13, resize:'none' }}
                         placeholder={item.ph}
                         value={ed(item.k,item.src)}
@@ -616,12 +651,12 @@ export default function NuevoPlanPage() {
                     </div>
                   ))}
                 </div>
-                <p style={{ fontSize:11, color:C.steel3, marginTop:10, fontFamily:"'Geist Mono',monospace" }}>* Las fortalezas son obligatorias para avanzar al siguiente paso</p>
+                <p style={{ fontSize:11, color:C.steel3, marginTop:10, fontFamily:"'Geist Mono',monospace" }}>* Fortalezas y Debilidades son obligatorias para analizar el Target</p>
               </div>
 
               <div style={{ display:'flex', justifyContent:'space-between' }}>
                 <button onClick={()=>setStep(0)} style={BTN_S}>← Atrás</button>
-                <button onClick={s1next} style={BTN_P} disabled={busy}>Analizar Target →</button>
+                <AiBtn label={`Analizar Target ${plan.target?'(regenerar)':'→'}`} used={usedAnalisis} max={limits.analisis} onClick={s1next} disabled={busy} />
               </div>
             </div>
           )}
@@ -635,9 +670,12 @@ export default function NuevoPlanPage() {
               <VideoBlock vimeoId="1103392013" title="Cómo definir tu target" />
 
               <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:6, letterSpacing:'-0.01em' }}>USP — Propuesta Única de Valor</h2>
-                <p style={{ fontSize:13, color:C.steel, marginBottom:14 }}>Una frase que ningún competidor pueda copiar.</p>
+                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.01em' }}>USP — Propuesta Única de Valor <span style={{ color:C.accent, fontSize:14 }}>*</span></h2>
+                <p style={{ fontSize:13, color:C.steel, marginBottom:14 }}>Una frase que ningún competidor pueda copiar. Obligatoria para continuar.</p>
                 <EditField label="" fkey="usp" value={ed('usp',plan.usp)} onChange={v=>{se('usp',v);upd('usp',v)}} onRefine={p=>refine('usp',ed('usp',plan.usp),p)} multiline={false} />
+                <div style={{ display:'flex', gap:8, marginTop:8 }}>
+                  <AiBtn label="Sugerir USP con IA" used={usedMejoras} max={limits.mejoras} onClick={suggestUSP} disabled={busy} small />
+                </div>
               </div>
 
               <div style={CARD}>
@@ -812,12 +850,17 @@ export default function NuevoPlanPage() {
 
               {!showStrategy&&(
                 <div style={{ textAlign:'center', padding:'24px 0 32px' }}>
-                  <p style={{ fontSize:14, color:C.steel, marginBottom:20 }}>Cuando hayas definido objetivos y canales, la IA creará tu estrategia.</p>
+                  <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>Necesitas al menos 2 objetivos de Marketing y 2 de Comunicación para crear la estrategia.</p>
+                  {(()=>{const v=validateObjectivesForStrategy();return !v.ok&&(
+                    <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:8, padding:'10px 14px', fontSize:13, color:C.warn, marginBottom:16, textAlign:'left', maxWidth:500, margin:'0 auto 16px' }}>
+                      ⚠️ Tienes {v.mkt}/2 objetivos de Marketing y {v.com}/2 de Comunicación. Añade los que faltan arriba.
+                    </div>
+                  )})()}
                   <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
                     <button onClick={()=>setStep(2)} style={BTN_S}>← Atrás</button>
-                    <button onClick={createStrategy} style={{ ...BTN_P, padding:'13px 32px', fontSize:15 }} disabled={busy||plan.objectives.length<1}>
-                      {busy?'⏳ Creando...':'Crear Estrategia →'}
-                    </button>
+                    <AiBtn label={busy?'Creando...':'Crear Estrategia'} used={usedAnalisis} max={limits.analisis}
+                      onClick={()=>{const v=validateObjectivesForStrategy();if(!v.ok){setAlert({title:'Objetivos insuficientes',body:`Añade al menos 2 objetivos de Marketing y 2 de Comunicación antes de crear la estrategia. Ahora tienes ${v.mkt} Marketing y ${v.com} Comunicación.`});return;}createStrategy()}}
+                      disabled={busy} />
                   </div>
                 </div>
               )}
@@ -858,13 +901,27 @@ export default function NuevoPlanPage() {
                   })}
                   {ga(plan.estrategia,'quick_wins').length>0&&(
                     <div style={CARD}>
-                      <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:12 }}>Quick Wins</h2>
+                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+                        <h2 style={{ fontSize:16, fontWeight:600, color:C.navy }}>Quick Wins</h2>
+                        <AiBtn label="Nuevos Quick Wins IA" used={usedAnalisis} max={limits.analisis} onClick={getQuickWinsIA} disabled={busy} small />
+                      </div>
                       {ga(plan.estrategia,'quick_wins').map((qw,i)=>(
                         <div key={i} style={{ display:'flex', gap:10, background:'#F0FDF4', borderRadius:8, padding:'10px 12px', marginBottom:8 }}>
                           <span style={{ background:C.success, color:C.white, borderRadius:4, width:22, height:22, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:600, fontSize:11, flexShrink:0 }}>{i+1}</span>
                           <span style={{ fontSize:14, color:C.navy }}>{ss(qw)}</span>
                         </div>
                       ))}
+                      {plan.edits['qw_extra']&&(
+                        <div style={{ marginTop:8, padding:'12px 14px', background:C.paper, borderRadius:8, border:`1px solid ${C.steel1}` }}>
+                          <div style={{ fontSize:11, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.1em', fontFamily:"'Geist Mono',monospace", marginBottom:8 }}>Nuevos Quick Wins IA</div>
+                          {plan.edits['qw_extra'].split('\n').filter(Boolean).map((qw,i)=>(
+                            <div key={i} style={{ display:'flex', gap:10, background:'#F0F9FF', borderRadius:8, padding:'10px 12px', marginBottom:6, border:'1px solid #BAE6FD' }}>
+                              <span style={{ background:'#0369A1', color:C.white, borderRadius:4, width:22, height:22, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:600, fontSize:11, flexShrink:0 }}>+</span>
+                              <span style={{ fontSize:14, color:C.navy }}>{qw.replace(/^[-•*\d.]+\s*/,'')}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                   <div style={{ display:'flex', justifyContent:'space-between' }}>

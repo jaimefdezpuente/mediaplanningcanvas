@@ -141,9 +141,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Plan badge */}
-            <div style={{ padding: '4px 10px', borderRadius: 4, background: isPro ? C.navy : C.paper2, color: isPro ? C.paper : C.steel, fontSize: 11, fontWeight: 600, fontFamily: "'Geist Mono',monospace", letterSpacing: '0.08em', textTransform: 'uppercase', border: isPro ? 'none' : `1px solid ${C.steel1}` }}>
-              {planKey}
-            </div>
+            <a href="/perfil?tab=plan" style={{ padding: '4px 10px', borderRadius: 4, background: isPro ? C.navy : C.paper2, color: isPro ? C.paper : C.steel, fontSize: 11, fontWeight: 600, fontFamily: "'Geist Mono',monospace", letterSpacing: '0.08em', textTransform: 'uppercase', border: isPro ? 'none' : `1px solid ${C.steel1}`, textDecoration: 'none', cursor: 'pointer' }} title="Gestionar plan">
+              {planKey} ↑
+            </a>
 
             {/* User menu */}
             <div ref={menuRef} style={{ position: 'relative' }}>
@@ -261,7 +261,7 @@ export default function DashboardPage() {
         {/* Quick links */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12 }}>
           {[
-            { ic: '▶', t: 'Vídeos formativos', d: '20+ horas explicando cada fase', href: '#' },
+            { ic: '▶', t: 'Aprende marketing con vídeos', d: 'No solo creas tu plan — te enseñamos a hacer planes de marketing efectivos', href: '#' },
             { ic: '◈', t: 'Guía del Canvas', d: 'Metodología completa', href: '#' },
           ].map((item, i) => (
             <a key={i} href={item.href}
