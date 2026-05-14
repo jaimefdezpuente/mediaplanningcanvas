@@ -1499,6 +1499,9 @@ html, body { overflow-x: hidden !important; }
 }
 #mpc-root .inn { max-width: 100% !important; width: 100% !important; }
 body { overflow: hidden !important; overflow-x: hidden !important; }
+
+/* fflow last-child - white not green */
+#mpc-root .fflow:last-child { background: #FFFFFF !important; color: #0F2942 !important; }
 </style>
 
 <script>
@@ -1634,6 +1637,7 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
     <div style="font-size:12px;color:var(--mpc-steel)">Carga los canales que elegiste en el paso de estrategia</div>
   </div>
 </div>
+<div class="ex-mode-group" data-ex-mode="B2C">
 <div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--mpc-steel3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace" class="np">Ejemplos B2C</div>
 <div class="ex-g np" style="margin-bottom:16px">
   <div class="ex-c" onclick="loadExample('ecom_b2c')"><span class="ex-tt">🛍️ E-commerce · Moda</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">Meta Branding + Meta Perf + SEM + Influencer + Email. Plan completo.</div><span class="ex-bg">€ 3.500 · 80 clientes</span></div>
@@ -1643,6 +1647,9 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
   <div class="ex-c" onclick="loadExample('travel_b2c')"><span class="ex-tt">✈️ Viajes y Turismo</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">SEM + Meta Perf + Display Retargeting + Email BBDD + Reviews.</div><span class="ex-bg">€ 5.000 · 100 reservas</span></div>
   <div class="ex-c" onclick="loadExample('beauty_b2c')"><span class="ex-tt">💄 Belleza y Cosmética</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">Influencer Gifting + TikTok Ads + Instagram Meta Perf + Email Own.</div><span class="ex-bg">€ 2.800 · 120 clientes</span></div>
 </div>
+
+</div>
+<div class="ex-mode-group" data-ex-mode="B2B">
 <div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--mpc-steel3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace" class="np">Ejemplos B2B</div>
 <div class="ex-g np">
   <div class="ex-c" onclick="loadExample('saas_b2b')"><span class="ex-tt">💼 SaaS · Servicios</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">LinkedIn Branding + LinkedIn Perf + SEM + Email Outreach + Sales Force.</div><span class="ex-bg">€ 6.000 · 20 clientes</span></div>
@@ -1653,7 +1660,8 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
   <div class="ex-c" onclick="loadExample('fintech_b2b')"><span class="ex-tt">💳 Fintech B2B</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">SEM + LinkedIn Perf + Eventos Propios + Sales Force + Customer Success.</div><span class="ex-bg">€ 10.000 · 25 clientes</span></div>
 </div>
 
-<!-- STEP 02: CANALES -->
+
+</div><!-- STEP 02: CANALES -->
 <div class="slbl"><div class="snum">02</div><div class="stit">Añade Canales por Fase del Embudo</div></div>
 <div class="ssub">Selecciona la fase → elige el canal → rellena sus variables. Un mismo canal puede usarse en diferentes fases con KPIs distintos (ej: Meta Ads en Notoriedad = impresiones; en Lead/Venta = conversiones).</div>
 <div class="card np">
@@ -2469,6 +2477,35 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   if (document.readyState !== 'loading') setTimeout(tick, 300);
 })();
+</script>
+
+<script>
+// Filter examples by current B2C/B2B mode
+function filterExamplesByMode(mode) {
+  document.querySelectorAll('.ex-mode-group').forEach(function(g) {
+    g.style.display = (g.dataset.exMode === mode) ? '' : 'none';
+  });
+}
+
+// Hook into setMode to also filter examples
+var _origSetMode = window.setMode;
+window.setMode = function(mode) {
+  _origSetMode && _origSetMode(mode);
+  filterExamplesByMode(mode);
+};
+
+// Also filter on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // Get mode from URL param
+  var params = new URLSearchParams(location.search);
+  var mode = params.get('mode') || 'B2C';
+  filterExamplesByMode(mode);
+});
+window.addEventListener('load', function() {
+  var params = new URLSearchParams(location.search);
+  var mode = params.get('mode') || 'B2C';
+  filterExamplesByMode(mode);
+});
 </script>
 </body>
 </html>
