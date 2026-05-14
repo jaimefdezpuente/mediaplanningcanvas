@@ -48,6 +48,61 @@ function uid() { return Math.random().toString(36).slice(2) }
 const KPI_MKT = ['Ventas','Leads','Registros','Tráfico web','Share of market','CAC','LTV','Churn','MRR/ARR','Uso del producto','Fidelización','Demos','Descargas','Suscripciones','Otro...']
 const KPI_COM = ['Notoriedad de marca','Cobertura','Alcance','Seguidores RRSS','Conocimiento de funcionalidad','Afinidad de marca','Frecuencia de impacto','Compartir experiencia','Visualizaciones','Reposicionamiento','Otro...']
 
+// ─── PLAN LIMITS ─────────────────────────────────────────────────────────────
+const PLAN_LIMITS: Record<string, { plans: number; mejoras: number; analisis: number }> = {
+  free:       { plans: 1,   mejoras: 10,  analisis: 1 },
+  pro:        { plans: 10,  mejoras: 70,  analisis: 20 },
+  business:   { plans: 30,  mejoras: 150, analisis: 60 },
+  enterprise: { plans: 999, mejoras: 999, analisis: 999 },
+}
+
+function UpgradeModal({ onClose }: { onClose: () => void }) {
+  async function goUpgrade() {
+    const supabase = (await import('@/lib/supabase')).createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user?.email) return
+    const res = await fetch('/api/create-checkout', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email:user.email, plan:'pro_monthly' }) })
+    const data = await res.json()
+    if (data.url) window.location.href = data.url
+  }
+  return (
+    <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+      <div style={{ background:'#fff', borderRadius:14, padding:36, maxWidth:400, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.25)', textAlign:'center' }}>
+        <div style={{ fontSize:32, marginBottom:12 }}>⭐</div>
+        <h3 style={{ fontSize:20, fontWeight:600, color:C.navy, marginBottom:8, letterSpacing:'-0.02em' }}>Función de plan Pro</h3>
+        <p style={{ fontSize:14, color:C.steel, lineHeight:1.7, marginBottom:24 }}>
+          Has alcanzado el límite de tu plan actual. Pasa a Pro para acceder a más análisis con IA, mejoras de campos y planes ilimitados.
+        </p>
+        <div style={{ background:C.paper, borderRadius:8, padding:'12px 16px', marginBottom:20, textAlign:'left' }}>
+          <div style={{ fontSize:13, color:C.navy, fontWeight:600, marginBottom:6 }}>Plan Pro — €15/mes</div>
+          {['70 mejoras con IA/mes','20 análisis con IA/mes','10 planes completos/mes','Sin marca de agua en PDF'].map((f,i)=>(
+            <div key={i} style={{ fontSize:12, color:C.steel, marginBottom:3 }}>✓ {f}</div>
+          ))}
+        </div>
+        <div style={{ display:'flex', gap:10 }}>
+          <button onClick={onClose} style={{ flex:1, padding:'11px', borderRadius:6, border:`1px solid ${C.steel1}`, background:'transparent', color:C.steel, fontWeight:500, fontSize:13, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Cancelar</button>
+          <button onClick={goUpgrade} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:C.navy, color:C.paper, fontWeight:600, fontSize:13, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Activar Pro →</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AiBtn({ label, used, max, onClick, disabled, small=false }: { label:string; used:number; max:number; onClick:()=>void; disabled?:boolean; small?:boolean }) {
+  const remaining = max - used
+  const isOut = remaining <= 0
+  const pct = Math.max(0, Math.min(100, (remaining/max)*100))
+  return (
+    <button onClick={onClick} disabled={disabled||isOut} style={{ padding: small?'7px 12px':'9px 16px', borderRadius:6, border:`1px solid ${isOut?'#FECACA':C.steel1}`, background: isOut?'#FEF2F2':C.paper, color: isOut?'#B33A2E':C.steel, fontWeight:500, fontSize: small?11:12, cursor: isOut?'not-allowed':'pointer', fontFamily:"'Geist',sans-serif", display:'flex', alignItems:'center', gap:6, opacity:disabled&&!isOut?0.6:1 }}>
+      <span style={{ color: isOut?'#B33A2E':C.accent }}>✨</span>
+      {label}
+      <span style={{ fontFamily:"'Geist Mono',monospace", fontSize:10, padding:'2px 6px', borderRadius:4, background: isOut?'#FECACA':pct>50?'#F0FDF4':'#FFFBEB', color: isOut?'#B33A2E':pct>50?C.success:C.warn, fontWeight:600 }}>
+        {remaining}/{max}
+      </span>
+    </button>
+  )
+}
+
 const CH_OPTIONS: Record<string, string[]> = {
   notoriedad: ['Meta Ads Branding','TikTok Ads Branding','LinkedIn Ads Branding','YouTube Branding','Display Branding','Influencer Paid','Influencer Envío Producto','Brand Ambassadors','Employer Branding','Employee Advocacy','Ponencias en Eventos','Contenidos Medios Pagados','Colaboración con Medios','Branded Content','Sponsorship','Podcast Propio','Blog / Vblog','Contenidos RRSS','Boca a Oreja','Premios','Brand Days','Exterior','Prensa y Revistas','Radio','TV','Cine'],
   interaccion: ['LinkedIn Empresa','LinkedIn Perfiles Personales','LinkedIn Groups','Webinars','Workshops','Contenidos Formativos','Eventos Propios','Google Business','Live Streaming','Referencias Online','Web Corporativa','Concursos','Acudir a Eventos','Comunidad Propia','Networking','WhatsApp Business','Bot IA','Demos','Casos de Éxito','Propuestas Interactivas','Soporte Humano','Call Center','Banners Interactivos','Slideshare','Puntos de Venta','Flyers','Seeding','Internet of Things'],
@@ -193,6 +248,10 @@ export default function NuevoPlanPage() {
   const [showStrategy, setShowStrategy] = useState(false)
   const [competidorLoading, setCompetidorLoading] = useState(false)
   const [suggestedComps, setSuggestedComps] = useState<{nombre:string;descripcion:string;url:string}[]>([])
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  const [userPlan, setUserPlan] = useState('free')
+  const [usedMejoras, setUsedMejoras] = useState(0)
+  const [usedAnalisis, setUsedAnalisis] = useState(0)
   const [plan, setPlan] = useState<PlanData>({
     projectName:'', pais:'España', sector:'', producto:'', web:'',
     tipo_negocio:'B2C', competidores:'', presupuesto:'', fase_negocio:'launch', usp:'',
@@ -202,6 +261,39 @@ export default function NuevoPlanPage() {
   })
   const supabase = createClient()
   const router = useRouter()
+
+  useEffect(() => {
+    async function loadUser() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const plan = (user.user_metadata?.plan || 'free').toLowerCase()
+      setUserPlan(plan)
+      setUsedMejoras(Number(user.user_metadata?.used_mejoras || 0))
+      setUsedAnalisis(Number(user.user_metadata?.used_analisis || 0))
+    }
+    loadUser()
+  }, [])
+
+  const limits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free
+
+  function canUseMejora(): boolean {
+    if (usedMejoras >= limits.mejoras) { setShowUpgrade(true); return false }
+    return true
+  }
+  function canUseAnalisis(): boolean {
+    if (usedAnalisis >= limits.analisis) { setShowUpgrade(true); return false }
+    return true
+  }
+  async function trackMejora() {
+    setUsedMejoras(n => n + 1)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) await supabase.auth.updateUser({ data: { used_mejoras: (Number(user.user_metadata?.used_mejoras || 0)) + 1 } })
+  }
+  async function trackAnalisis() {
+    setUsedAnalisis(n => n + 1)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) await supabase.auth.updateUser({ data: { used_analisis: (Number(user.user_metadata?.used_analisis || 0)) + 1 } })
+  }
 
   function upd(f: keyof PlanData, v: string) { setPlan(p=>({...p,[f]:v})) }
   function se(k:string,v:string) { setPlan(p=>({...p,edits:{...p.edits,[k]:v}})) }
@@ -233,12 +325,14 @@ export default function NuevoPlanPage() {
   }
 
   async function refine(fkey:string,cur:string,p:string) {
+    if (!canUseMejora()) return
     const r = await callAI('refine',{field_key:fkey,current_value:cur,user_prompt:p})
-    if(r&&typeof r.refined_text==='string') se(fkey,r.refined_text)
+    if(r&&typeof r.refined_text==='string') { se(fkey,r.refined_text); trackMejora() }
   }
 
   async function buscarCompetidores() {
     if(!plan.producto||!plan.sector){setErr('Rellena primero el producto y sector');return}
+    if(!canUseAnalisis()) return
     setCompetidorLoading(true); setAiModal(`Buscando competidores de ${plan.sector} en ${plan.pais}...`)
     try {
       const res = await fetch('/api/ai', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ fase:'competidores', datos:{ producto:plan.producto, pais:plan.pais, sector:plan.sector, web:plan.web } }) })
@@ -325,6 +419,7 @@ export default function NuevoPlanPage() {
       {aiModal&&<AiModal msg={aiModal}/>}
       {alert&&<AlertModal title={alert.title} body={alert.body} btn="Entendido" onClose={()=>setAlert(null)}/>}
       {saveModal&&<SaveModal onSave={handleSave} onClose={()=>setSaveModal(false)} busy={busy}/>}
+      {showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)}/>}
 
       {/* HEADER */}
       <header style={{ background:C.white, borderBottom:`1px solid ${C.steel1}`, position:'sticky', top:0, zIndex:20, boxShadow:'0 1px 2px rgba(15,41,66,0.05)' }}>
@@ -344,8 +439,12 @@ export default function NuevoPlanPage() {
               )
             })}
           </div>
-          {plan.projectName&&<div style={{ fontSize:12, color:C.steel3, fontStyle:'italic', flexShrink:0, maxWidth:160, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{plan.projectName}</div>}
-          <span style={{ fontSize:11, color:C.steel3, fontFamily:"'Geist Mono',monospace", flexShrink:0 }}>{step+1}/{PHASES.length}</span>
+          {plan.projectName&&<div style={{ fontSize:12, color:C.steel3, fontStyle:'italic', flexShrink:0, maxWidth:140, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{plan.projectName}</div>}
+          <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
+            <span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:userPlan==='free'?C.paper2:C.navy, color:userPlan==='free'?C.steel:C.paper, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.06em' }}>{userPlan}</span>
+            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>✨ {limits.mejoras-usedMejoras}/{limits.mejoras}</span>
+            <span style={{ fontSize:11, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>{step+1}/{PHASES.length}</span>
+          </div>
         </div>
       </header>
 
@@ -359,10 +458,26 @@ export default function NuevoPlanPage() {
             </div>
             <div style={{ display:'flex', gap:10 }}>
               <button onClick={()=>setStep(3)} style={BTN_S}>← Atrás</button>
+              {userPlan==='free'&&(
+                <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_P, background:C.accent }}>⭐ Activar Pro para editar</button>
+              )}
               <button onClick={()=>{markDone(4);setStep(5)}} style={BTN_P}>Ver Resumen →</button>
             </div>
           </div>
-          <iframe src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}`} style={{ flex:1, border:'none', width:'100%' }} title="Calculadora" />
+          {userPlan==='free'&&(
+            <div style={{ background:'#FFFBEB', borderBottom:`1px solid #FDE68A`, padding:'10px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+              <div style={{ fontSize:13, color:C.warn }}>
+                ⚠️ <strong>Plan Gratuito:</strong> La calculadora táctica es de solo lectura. Activa Pro para modificar canales, presupuestos y KPIs.
+              </div>
+              <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_SM, color:C.accent, borderColor:C.accent, whiteSpace:'nowrap', flexShrink:0 }}>Activar Pro →</button>
+            </div>
+          )}
+          <div style={{ flex:1, position:'relative' }}>
+            <iframe src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}&readonly=${userPlan==='free'?'1':'0'}`} style={{ width:'100%', height:'100%', border:'none' }} title="Calculadora" />
+            {userPlan==='free'&&(
+              <div onClick={()=>setShowUpgrade(true)} style={{ position:'absolute', inset:0, cursor:'pointer', zIndex:10 }} title="Activa Pro para editar la calculadora táctica" />
+            )}
+          </div>
         </div>
       )}
 
@@ -419,9 +534,7 @@ export default function NuevoPlanPage() {
                 <label style={LBL}>Competidores principales</label>
                 <div style={{ display:'flex', gap:8, marginBottom:6 }}>
                   <input style={{ ...INP, marginBottom:0, flex:1 }} type="text" placeholder="Ej: Hootsuite, Buffer, Metricool" value={plan.competidores} onChange={e=>upd('competidores',e.target.value)} />
-                  <button onClick={buscarCompetidores} disabled={competidorLoading} style={{ ...BTN_SM, whiteSpace:'nowrap', flexShrink:0, padding:'10px 14px' }}>
-                    {competidorLoading?'Buscando...':'◈ Buscar con IA'}
-                  </button>
+                  <AiBtn label="Buscar con IA" used={usedAnalisis} max={limits.analisis} onClick={buscarCompetidores} disabled={competidorLoading} small />
                 </div>
                 {suggestedComps.length>0&&(
                   <div style={{ background:C.paper2, borderRadius:8, padding:14, marginTop:8 }}>
@@ -608,7 +721,7 @@ export default function NuevoPlanPage() {
                 </div>
                 <div style={{ display:'flex', gap:8, marginTop:10 }}>
                   <button onClick={()=>setPlan(p=>({...p,valueSteps:[...p.valueSteps,{id:uid(),tipo:'MOFU',accion:'',objetivo:''}]}))} style={BTN_SM}>+ Añadir paso</button>
-                  <button onClick={getValIdeas} style={{ ...BTN_SM, color:C.accent, borderColor:C.accent }} disabled={busy}>{busy?'⏳...':'✨ Más ideas con IA'}</button>
+                  <AiBtn label="Más análisis con IA" used={usedAnalisis} max={limits.analisis} onClick={getValIdeas} disabled={busy} small />
                 </div>
               </div>
 

@@ -78,7 +78,7 @@ export default function RegistroPage() {
               Gratis
             </button>
             <button onClick={()=>setTab('pro')} style={{ flex:1, padding:'8px', borderRadius:6, border:'none', background:tab==='pro'?C.navy:'transparent', color:tab==='pro'?C.paper:C.steel, fontWeight:600, fontSize:13, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>
-              Pro — €15/mes
+              Pro · €15/mes
             </button>
           </div>
 
@@ -105,10 +105,10 @@ export default function RegistroPage() {
             ) : (
               <div>
                 <div style={{ background:'#EFF6FF', borderRadius:8, padding:'12px 14px', marginBottom:16, fontSize:12, color:'#1E40AF' }}>
-                  <strong>Pro:</strong> 10 planes/mes · 70 repensares · Vídeos · Calculadora avanzada · 7 días gratis
+                  <strong>Pro:</strong> 10 planes/mes · 70 repensares · Vídeos · Calculadora avanzada · Activar Pro
                 </div>
                 <button type="button" onClick={handlePro} disabled={loading} style={{ width:'100%', padding:'12px', borderRadius:6, background:C.accent, border:'none', color:C.paper, fontWeight:600, fontSize:14, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>
-                  {loading ? 'Redirigiendo...' : 'Empezar 7 días gratis →'}
+                  {loading ? 'Redirigiendo...' : 'Empezar Activar Pro →'}
                 </button>
               </div>
             )}

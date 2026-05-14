@@ -157,12 +157,12 @@ export default function DashboardPage() {
                     <div style={{ fontSize: 11, color: C.steel3 }}>{user?.email}</div>
                   </div>
                   {[
-                    { label: 'Editar perfil', href: '/perfil' },
-                    { label: 'Cambiar contraseña', href: '/perfil?tab=password' },
-                    { label: 'Facturas', href: '/perfil?tab=billing' },
-                    { label: isPro ? 'Cambiar de plan' : '⭐ Actualizar a Pro', href: '#', action: isPro ? () => router.push('/precios') : handleUpgrade },
+                    { label: 'Editar perfil', href: '/perfil', action: null as (() => void) | null },
+                    { label: 'Cambiar contraseña', href: '/perfil?tab=password', action: null as (() => void) | null },
+                    { label: 'Facturas', href: '/perfil?tab=plan', action: null as (() => void) | null },
+                    { label: isPro ? 'Cambiar de plan' : '⭐ Actualizar a Pro', href: '/perfil?tab=plan', action: null as (() => void) | null },
                   ].map((item, i) => (
-                    <a key={i} href={item.href} onClick={item.action ? (e) => { e.preventDefault(); item.action!() } : undefined}
+                    <a key={i} href={item.href}
                       style={{ display: 'block', padding: '10px 16px', fontSize: 13, color: i === 3 && !isPro ? C.accent : C.navy, textDecoration: 'none', borderBottom: i < 3 ? `1px solid ${C.steel1}` : 'none', fontWeight: i === 3 && !isPro ? 600 : 400 }}>
                       {item.label}
                     </a>
@@ -209,10 +209,10 @@ export default function DashboardPage() {
           <div style={{ background: C.navy, borderRadius: 10, padding: '20px 24px', marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div>
               <div style={{ fontWeight: 600, color: C.paper, fontSize: 15, marginBottom: 3 }}>Estás en el plan gratuito</div>
-              <div style={{ fontSize: 13, color: 'rgba(246,244,239,0.65)' }}>Pasa a Pro y accede a 10 planes/mes, 70 repensares, vídeos formativos y calculadora táctica avanzada.</div>
+              <div style={{ fontSize: 13, color: 'rgba(246,244,239,0.65)' }}>Pasa a Pro y accede a 10 planes/mes, 70 mejoras con IA, vídeos formativos y calculadora táctica avanzada.</div>
             </div>
             <button onClick={handleUpgrade} disabled={upgrading} style={{ padding: '10px 22px', borderRadius: 6, background: C.accent, border: 'none', color: C.paper, fontWeight: 600, fontSize: 13, cursor: upgrading ? 'wait' : 'pointer', whiteSpace: 'nowrap', fontFamily: "'Geist',sans-serif", opacity: upgrading ? 0.7 : 1 }}>
-              {upgrading ? 'Redirigiendo...' : 'Actualizar a Pro — 7 días gratis →'}
+              {upgrading ? 'Redirigiendo...' : 'Actualizar a Pro — Activar Pro →'}
             </button>
           </div>
         )}
@@ -262,10 +262,9 @@ export default function DashboardPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12 }}>
           {[
             { ic: '▶', t: 'Vídeos formativos', d: '20+ horas explicando cada fase', href: '#' },
-            { ic: '⊞', t: 'Calculadora Táctica', d: 'Presupuesto, ROAS y CAC', href: '/calculadora.html' },
             { ic: '◈', t: 'Guía del Canvas', d: 'Metodología completa', href: '#' },
           ].map((item, i) => (
-            <a key={i} href={item.href} target={item.href.includes('http') ? '_blank' : undefined}
+            <a key={i} href={item.href}
               style={{ background: C.white, border: `1px solid ${C.steel1}`, borderRadius: 10, padding: '18px 20px', textDecoration: 'none', display: 'block', boxShadow: '0 1px 2px rgba(15,41,66,0.04)' }}>
               <div style={{ fontSize: 18, color: C.accent, marginBottom: 10 }}>{item.ic}</div>
               <div style={{ fontWeight: 600, fontSize: 14, color: C.navy, marginBottom: 4 }}>{item.t}</div>
