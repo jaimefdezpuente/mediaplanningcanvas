@@ -67,7 +67,7 @@ export default function DashboardPage() {
       if (data.url) {
         window.location.href = data.url
       } else {
-        alert('Error al iniciar el pago: ' + (data.error || 'Error desconocido'))
+        alert('Error Stripe: ' + (data.error || 'Error desconocido'))
       }
     } catch (e) {
       alert('Error de conexión. Inténtalo de nuevo.')

@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
     })
     return NextResponse.json({ url: session.url })
   } catch (error) {
-    console.error('Stripe error:', error)
-    return NextResponse.json({ error: 'Error creating checkout' }, { status: 500 })
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('Stripe error:', msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
