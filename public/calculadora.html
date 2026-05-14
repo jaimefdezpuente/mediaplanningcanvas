@@ -2196,7 +2196,18 @@ const EX={
   academia:{mode:'B2C',sectorVal:'cursos',phase:'growth',planMode:'budget',budget:2200,clients:60,cac:37,ticket:350,ticketType:'por_venta',channels:[{uid:1,channelId:'RRSS_ORG_NOT',fields:{inv:200,posts_mes:20,alcance_post:2000},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:2,channelId:'META_PERF',fields:{inv:700,cpm:7,ctr:1.8,deflaccion:20,cr:0.7,carrito2venta:40},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:3,channelId:'EMAIL_OWN',fields:{inv:100,n_emails:6000,ctr:18,deflaccion:10,cr:0.7,carrito2venta:45},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:4,channelId:'WEBINAR',fields:{inv:300,invitaciones:3000,pct_reg:15,pct_asist:50},months:[0,1,0,1,0,1,0,1,0,1,0,1]},{uid:5,channelId:'AFILIACION',fields:{vis_est:4000,cr:0.7,com_pct:15},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:6,channelId:'LOYALTY',fields:{inv:200,base_cli:300,pct_activo:30,frec_compra:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]}],ltv:{lh_p:25,lh_f:2,lh_y:3,lh_t:350,lm_p:35,lm_f:1,lm_y:2,lm_t:250,lb_p:25,lb_f:1,lb_y:1,lb_t:150,ln_p:15}},
 };
 
-function loadExample(k){const ex=EX[k];if(!ex)return;const d={...ex,sectorVal:ex.sectorVal,uidCtr:ex.channels.length,channels:ex.channels.map(c=>({...c,results:null,months:c.months||Array(12).fill(true)}))};applyData(d);showToast('📦 Ejemplo cargado');}
+function loadExample(k){
+  var ALL_EX=Object.assign({},EX,(typeof EXTRA_EXAMPLES!=='undefined'?EXTRA_EXAMPLES:{}));
+  var ex=ALL_EX[k];
+  if(!ex){console.warn('Example not found:',k,'Available:',Object.keys(ALL_EX));return;}
+  var d=Object.assign({},ex,{
+    sectorVal:ex.sectorVal,
+    uidCtr:ex.channels.length,
+    channels:ex.channels.map(function(c){return Object.assign({},c,{results:null,months:c.months||[1,1,1,1,1,1,1,1,1,1,1,1]});})
+  });
+  applyData(d);
+  showToast('📦 Ejemplo cargado: '+k);
+}
 
 function showStorageInfo(){document.getElementById('storageModal').classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
