@@ -2230,39 +2230,118 @@ document.addEventListener('DOMContentLoaded',init);
 <script>
 // ─── MPC WIZARD INTEGRATION ────────────────────────────────────────────────
 const EXTRA_EXAMPLES = {
-  fitness_b2c:{mode:'B2C',budget:4000,clients:200,cac:20,phase:'launch',channels:[{channelId:'TIKTOK_BRAND',fields:{inv:800,cpm:5,frec:3,cr_sec:0.1}},{channelId:'META_PERF',fields:{inv:1200,cpm:8,ctr:1.5,deflaccion:25,cr:2.5}},{channelId:'INF_PROD',fields:{inv:300,n_inf:10,seg:10000,pct_imp:60,cr_sec:0.1}},{channelId:'EMAIL_AUTO',fields:{inv:100,base_cli:500,pct_activo:20,frec_compra:20}}]},
-  retail_b2c:{mode:'B2C',budget:1500,clients:150,cac:10,phase:'growth',channels:[{channelId:'GOOGLE_BIZ',fields:{inv:100,busq_mes:2000,pct_click:25}},{channelId:'META_PERF',fields:{inv:500,cpm:7,ctr:1.5,deflaccion:25,cr:3}},{channelId:'CUPONES',fields:{inv:300,n_cupones:500,cr:8}},{channelId:'SMS_FID',fields:{inv:100,base_cli:800,pct_activo:10,frec_compra:10}},{channelId:'LOYALTY',fields:{inv:500,base_cli:400,pct_activo:30,frec_compra:25}}]},
-  travel_b2c:{mode:'B2C',budget:5000,clients:100,cac:50,phase:'growth',channels:[{channelId:'SEM',fields:{inv:2000,cpc:1.5,deflaccion:20,cr:2}},{channelId:'META_PERF',fields:{inv:1500,cpm:8,ctr:1.5,deflaccion:25,cr:1.5}},{channelId:'DISPLAY_P',fields:{inv:500,cpc:0.5,deflaccion:40,cr:0.8}},{channelId:'EMAIL_OWN',fields:{inv:100,n_emails:5000,ctr:18,deflaccion:10,cr:2}},{channelId:'REVIEWS',fields:{inv:100,base_cli:500,pct_activo:10,frec_compra:5}}]},
-  beauty_b2c:{mode:'B2C',budget:2800,clients:120,cac:23,phase:'launch',channels:[{channelId:'INF_PROD',fields:{inv:600,n_inf:20,seg:15000,pct_imp:60,cr_sec:0.2}},{channelId:'TIKTOK_PERF',fields:{inv:800,cpm:5,ctr:0.8,deflaccion:35,cr:2}},{channelId:'META_PERF',fields:{inv:800,cpm:7,ctr:1.5,deflaccion:25,cr:2.5}},{channelId:'EMAIL_OWN',fields:{inv:100,n_emails:3000,ctr:18,deflaccion:10,cr:3}},{channelId:'REVIEWS',fields:{inv:100,base_cli:300,pct_activo:15,frec_compra:8}}]},
-  consulting_b2b:{mode:'B2B',budget:3000,clients:8,cac:375,phase:'launch',channels:[{channelId:'LI_BRAND',fields:{inv:500,cpm:18,frec:3,cr_sec:0.1}},{channelId:'WEBINAR',fields:{inv:400,invitaciones:2000,pct_reg:8,pct_asist:50}},{channelId:'EMAIL_OUT',fields:{inv:300,n_emails:2000,ctr:3,deflaccion:20,cr:2}},{channelId:'DEMO_WORK',fields:{inv:500,n_demo:15,demos_por:1,cierre:20}},{channelId:'CUST_SUCCESS',fields:{inv:1300,base_cli:30,pct_activo:85,frec_compra:20}}]},
-  industrial_b2b:{mode:'B2B',budget:8000,clients:15,cac:533,phase:'growth',channels:[{channelId:'SEM',fields:{inv:2000,cpc:3,deflaccion:15,cr:1.5}},{channelId:'LINKEDIN_PERF',fields:{inv:2000,cpc:7,deflaccion:15,cr:2}},{channelId:'PARTNERS',fields:{inv:1000,n_demo:5,demos_por:8,cierre:15}},{channelId:'SALESFORCE',fields:{inv:2000,n_demo:2,demos_por:15,cierre:20}},{channelId:'EMAIL_AUTO',fields:{inv:500,base_cli:200,pct_activo:30,frec_compra:15}}]},
-  hr_b2b:{mode:'B2B',budget:4500,clients:12,cac:375,phase:'growth',channels:[{channelId:'LI_BRAND',fields:{inv:800,cpm:18,frec:3,cr_sec:0.1}},{channelId:'WEBINAR',fields:{inv:600,invitaciones:3000,pct_reg:10,pct_asist:50}},{channelId:'EMAIL_OUT',fields:{inv:500,n_emails:3000,ctr:4,deflaccion:15,cr:2}},{channelId:'DEMO_WORK',fields:{inv:800,n_demo:20,demos_por:1,cierre:25}},{channelId:'CUST_SUCCESS',fields:{inv:1800,base_cli:50,pct_activo:85,frec_compra:20}}]},
-  agency_b2b:{mode:'B2B',budget:2500,clients:6,cac:416,phase:'launch',channels:[{channelId:'LI_BRAND',fields:{inv:500,cpm:18,frec:3,cr_sec:0.15}},{channelId:'BRANDED_C',fields:{inv:600,alcance_m:50000,pct_imp:10,cr_sec:0.2}},{channelId:'EMAIL_OUT',fields:{inv:300,n_emails:1500,ctr:4,deflaccion:20,cr:3}},{channelId:'MGM',fields:{inv:200,base_cli:20,cr:15}},{channelId:'REVIEWS',fields:{inv:200,base_cli:50,pct_activo:20,frec_compra:10}},{channelId:'CUST_SUCCESS',fields:{inv:700,base_cli:25,pct_activo:85,frec_compra:20}}]},
-  fintech_b2b:{mode:'B2B',budget:10000,clients:25,cac:400,phase:'growth',channels:[{channelId:'SEM',fields:{inv:3000,cpc:4,deflaccion:15,cr:2}},{channelId:'LINKEDIN_PERF',fields:{inv:2500,cpc:8,deflaccion:15,cr:1.5}},{channelId:'EVENTO_PROP',fields:{inv:2000,asistentes:150,online_reach:3000,cr_sec:0.2}},{channelId:'SALESFORCE',fields:{inv:2000,n_demo:3,demos_por:20,cierre:15}},{channelId:'CUST_SUCCESS',fields:{inv:500,base_cli:60,pct_activo:88,frec_compra:25}}]},
+  fitness_b2c:{mode:'B2C',sectorVal:'deporte',phase:'launch',budget:4000,clients:200,cac:20,ticket:49,ticketType:'mensual',
+    channels:[
+      {channelId:'TIKTOK_BRAND',fields:{inv:800,cpm:5,frec:3,cr_sec:0.1},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'META_PERF',fields:{inv:1500,cpm:8,ctr:1.5,deflaccion:25,cr:2.5,carrito2venta:35},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'INF_PROD',fields:{inv:500,n_inf:15,seg:12000,pct_imp:60,cr_sec:0.15},months:[1,1,1,0,1,1,0,0,1,1,1,0]},
+      {channelId:'EMAIL_AUTO',fields:{inv:200,base_cli:800,pct_activo:22,frec_compra:20},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'PUSH_NOT',fields:{inv:100,base_cli:1500,pct_activo:6,frec_compra:10},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+    ]},
+  retail_b2c:{mode:'B2C',sectorVal:'hogar',phase:'growth',budget:1500,clients:150,cac:10,ticket:65,ticketType:'por_venta',
+    channels:[
+      {channelId:'GOOGLE_BIZ',fields:{inv:100,busq_mes:2500,pct_click:22},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'META_PERF',fields:{inv:500,cpm:7,ctr:1.5,deflaccion:25,cr:2.0,carrito2venta:40},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'CUPONES',fields:{inv:200,n_cupones:600,cr:8},months:[0,0,1,0,0,1,0,1,0,0,1,1]},
+      {channelId:'SMS_FID',fields:{inv:100,base_cli:800,pct_activo:10,frec_compra:12},months:[1,0,1,0,1,0,1,0,1,0,1,1]},
+      {channelId:'LOYALTY',fields:{inv:600,base_cli:500,pct_activo:30,frec_compra:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+    ]},
+  travel_b2c:{mode:'B2C',sectorVal:'viajes',phase:'growth',budget:5000,clients:100,cac:50,ticket:850,ticketType:'por_venta',
+    channels:[
+      {channelId:'SEM',fields:{inv:2000,cpc:1.8,deflaccion:20,cr:1.28,carrito2venta:40},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'META_PERF',fields:{inv:1500,cpm:8,ctr:1.5,deflaccion:25,cr:1.0,carrito2venta:35},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'DISPLAY_P',fields:{inv:500,cpc:0.5,deflaccion:40,cr:0.8,carrito2venta:30},months:[1,1,1,1,1,1,0,0,1,1,1,1]},
+      {channelId:'EMAIL_OWN',fields:{inv:200,n_emails:6000,ctr:20,deflaccion:10,cr:1.5,carrito2venta:45},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'REVIEWS',fields:{inv:100,base_cli:600,pct_activo:12,frec_compra:5},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'EMAIL_AUTO',fields:{inv:200,base_cli:400,pct_activo:18,frec_compra:15},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+    ]},
+  beauty_b2c:{mode:'B2C',sectorVal:'salud',phase:'launch',budget:2800,clients:120,cac:23,ticket:75,ticketType:'por_venta',
+    channels:[
+      {channelId:'INF_PROD',fields:{inv:600,n_inf:20,seg:15000,pct_imp:60,cr_sec:0.2},months:[1,1,1,0,1,1,0,0,1,1,1,0]},
+      {channelId:'TIKTOK_PERF',fields:{inv:800,cpm:5,ctr:0.8,deflaccion:35,cr:1.88,carrito2venta:30},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'META_PERF',fields:{inv:900,cpm:7,ctr:1.5,deflaccion:25,cr:1.88,carrito2venta:35},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'EMAIL_OWN',fields:{inv:200,n_emails:4000,ctr:20,deflaccion:10,cr:2.5,carrito2venta:40},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'REVIEWS',fields:{inv:100,base_cli:300,pct_activo:15,frec_compra:8},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'LOYALTY',fields:{inv:200,base_cli:200,pct_activo:35,frec_compra:20},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+    ]},
+  consulting_b2b:{mode:'B2B',sectorVal:'servicios',phase:'launch',budget:3000,clients:8,cac:375,ticket:4500,ticketType:'por_venta',
+    channels:[
+      {channelId:'LI_BRAND',fields:{inv:400,cpm:18,frec:3,cr_sec:0.1},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'WEBINAR',fields:{inv:400,invitaciones:2500,pct_reg:9,pct_asist:50},months:[0,1,0,1,0,1,0,1,0,1,0,1]},
+      {channelId:'EMAIL_OUT',fields:{inv:300,n_emails:2000,ctr:3,deflaccion:20,cr:2,lead2mql:35,mql2sql:50,demo2client:22},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'DEMO_WORK',fields:{inv:500,n_demo:15,demos_por:1,cierre:22},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'CUST_SUCCESS',fields:{inv:1400,base_cli:25,pct_activo:85,frec_compra:20},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+    ]},
+  industrial_b2b:{mode:'B2B',sectorVal:'servicios',phase:'growth',budget:8000,clients:15,cac:533,ticket:12000,ticketType:'por_venta',
+    channels:[
+      {channelId:'SEM',fields:{inv:2000,cpc:3,deflaccion:15,cr:1.5,lead2mql:30,mql2sql:50,demo2client:20},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'LINKEDIN_PERF',fields:{inv:2000,cpc:7,deflaccion:15,cr:2.0,lead2mql:40,mql2sql:55,demo2client:22},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'PARTNERS',fields:{inv:1000,n_demo:5,demos_por:8,cierre:15},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'SALESFORCE',fields:{inv:2500,n_demo:2,demos_por:15,cierre:22},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'EMAIL_AUTO',fields:{inv:500,base_cli:150,pct_activo:30,frec_compra:15},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+    ]},
+  hr_b2b:{mode:'B2B',sectorVal:'cursos',phase:'growth',budget:4500,clients:12,cac:375,ticket:3200,ticketType:'por_venta',
+    channels:[
+      {channelId:'LI_BRAND',fields:{inv:700,cpm:18,frec:3,cr_sec:0.1},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'WEBINAR',fields:{inv:600,invitaciones:3000,pct_reg:10,pct_asist:50},months:[0,1,0,1,0,1,0,1,0,1,0,1]},
+      {channelId:'EMAIL_OUT',fields:{inv:500,n_emails:3000,ctr:4,deflaccion:15,cr:2,lead2mql:35,mql2sql:50,demo2client:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'DEMO_WORK',fields:{inv:800,n_demo:20,demos_por:1,cierre:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'CUST_SUCCESS',fields:{inv:1900,base_cli:40,pct_activo:85,frec_compra:20},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+    ]},
+  agency_b2b:{mode:'B2B',sectorVal:'servicios',phase:'launch',budget:2500,clients:6,cac:416,ticket:2500,ticketType:'mensual',
+    channels:[
+      {channelId:'LI_BRAND',fields:{inv:400,cpm:18,frec:3,cr_sec:0.15},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'BRANDED_C',fields:{inv:500,alcance_m:60000,pct_imp:10,cr_sec:0.2},months:[0,1,0,1,0,1,0,1,0,1,0,1]},
+      {channelId:'EMAIL_OUT',fields:{inv:300,n_emails:1500,ctr:4,deflaccion:20,cr:3,lead2mql:40,mql2sql:55,demo2client:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'MGM',fields:{inv:200,base_cli:15,cr:15},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'REVIEWS',fields:{inv:200,base_cli:40,pct_activo:20,frec_compra:10},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'CUST_SUCCESS',fields:{inv:900,base_cli:20,pct_activo:85,frec_compra:20},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+    ]},
+  fintech_b2b:{mode:'B2B',sectorVal:'seguros',phase:'growth',budget:10000,clients:25,cac:400,ticket:8400,ticketType:'anual',
+    channels:[
+      {channelId:'SEM',fields:{inv:2500,cpc:4,deflaccion:15,cr:2.0,lead2mql:35,mql2sql:50,demo2client:18},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'LINKEDIN_PERF',fields:{inv:2500,cpc:8,deflaccion:15,cr:1.5,lead2mql:40,mql2sql:55,demo2client:22},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'EVENTO_PROP',fields:{inv:2000,asistentes:150,online_reach:3000,cr_sec:0.2},months:[0,0,1,0,0,1,0,0,1,0,0,1]},
+      {channelId:'SALESFORCE',fields:{inv:2500,n_demo:3,demos_por:20,cierre:16},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+      {channelId:'CUST_SUCCESS',fields:{inv:500,base_cli:50,pct_activo:88,frec_compra:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]},
+    ]},
 };
 
 // Patch loadExample to support new examples
 (function(){
   const origLoad = window.loadExample;
   window.loadExample = function(id) {
-    if(EXTRA_EXAMPLES[id]){
-      const ex = EXTRA_EXAMPLES[id];
+    var ex = EXTRA_EXAMPLES[id];
+    if(ex){
+      // Mode
       setMode(ex.mode||'B2C');
+      // Budget / objectives
       document.getElementById('obj_budget').value = ex.budget||5000;
       document.getElementById('obj_clients').value = ex.clients||100;
       document.getElementById('obj_cac').value = ex.cac||50;
-      if(ex.phase){const s=document.getElementById('obj_phase');if(s)s.value=ex.phase;}
+      // Ticket
+      if(ex.ticket){ document.getElementById('globalTicket').value = ex.ticket; }
+      if(ex.ticketType){ document.getElementById('ticketType').value = ex.ticketType; }
+      // Phase / sector
+      if(ex.phase){ var sp=document.getElementById('obj_phase'); if(sp) sp.value=ex.phase; }
+      if(ex.sectorVal){ var ss=document.getElementById('sectorSelect'); if(ss){ ss.value=ex.sectorVal; onSectorChange(); } }
+      // Build channels — use channelId (not id)
       S.channels = [];
-      (ex.channels||[]).forEach(ec=>{
-        const ch = CHANNELS.find(c=>c.id===ec.id);
-        if(!ch) return;
-        const fields = Object.assign({}, ec.fields);
-        const entry = {uid:UID(),channelId:ec.id,fields,results:null,months:Array(12).fill(true)};
+      S.uidCtr = 0;
+      (ex.channels||[]).forEach(function(ec){
+        var chId = ec.channelId || ec.id; // support both keys
+        var ch = CHANNELS.find(function(c){ return c.id===chId; });
+        if(!ch){ console.warn('Channel not found:', chId); return; }
+        var fields = Object.assign({}, ec.fields);
+        // Fill in defaults for any missing fields
+        ch.fields.forEach(function(fd){ if(fd.def!==undefined && fields[fd.id]==null) fields[fd.id]=fd.def; });
+        var entry = {uid:UID(), channelId:chId, fields:fields, results:null, months:ec.months||Array(12).fill(true)};
         entry.results = calcEntry(entry);
         S.channels.push(entry);
       });
-      recalcAll(); updateBB();
-      showToast('✅ Ejemplo cargado');
+      recalcAll();
+      updateBB();
+      showToast('📦 Ejemplo cargado: '+id);
       return;
     }
     if(origLoad) origLoad(id);
