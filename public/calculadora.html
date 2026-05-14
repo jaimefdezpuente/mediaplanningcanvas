@@ -1388,6 +1388,30 @@ body, button, input, select, textarea {
   flex: 1 !important;
   min-width: 120px !important;
 }
+
+/* Budget bar - all text black/dark */
+#mpc-root .bb .bb-n .l { color: #0F2942 !important; font-weight: 600 !important; }
+#mpc-root .bb .bb-n .v { color: #0F2942 !important; font-weight: 700 !important; font-size: 15px !important; }
+#mpc-root .bb, #mpc-root .bb * { color: #0F2942 !important; }
+#mpc-root .bb .prog { background: #DDE2E8 !important; }
+#mpc-root .bb .prog .prog-fill { background: #0F2942 !important; }
+/* Plan de Medios - all text black */
+#mpc-root .ptbl td, #mpc-root .ptbl td span, #mpc-root .ptbl td div { color: #0F2942 !important; }
+#mpc-root .ptbl .ch-nm, #mpc-root .ptbl td strong { color: #0F2942 !important; font-weight: 600 !important; }
+/* Make plan medios columns single line */
+#mpc-root .ptbl { width: 100% !important; table-layout: auto !important; }
+/* Channel expand form - all text black */
+#mpc-root .f-hdr * { color: #0F2942 !important; }
+#mpc-root .f-hdr { color: #0F2942 !important; }
+#mpc-root .f-hdr .f-tit { color: #0F2942 !important; font-weight: 600 !important; font-size: 16px !important; }
+#mpc-root .f-hdr .f-sub { color: #4A6B8A !important; font-size: 12px !important; }
+/* Vista previa - white background */
+#mpc-root .fflow-wrap { background: #F6F4EF !important; border-radius: 8px !important; padding: 12px !important; }
+#mpc-root .fflow { background: #0F2942 !important; color: #F6F4EF !important; border-radius: 6px !important; padding: 6px 12px !important; font-size: 12px !important; font-weight: 500 !important; }
+#mpc-root .fflow:last-child { background: #2F7D5C !important; }
+/* B2C/B2B toggle always clickable */
+#mpc-root .mode-btn { pointer-events: auto !important; cursor: pointer !important; }
+/* LTV expand - increase iframe height via JS */
 </style>
 </head>
 <body>
@@ -1396,33 +1420,13 @@ body, button, input, select, textarea {
 
 <!-- HEADER -->
 <div class="hdr">
-  <div class="logo">
-    <div class="logo-ic" style="background:none;padding:0">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32" style="display:block">
-        <rect x="0" y="0" width="29" height="29" rx="2" fill="#0F2942" opacity="1"/>
-        <rect x="35.5" y="0" width="29" height="29" rx="2" fill="#0F2942" opacity="0.42"/>
-        <rect x="71" y="0" width="29" height="29" rx="2" fill="#0F2942" opacity="0.16"/>
-        <rect x="0" y="35.5" width="29" height="29" rx="2" fill="#0F2942" opacity="0.16"/>
-        <rect x="35.5" y="35.5" width="29" height="29" rx="2" fill="#C75A3C" opacity="1"/>
-        <rect x="71" y="35.5" width="29" height="29" rx="2" fill="#0F2942" opacity="0.42"/>
-        <rect x="0" y="71" width="29" height="29" rx="2" fill="#0F2942" opacity="0.16"/>
-        <rect x="35.5" y="71" width="29" height="29" rx="2" fill="#0F2942" opacity="0.16"/>
-        <rect x="71" y="71" width="29" height="29" rx="2" fill="#0F2942" opacity="1"/>
-      </svg>
-    </div>
-    <div>
-      <div class="logo-nm" style="font-family:'Geist',sans-serif;font-weight:600;color:#0F2942">Media Planning Canvas</div>
-      <div class="logo-sb" style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#8AA0B5">The Marketing Plan Generator</div>
-    </div>
-  </div>
+  
   <div class="hdr-act">
     <div class="mode-tog">
       <button class="mode-btn b2c" id="btnB2C" onclick="setMode('B2C')">B2C</button>
       <button class="mode-btn" id="btnB2B" onclick="setMode('B2B')">B2B</button>
     </div>
-    <button class="ic-btn np" onclick="saveToStorage()">💾 Guardar</button>
     
-    <button class="ic-btn np" onclick="window.print()">🖨️ PDF</button>
   </div>
 </div>
 
@@ -2328,6 +2332,24 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   console.log('MPC Brand Fix applied');
+});
+</script>
+
+<script>
+// Auto-resize iframe from inside
+window.addEventListener('load', function() {
+  // Tell parent our height
+  function reportHeight() {
+    const h = document.body.scrollHeight + 100;
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'mpc-height', height: h }, '*');
+    }
+  }
+  // Report height on load and on changes
+  reportHeight();
+  new MutationObserver(reportHeight).observe(document.body, { subtree: true, childList: true, attributes: true });
+  window.addEventListener('resize', reportHeight);
+  setInterval(reportHeight, 1000);
 });
 </script>
 </body>

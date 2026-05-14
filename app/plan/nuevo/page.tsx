@@ -320,6 +320,18 @@ function WizardInner() {
     init()
   }, [])
 
+  // Listen for iframe height changes
+  useEffect(() => {
+    function handleMsg(e: MessageEvent) {
+      if (e.data?.type === 'mpc-height' && typeof e.data.height === 'number') {
+        const iframe = document.querySelector('#tactico-iframe') as HTMLIFrameElement
+        if (iframe && e.data.height > 600) iframe.style.height = e.data.height + 'px'
+      }
+    }
+    window.addEventListener('message', handleMsg)
+    return () => window.removeEventListener('message', handleMsg)
+  }, [])
+
   const limits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free
 
   function canUseMejora(): boolean {
@@ -414,9 +426,8 @@ function WizardInner() {
         {id:uid(),tipo:'TOFU',accion:'',objetivo:'Captación de leads'},
         {id:uid(),tipo:'MOFU',accion:'',objetivo:'Consideración'},
         {id:uid(),tipo:'BOFU',accion:'',objetivo:'Conversión'},
-        {id:uid(),tipo:'FIDELIZACIÓN',accion:'',objetivo:'Retención'},
       ]
-      while(steps.length < 4) steps.push(defaultSteps[steps.length])
+      while(steps.length < 3) steps.push(defaultSteps[steps.length])
       setPlan(p=>({...p,target:r as Obj,valueSteps:steps}));markDone(1);setStep(2)
       trackAnalisis();autoSave({target:r as Obj})
     }
@@ -425,6 +436,7 @@ function WizardInner() {
   function s2next() {
     if(!ed('usp',plan.usp).trim()) { setAlert({title:'USP obligatoria',body:'Define tu Propuesta Única de Valor antes de continuar. Es la base de toda tu estrategia.'}); return }
     markDone(2);setStep(3);setShowStrategy(false)
+    autoSave({usp:ed('usp',plan.usp)||plan.usp})
   }
 
   async function createStrategy() {
@@ -628,19 +640,11 @@ function WizardInner() {
           )}
           <div style={{ position:'relative', marginBottom:32 }}>
             <iframe
+              id="tactico-iframe"
               src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}&mode=${plan.tipo_negocio==='B2B'?'B2B':'B2C'}&readonly=${userPlan==='free'?'1':'0'}`}
-              style={{ width:'100%', height:3200, border:'none', display:'block' }}
+              style={{ width:'100%', height:4500, border:'none', display:'block' }}
               scrolling="no"
               title="Calculadora"
-              onLoad={(e)=>{
-                // Try to resize iframe to its content height
-                try {
-                  const iframe = e.target as HTMLIFrameElement
-                  if(iframe.contentDocument?.body){
-                    iframe.style.height = (iframe.contentDocument.body.scrollHeight + 40) + 'px'
-                  }
-                } catch {}
-              }}
             />
             {userPlan==='free'&&(
               <div onClick={()=>setShowUpgrade(true)} style={{ position:'absolute', inset:0, cursor:'pointer', zIndex:10 }} title="Activa Pro para editar" />
@@ -745,13 +749,12 @@ function WizardInner() {
               <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:6, letterSpacing:'-0.02em' }}>Mercado</h1>
               <p style={{ fontSize:15, color:C.steel, marginBottom:24 }}>Edita cada campo. Usa ✨ para refinarlo con IA.</p>
 
-              <VideoBlock vimeoId="1103392013" title="Análisis del Mercado" />
-
               <div style={CARD}>
                 <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:14, letterSpacing:'-0.01em' }}>Situación del País</h2>
                 <EditField label="Resumen del entorno" fkey="e_res" value={ed('e_res',gn(plan.entorno,'situacion_pais','resumen'))} onChange={v=>se('e_res',v)} onRefine={p=>refine('e_res',ed('e_res',''),p)} />
                 <EditField label="Variables macroeconómicas" fkey="e_mac" value={ed('e_mac',gn(plan.entorno,'situacion_pais','variables_macro'))} onChange={v=>se('e_mac',v)} onRefine={p=>refine('e_mac',ed('e_mac',''),p)} />
                 <ToolsBlock title="Análisis Macro" tools={TOOLS_DATA.macro} />
+                <VideoBlock vimeoId="1103392013" title="Entorno y situación del país" />
               </div>
 
               <div style={CARD}>
@@ -807,8 +810,6 @@ function WizardInner() {
               <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:6, letterSpacing:'-0.02em' }}>Target & Buyer Persona</h1>
               <p style={{ fontSize:15, color:C.steel, marginBottom:24 }}>Define tu propuesta de valor y conoce en profundidad a tu cliente.</p>
 
-              <VideoBlock vimeoId="1103392013" title="Cómo definir tu target" />
-
               <div style={CARD}>
                 <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.01em' }}>USP — Propuesta Única de Valor <span style={{ color:C.accent, fontSize:14 }}>*</span></h2>
                 <p style={{ fontSize:13, color:C.steel, marginBottom:14 }}>Una frase que ningún competidor pueda copiar. Obligatoria para continuar.</p>
@@ -817,6 +818,8 @@ function WizardInner() {
                   <AiBtn label="Sugerir USP con IA" used={usedMejoras} max={limits.mejoras} onClick={suggestUSP} disabled={busy} small />
                 </div>
               </div>
+
+              <VideoBlock vimeoId="1103392013" title="Cómo definir tu target" />
 
               <div style={CARD}>
                 <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.01em' }}>Target</h2>
@@ -841,6 +844,8 @@ function WizardInner() {
                 </div>
                 <ToolsBlock title="Análisis de Audiencias" tools={TOOLS_DATA.target} />
               </div>
+
+              <VideoBlock vimeoId="1103392013" title="Buyer Persona y Escalera de Valor" />
 
               <div style={CARD}>
                 <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.01em' }}>Buyer Persona</h2>
@@ -916,8 +921,6 @@ function WizardInner() {
               <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:6, letterSpacing:'-0.02em' }}>Objetivos & Estrategia</h1>
               <p style={{ fontSize:15, color:C.steel, marginBottom:24 }}>Define qué quieres conseguir y elige tus canales.</p>
 
-              <VideoBlock vimeoId="1103392013" title="Cómo definir tus objetivos" />
-
               <div style={CARD}>
                 <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:6, letterSpacing:'-0.01em' }}>Objetivos del Plan</h2>
                 <p style={{ fontSize:13, color:C.steel, marginBottom:16 }}>Define qué quieres conseguir. Añade tantos como necesites.</p>
@@ -961,6 +964,8 @@ function WizardInner() {
                 </div>
               </div>
 
+              <VideoBlock vimeoId="1103392013" title="Cómo definir tus objetivos de marketing" />
+
               <div style={CARD}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:6, flexWrap:'wrap', gap:10 }}>
                   <div>
@@ -984,6 +989,7 @@ function WizardInner() {
                 {Object.entries(CH_OPTIONS).map(([phase,channels])=>{
                   const phLabel:Record<string,string>={notoriedad:'Notoriedad',interaccion:'Interacción',lead_venta:'Lead / Venta',fidelizacion:'Fidelización'}
                   const phCol:Record<string,string>={notoriedad:C.warn,interaccion:'#1E40AF',lead_venta:C.success,fidelizacion:'#7E22CE'}
+                  const phVideo:Record<string,string>={notoriedad:'Canales de Notoriedad y Branding',interaccion:'Canales de Interacción',lead_venta:'Canales de Lead y Venta'}
                   return(
                     <div key={phase} style={{ marginBottom:16 }}>
                       <div style={{ fontSize:12, fontWeight:600, color:phCol[phase], fontFamily:"'Geist Mono',monospace", letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:8 }}>{phLabel[phase]}</div>
@@ -997,9 +1003,20 @@ function WizardInner() {
                           )
                         })}
                       </div>
+                      {phVideo[phase]&&<VideoBlock vimeoId="1103392013" title={phVideo[phase]} />}
                     </div>
                   )
                 })}
+                {/* Score legend */}
+                <div style={{ marginTop:12, background:C.paper, borderRadius:8, padding:'10px 14px', display:'flex', gap:20, flexWrap:'wrap' }}>
+                  <span style={{ fontSize:11, color:C.steel3, fontFamily:"'Geist Mono',monospace", fontWeight:600 }}>Puntuación IA:</span>
+                  {[{dots:5,label:'Muy recomendado'},{dots:4,label:'Recomendado'},{dots:3,label:'Posible'},{dots:1,label:'No prioritario'}].map(({dots,label})=>(
+                    <span key={dots} style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, color:C.steel }}>
+                      <span style={{ display:'flex', gap:2 }}>{[1,2,3,4,5].map(n=><span key={n} style={{ width:7, height:7, borderRadius:2, background:n<=dots?C.navy:C.steel1, display:'inline-block' }}/>)}</span>
+                      {label}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               {!showStrategy&&(
@@ -1088,7 +1105,7 @@ function WizardInner() {
                       <button onClick={()=>setStep(2)} style={BTN_S}>← Atrás</button>
                       <button onClick={()=>{setShowStrategy(false);}} style={BTN_S}>↺ Rehacer estrategia</button>
                     </div>
-                    <button onClick={()=>{markDone(3);setStep(4)}} style={BTN_P}>Táctico & Presupuesto →</button>
+                    <button onClick={()=>{markDone(3);setStep(4);autoSave()}} style={BTN_P}>Táctico & Presupuesto →</button>
                   </div>
                 </div>
               )}
