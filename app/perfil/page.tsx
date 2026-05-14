@@ -251,52 +251,50 @@ function PerfilInner() {
 
             {/* Plan management */}
             <div>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.navy, marginBottom: 14 }}>
-                {isPro ? 'Cambiar de plan' : 'Actualizar tu plan'}
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.navy, marginBottom: 6 }}>
+                {isPro ? 'Cambiar de plan' : 'Activar un plan'}
               </h3>
+              <p style={{ fontSize: 13, color: C.steel3, marginBottom: 16 }}>Los cambios de plan se aplican inmediatamente. Para cancelar, usa el portal de Stripe.</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12 }}>
                 {[
-                  { key: 'free', name: 'Free', monthly: '€0', annual: null, desc: '1 plan · Sin análisis IA · 10 mejoras', stripe: null },
-                  { key: 'pro', name: 'Pro', monthly: '€15', annual: '€120', desc: '10 planes · 20 análisis · 70 mejoras', stripe_m: 'pro_monthly', stripe_a: 'pro_annual' },
-                  { key: 'business', name: 'Business', monthly: '€35', annual: '€300', desc: '30 planes · 60 análisis · 150 mejoras', stripe_m: 'business_monthly', stripe_a: 'business_annual' },
-                  { key: 'enterprise', name: 'Enterprise', monthly: '€99', annual: '€840', desc: 'Ilimitados · Hasta 10 usuarios · Whitelabel', stripe_m: 'enterprise_monthly', stripe_a: 'enterprise_annual' },
+                  { key: 'pro', name: 'Pro', monthly: '€15', annual: '€120', desc: '10 planes · 20 Análisis IA · 70 Mejoras IA', stripe_m: 'pro_monthly', stripe_a: 'pro_annual' },
+                  { key: 'business', name: 'Business', monthly: '€35', annual: '€300', desc: '30 planes · 60 Análisis IA · 150 Mejoras IA · 5 usuarios', stripe_m: 'business_monthly', stripe_a: 'business_annual' },
+                  { key: 'enterprise', name: 'Enterprise', monthly: '€99', annual: '€840', desc: 'Ilimitados · Hasta 10 usuarios · Whitelabel · SLA', stripe_m: 'enterprise_monthly', stripe_a: 'enterprise_annual' },
                 ].map(p => {
                   const isCurrent = currentPlan === p.key
                   return (
                     <div key={p.key} style={{ background: isCurrent ? '#F0F9FF' : C.white, border: `${isCurrent ? '2px' : '1px'} solid ${isCurrent ? '#0EA5E9' : C.steel1}`, borderRadius: 10, padding: 18, display: 'flex', flexDirection: 'column' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>{p.name}</div>
                         {isCurrent && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, background: '#0EA5E9', color: '#fff', fontFamily: "'Geist Mono',monospace", fontWeight: 600 }}>ACTIVO</span>}
                       </div>
-                      <div style={{ fontSize: 20, fontWeight: 600, color: C.navy, fontFamily: "'Geist Mono',monospace", marginBottom: 4 }}>{p.monthly}<span style={{ fontSize: 12, fontWeight: 400, color: C.steel }}>/mes</span></div>
-                      {p.annual && <div style={{ fontSize: 11, color: C.success, marginBottom: 6 }}>o {p.annual}/año — ahorra 2 meses</div>}
+                      <div style={{ fontFamily: "'Geist Mono',monospace", fontSize: 20, fontWeight: 500, color: C.navy, marginBottom: 4 }}>
+                        {p.monthly}<span style={{ fontSize: 12, fontWeight: 400, color: C.steel }}>/mes</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: C.success, marginBottom: 8 }}>o {p.annual}/año — 2 meses gratis</div>
                       <div style={{ fontSize: 12, color: C.steel, lineHeight: 1.5, marginBottom: 14, flex: 1 }}>{p.desc}</div>
                       {!isCurrent && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          {p.stripe_m && (
-                            <button onClick={() => handleUpgrade(p.stripe_m!)} style={{ ...BTN_P, width: '100%', textAlign: 'center' as const, fontSize: 12, padding: '9px' }} disabled={saving}>
-                              {saving ? '...' : `Mensual — ${p.monthly}/mes`}
-                            </button>
-                          )}
-                          {p.stripe_a && (
-                            <button onClick={() => handleUpgrade(p.stripe_a!)} style={{ ...BTN_S, width: '100%', textAlign: 'center' as const, fontSize: 12, padding: '9px' }} disabled={saving}>
-                              {saving ? '...' : `Anual — ${p.annual}/año`}
-                            </button>
-                          )}
-                          {p.key === 'free' && isPro && (
-                            <button onClick={openStripePortal} style={{ ...BTN_S, width: '100%', fontSize: 12, padding: '9px', borderColor: '#FECACA', color: C.err }} disabled={saving}>
-                              Cancelar suscripción
-                            </button>
-                          )}
+                          <button onClick={() => handleUpgrade(p.stripe_m)} style={{ ...BTN_P, width: '100%', textAlign: 'center' as const, fontSize: 12, padding: '9px' }} disabled={saving}>
+                            {saving ? '...' : `Mensual — ${p.monthly}/mes`}
+                          </button>
+                          <button onClick={() => handleUpgrade(p.stripe_a)} style={{ ...BTN_S, width: '100%', textAlign: 'center' as const, fontSize: 12, padding: '9px' }} disabled={saving}>
+                            {saving ? '...' : `Anual — ${p.annual}/año`}
+                          </button>
                         </div>
                       )}
                     </div>
                   )
                 })}
               </div>
-              <p style={{ fontSize: 11, color: C.steel3, marginTop: 12, fontFamily: "'Geist Mono',monospace" }}>
-                * Los cambios de plan se aplican inmediatamente. Los downgrade se gestionan a través del portal de Stripe.
-              </p>
+              {isPro && (
+                <div style={{ marginTop: 14, padding: '10px 14px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 13, color: C.err }}>Para cancelar tu plan y volver a Free, usa el portal de Stripe.</span>
+                  <button onClick={openStripePortal} style={{ ...BTN_S, borderColor: '#FECACA', color: C.err, fontSize: 12, padding: '7px 14px', whiteSpace: 'nowrap', flexShrink: 0 }} disabled={saving}>
+                    Cancelar suscripción
+                  </button>
+                </div>
+              )}
             </div>
 
             {isPro && (

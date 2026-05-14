@@ -17,11 +17,11 @@ const C = {
   accent: '#C75A3C', white: '#FFFFFF',
 }
 
-const PLAN_LIMITS: Record<string, { plans: number | string; repensares: number | string; ideas: number | string }> = {
-  free:       { plans: 1,   repensares: 10,    ideas: 0 },
-  pro:        { plans: 10,  repensares: 70,    ideas: 20 },
-  business:   { plans: 30,  repensares: 150,   ideas: 60 },
-  enterprise: { plans: '∞', repensares: '∞',   ideas: '∞' },
+const PLAN_LIMITS: Record<string, { plans: number | string; mejoras: number | string; analisis: number | string }> = {
+  free:       { plans: 1,   mejoras: 10,    analisis: 0 },
+  pro:        { plans: 10,  mejoras: 70,    analisis: 20 },
+  business:   { plans: 30,  mejoras: 150,   analisis: 60 },
+  enterprise: { plans: '∞', mejoras: '∞',   analisis: '∞' },
 }
 
 export default function DashboardPage() {
@@ -97,7 +97,8 @@ export default function DashboardPage() {
   const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
 
   const usedPlans = plans.length
-  const usedRepensares = Number(user?.user_metadata?.used_repensares || 0)
+  const usedMejoras = Number(user?.user_metadata?.used_mejoras || 0)
+  const usedAnalisis = Number(user?.user_metadata?.used_analisis || 0)
 
   const pct = (used: number, max: number | string) => {
     if (max === '∞') return 100
@@ -132,10 +133,18 @@ export default function DashboardPage() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <div style={{ width: 80, height: 4, borderRadius: 2, background: C.steel1, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', borderRadius: 2, background: C.accent, width: `${pct(usedRepensares, limits.repensares)}%`, transition: 'width 0.3s' }} />
+                  <div style={{ height: '100%', borderRadius: 2, background: C.navy, width: `${pct(usedAnalisis, limits.analisis)}%`, transition: 'width 0.3s' }} />
                 </div>
                 <span style={{ fontSize: 11, color: C.steel, fontFamily: "'Geist Mono',monospace", whiteSpace: 'nowrap' }}>
-                  {usedRepensares}/{limits.repensares} repensares
+                  {usedAnalisis}/{limits.analisis} Análisis IA
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 80, height: 4, borderRadius: 2, background: C.steel1, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', borderRadius: 2, background: C.accent, width: `${pct(usedMejoras, limits.mejoras)}%`, transition: 'width 0.3s' }} />
+                </div>
+                <span style={{ fontSize: 11, color: C.steel, fontFamily: "'Geist Mono',monospace", whiteSpace: 'nowrap' }}>
+                  {usedMejoras}/{limits.mejoras} Mejoras IA
                 </span>
               </div>
             </div>

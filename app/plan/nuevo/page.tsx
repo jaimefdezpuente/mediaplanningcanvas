@@ -1,9 +1,9 @@
 'use client'
 export const dynamic = 'force-dynamic'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import { MpcMark, MpcLockup } from '@/lib/MpcLogo'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 type Jv = string | number | boolean | null | Jv[] | { [k: string]: Jv }
@@ -237,8 +237,15 @@ const TOOLS_DATA: Record<string,{name:string;url:string;desc:string}[]> = {
   target:[{name:'Meta Audience Insights',url:'https://business.facebook.com/latest/insights/people',desc:'Audiencias FB/IG'},{name:'SparkToro',url:'https://sparktoro.com',desc:'Qué lee y escucha tu target'},{name:'Google Analytics',url:'https://analytics.google.com',desc:'Tu audiencia actual'}],
 }
 
-// ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function NuevoPlanPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight:'100vh', background:'#F6F4EF', display:'flex', alignItems:'center', justifyContent:'center', color:'#4A6B8A', fontSize:14, fontFamily:"'Geist',sans-serif" }}>Cargando...</div>}>
+      <WizardInner />
+    </Suspense>
+  )
+}
+
+function WizardInner() {
   const [step, setStep] = useState(0)
   const [aiModal, setAiModal] = useState('')
   const [alert, setAlert] = useState<{title:string;body:string}|null>(null)
@@ -263,17 +270,53 @@ export default function NuevoPlanPage() {
   })
   const supabase = createClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    async function loadUser() {
+    async function init() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const plan = (user.user_metadata?.plan || 'free').toLowerCase()
-      setUserPlan(plan)
+      if (!user) { router.push('/login'); return }
+      const planKey = (user.user_metadata?.plan || 'free').toLowerCase()
+      setUserPlan(planKey)
       setUsedMejoras(Number(user.user_metadata?.used_mejoras || 0))
       setUsedAnalisis(Number(user.user_metadata?.used_analisis || 0))
+
+      // Load existing plan if plan_id in URL
+      const planId = searchParams.get('plan_id')
+      if (planId) {
+        const { data: savedPlan } = await supabase.from('plans').select('*').eq('id', planId).eq('user_id', user.id).single()
+        if (savedPlan) {
+          setSavedPlanId(planId)
+          setPlan(p => ({
+            ...p,
+            projectName: savedPlan.name || '',
+            pais: savedPlan.pais || 'España',
+            sector: savedPlan.sector || '',
+            producto: savedPlan.producto || '',
+            web: savedPlan.web || '',
+            tipo_negocio: savedPlan.tipo_negocio || 'B2C',
+            fase_negocio: savedPlan.fase_negocio || 'launch',
+            usp: savedPlan.usp || '',
+            competidores: savedPlan.competidores || '',
+            presupuesto: savedPlan.presupuesto || '',
+            entorno: savedPlan.entorno || null,
+            target: savedPlan.target || null,
+            estrategia: savedPlan.estrategia || null,
+            completed: [
+              ...(savedPlan.entorno ? [0] : []),
+              ...(savedPlan.target ? [1] : []),
+              ...(savedPlan.estrategia ? [2, 3] : []),
+            ],
+          }))
+          // Go to the furthest completed step
+          if (savedPlan.estrategia) setStep(4)
+          else if (savedPlan.target) setStep(3)
+          else if (savedPlan.entorno) setStep(2)
+          else setStep(1)
+        }
+      }
     }
-    loadUser()
+    init()
   }, [])
 
   const limits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free
