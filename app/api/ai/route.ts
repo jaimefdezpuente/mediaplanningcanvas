@@ -73,6 +73,31 @@ const PROMPTS: Record<string, (d: D) => string> = {
     '{"nuevos_pasos":[{"tipo":"TOFU","accion":"acción","objetivo":"objetivo"},{"tipo":"MOFU","accion":"acción","objetivo":"objetivo"},{"tipo":"BOFU","accion":"acción","objetivo":"objetivo"}]}',
   ].join('\n'),
 
+  suggest_usp: (d) => [
+    'Crea una USP impactante en una sola frase corta.',
+    'Producto: ' + d.producto + ' | Sector: ' + d.sector + ' | Tipo: ' + d.tipo_negocio,
+    'Devuelve SOLO JSON sin markdown: {"refined_text":"USP aqui"}',
+  ].join('\n'),
+
+  suggest_target: (d) => [
+    'Sugiere Core y Broad Target para este negocio.',
+    'Producto: ' + d.producto + ' | Sector: ' + d.sector + ' | Pais: ' + d.pais + ' | Tipo: ' + d.tipo_negocio + ' | USP: ' + (d.usp||''),
+    'Devuelve SOLO JSON sin markdown: {"refined_text":"{\"core_desc\":\"...\"،\"core_volumen\":\"...\"،\"core_sociodem\":\"...\"،\"broad_desc\":\"...\"،\"broad_volumen\":\"...\"،\"broad_edad\":\"...\"|}"}',
+  ].join('\n'),
+
+  suggest_buyer: (d) => [
+    'Crea un Buyer Persona completo. Max 3 bullets por campo.',
+    'Producto: ' + d.producto + ' | Sector: ' + d.sector + ' | Tipo: ' + d.tipo_negocio + ' | USP: ' + (d.usp||''),
+    'Devuelve SOLO JSON: {"refined_text":"{\"narrativa\":\"...\",\"momentos\":[\"...\"],\"piensa\":[\"...\"],\"informa\":[\"...\"],\"escucha\":[\"...\"],\"dice\":[\"...\"],\"expectativas\":[\"...\"],\"barreras_compra\":[\"...\"],\"insight\":[\"...\"]}"}',
+  ].join('\n'),
+
+  suggest_escalera: (d) => [
+    'Sugiere 3 nuevos pasos para la escalera de valor.',
+    'Producto: ' + d.producto + ' | Sector: ' + d.sector + ' | Pasos actuales: ' + (d.pasos_actuales||'Ninguno'),
+    'Devuelve SOLO JSON sin markdown:',
+    '{"nuevos_pasos":[{"tipo":"TOFU","accion":"acción","objetivo":"objetivo"},{"tipo":"MOFU","accion":"acción","objetivo":"objetivo"},{"tipo":"BOFU","accion":"acción","objetivo":"objetivo"}]}',
+  ].join('\n'),
+
   refine: (d) => [
     'Mejora este texto de marketing según la instrucción del usuario.',
     'Campo: ' + d.field_key + ' | Texto: ' + d.current_value + ' | Instrucción: ' + d.user_prompt,
@@ -81,6 +106,8 @@ const PROMPTS: Record<string, (d: D) => string> = {
 }
 
 const MEJORAS_FASES = new Set(['refine'])
+// Estas fases usan 'refine' internamente pero cuentan como analisis
+const ANALISIS_OVERRIDE_FASES = new Set(['suggest_usp','suggest_target','suggest_buyer','suggest_escalera'])
 
 export async function POST(req: NextRequest) {
   try {

@@ -173,7 +173,7 @@ function EditField({ label, fkey, value, onChange, onRefine, multiline=true, sma
     <div style={{ marginBottom:16 }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
         {label&&<label style={{ fontSize:small?11:12, fontWeight:500, color:C.steel3, letterSpacing:'0.1em', textTransform:'uppercase', fontFamily:"'Geist Mono',monospace" }}>{label}</label>}
-        <button onClick={()=>{ if(value.length < 30){ setAlert30(true) } else { setShow(!show) } }} style={{ fontSize:11, color:value.length < 30 ? C.steel2 : C.accent, background:'none', border:'none', cursor: value.length < 30 ? 'not-allowed' : 'pointer', fontWeight:500, marginLeft:'auto', fontFamily:"'Geist',sans-serif" }}>AI Mejorar</button>
+        <button onClick={()=>{ if(value.length < 30){ setAlert30(true) } else { setShow(!show) } }} style={{ fontSize:11, color:value.length < 30 ? C.steel2 : C.accent, background:'none', border:'none', cursor: value.length < 30 ? 'not-allowed' : 'pointer', fontWeight:500, marginLeft:'auto', fontFamily:"'Geist',sans-serif" }}>✨ Mejorar</button>
       </div>
       {multiline
         ? <textarea ref={ref} style={{ ...INP, minHeight:72, resize:'none', overflow:'hidden', fontSize:small?13:15 }} value={value} onChange={e=>{ onChange(e.target.value); if(ref.current){ref.current.style.height='auto'; ref.current.style.height=ref.current.scrollHeight+'px'} }} />
@@ -428,6 +428,7 @@ function WizardInner() {
 
   function s2next() {
     if(!ed('usp',plan.usp).trim()) { setAlert({title:'USP obligatoria',body:'Define tu Propuesta Unica de Valor antes de continuar.'}); return }
+    if(!ed('t_cor',gn(plan.target,'core_target','descripcion')).trim()) { setAlert({title:'Core Target obligatorio',body:'Rellena la descripcion del Core Target antes de continuar.'}); return }
     const filledSteps = plan.valueSteps.filter(s=>s.accion.trim())
     if(filledSteps.length < 3) { setAlert({title:'Escalera de Valor incompleta',body:'Necesitas al menos 3 pasos de la Escalera de Valor con una accion definida.'}); return }
     ensureMandatoryObjectives()
@@ -753,10 +754,10 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
               <div style={CARD}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
                   <h2 style={{ fontSize:18, fontWeight:600, color:C.navy }}>USP - Propuesta Unica de Valor *</h2>
-                  <AiBtn label="Sugerir USP" used={usedMejoras} max={limits.mejoras} onClick={async()=>{
+                  <AiBtn label="Sugerir USP" used={usedAnalisis} max={limits.analisis} onClick={async()=>{
                     if(!canUseMejora()) return
-                    const r = await callAI('refine',{field_key:'usp',current_value:ed('usp',plan.usp)||'',user_prompt:`Crea una USP impactante para: ${plan.producto}. Sector: ${plan.sector}. Tipo: ${plan.tipo_negocio}. Una sola frase corta.`})
-                    if(r&&typeof r.refined_text==='string'){se('usp',r.refined_text);upd('usp',r.refined_text);trackMejora()}
+                    const r = await callAI('suggest_usp',{producto:plan.producto,sector:plan.sector,tipo_negocio:plan.tipo_negocio})
+                    if(r&&typeof r.refined_text==='string'){se('usp',r.refined_text);upd('usp',r.refined_text);trackAnalisis()}
                   }} disabled={busy} small />
                 </div>
                 <VideoBlock vimeoId="1103392013" title="Como crear tu Propuesta Unica de Valor" />
@@ -768,7 +769,7 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                   <AiBtn label="Sugerir Target con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{
                     if(!canUseAnalisis()) return
                     setAiModal('Analizando tu mercado para sugerir el mejor target...')
-                    const r = await callAI('refine',{field_key:'target',current_value:'',user_prompt:`Sugiere Core y Broad Target para: ${plan.producto}, ${plan.sector}, ${plan.pais}, ${plan.tipo_negocio}. USP: ${ed('usp',plan.usp)}. JSON: {core_desc, core_volumen, core_sociodem, broad_desc, broad_volumen, broad_edad}`})
+                    const r = await callAI('suggest_target',{producto:plan.producto,sector:plan.sector,pais:plan.pais,tipo_negocio:plan.tipo_negocio,usp:ed('usp',plan.usp)})
                     if(r&&typeof r.refined_text==='string'){
                       try{ const d=JSON.parse(r.refined_text.replace(/```json|```/g,'').trim()); if(d.core_desc)se('t_cor',d.core_desc); if(d.core_volumen)se('t_vol',d.core_volumen); if(d.core_sociodem)se('t_soc',d.core_sociodem); if(d.broad_desc)se('t_bro',d.broad_desc); }catch{}
                       trackAnalisis()
@@ -798,7 +799,7 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                   <AiBtn label="Sugerir Buyer Persona con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{
                     if(!canUseAnalisis()) return
                     setAiModal('Creando tu Buyer Persona...')
-                    const r = await callAI('refine',{field_key:'buyer_persona',current_value:'',user_prompt:`Crea Buyer Persona para: ${plan.producto}, ${plan.sector}, ${plan.tipo_negocio}, USP: ${ed('usp',plan.usp)}. JSON: {narrativa, momentos, piensa, informa, escucha, dice, expectativas, barreras_compra, barreras_com, insight}. Max 3 bullets por campo.`})
+                    const r = await callAI('suggest_buyer',{producto:plan.producto,sector:plan.sector,tipo_negocio:plan.tipo_negocio,usp:ed('usp',plan.usp)})
                     if(r&&typeof r.refined_text==='string'){
                       try{
                         const d=JSON.parse(r.refined_text.replace(/```json|```/g,'').trim())
@@ -836,7 +837,7 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                   <AiBtn label="Ideas de Escalera IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{
                     if(!canUseAnalisis()) return
                     const cur = plan.valueSteps.map(s=>`${s.tipo}: ${s.accion}`).join(' | ')
-                    const r = await callAI('escalera_ideas',{pasos_actuales:cur})
+                    const r = await callAI('suggest_escalera',{producto:plan.producto,sector:plan.sector,pasos_actuales:cur})
                     if(r&&Array.isArray(r.nuevos_pasos)){
                       const newS:ValStep[] = (r.nuevos_pasos as Obj[]).map(s=>({id:uid(),tipo:ss(s.tipo)||'MOFU',accion:ss(s.accion)||'',objetivo:ss(s.objetivo)||''}))
                       setPlan(p=>({...p,valueSteps:[...p.valueSteps,...newS]})); trackAnalisis()
