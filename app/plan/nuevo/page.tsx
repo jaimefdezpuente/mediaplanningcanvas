@@ -699,7 +699,7 @@ function WizardInner() {
                     <div key={item.k} style={{ background:item.bg, borderRadius:8, padding:14 }}>
                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                         <div style={{ fontSize:11, fontWeight:600, color:item.col, fontFamily:"'Geist Mono',monospace", textTransform:'uppercase' }}>{item.lb}</div>
-                        {item.ia&&<AiBtn label="Mejorar" used={usedMejoras} max={limits.mejoras} onClick={()=>refine(item.k,ed(item.k,item.src),'Mejora este analisis')} disabled={busy} small />}
+                        {item.ia&&<AiBtn label="✨ Mejorar" used={usedMejoras} max={limits.mejoras} onClick={()=>refine(item.k,ed(item.k,item.src),'Mejora este analisis')} disabled={busy} small />}
                       </div>
                       <textarea style={{ ...INP, minHeight:80, background:C.white, fontSize:13, resize:'none' }} value={ed(item.k,item.src)} onChange={e=>se(item.k,e.target.value)} />
                     </div>
