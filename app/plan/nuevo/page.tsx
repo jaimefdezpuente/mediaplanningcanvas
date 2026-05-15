@@ -384,8 +384,16 @@ function WizardInner() {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ fase, datos:{ pais:plan.pais, sector:plan.sector, producto:plan.producto, web:plan.web, tipo_negocio:plan.tipo_negocio, competidores:plan.competidores, presupuesto:plan.presupuesto, fase_negocio:plan.fase_negocio, usp:plan.usp, ...extra } })
       })
+      if(res.status===402){ setShowUpgrade(true); return null }
+      if(res.status===401){ router.push('/login'); return null }
       const json = await res.json()
       if(!json.success) throw new Error(json.error)
+      // Sync credits from server response
+      if(typeof json.remaining === 'number') {
+        const creditType = ['refine'].includes(fase) ? 'mejoras' : 'analisis'
+        if(creditType==='analisis') setUsedAnalisis(limits.analisis - json.remaining)
+        else setUsedMejoras(limits.mejoras - json.remaining)
+      }
       return json.data as Obj
     } catch { setErr('Error con la IA. Intentalo de nuevo.'); return null }
     finally { setBusy(false); setAiModal('') }
@@ -906,7 +914,7 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                             </select>
                             <input style={{ ...INP, marginBottom:0, fontSize:13, borderColor:isMandatory?C.success:'' }} placeholder="1.000" value={r.dato} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,dato:e.target.value}:o)}))} />
                             {isMandatory
-                              ? <div style={{ width:38, textAlign:'center', color:C.success, fontSize:14 }} title="Obligatorio">Lock</div>
+                              ? <div style={{ width:38, textAlign:'center', color:C.success, fontSize:14 }} title="Obligatorio">🔒</div>
                               : <button onClick={()=>setPlan(p=>({...p,objectives:p.objectives.filter(o=>o.id!==r.id)}))} style={{ ...BTN_SM, padding:'8px 10px', color:C.accent, borderColor:'#FECACA', background:'#FEF2F2' }}>X</button>
                             }
                           </div>
@@ -966,19 +974,30 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                 </div>
               )}
 
-              {!showStrategy&&(
-                <div style={{ background:`linear-gradient(135deg,${C.navy},#1a4a7a)`, borderRadius:14, padding:'32px 24px', marginBottom:24, textAlign:'center' }}>
-                  <div style={{ fontSize:13, color:'rgba(246,244,239,0.6)', fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:10 }}>Paso final de estrategia</div>
-                  <div style={{ fontSize:22, fontWeight:700, color:C.paper, marginBottom:10, letterSpacing:'-0.02em' }}>✦ Crear Estrategia de Marketing</div>
-                  <p style={{ fontSize:14, color:'rgba(246,244,239,0.75)', marginBottom:24, maxWidth:480, margin:'0 auto 24px', lineHeight:1.6 }}>Desarrollamos por ti el detalle de la estrategia en base a los canales seleccionados, tu target y objetivos del plan.</p>
+              <div style={{ background:`linear-gradient(135deg,${C.navy},#1a4a7a)`, borderRadius:14, padding:'32px 24px', marginBottom:24, textAlign:'center' }}>
+                <div style={{ fontSize:13, color:'rgba(246,244,239,0.6)', fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:10 }}>Estrategia de canales</div>
+                <div style={{ fontSize:22, fontWeight:700, color:C.paper, marginBottom:10, letterSpacing:'-0.02em' }}>✦ Crear Estrategia de Marketing</div>
+                <p style={{ fontSize:14, color:'rgba(246,244,239,0.75)', marginBottom:24, maxWidth:480, margin:'0 auto 24px', lineHeight:1.6 }}>Desarrollamos por ti el detalle de la estrategia en base a los canales seleccionados, tu target y objetivos del plan.</p>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:10, marginBottom:16 }}>
                   <button onClick={()=>{
                     if(plan.selectedChannels.length < 5){setAlert({title:'Selecciona al menos 5 canales',body:'Elige un mínimo de 5 canales antes de crear la estrategia.'});return}
-                    createStrategy()
+                    if(!canUseAnalisis()) return
+                    createStrategy(); trackAnalisis()
                   }} disabled={busy} style={{ padding:'14px 40px', borderRadius:8, background:C.accent, border:'none', color:C.paper, fontWeight:700, fontSize:15, cursor:busy?'not-allowed':'pointer', fontFamily:"'Geist',sans-serif", opacity:busy?0.7:1, boxShadow:'0 4px 14px rgba(199,90,60,0.4)' }}>
                     {busy ? 'Analizando canales...' : '✦ Crear Estrategia'}
                   </button>
+                  <span style={{ fontSize:11, color:'rgba(246,244,239,0.5)', fontFamily:"'Geist Mono',monospace" }}>
+                    {Math.max(0,limits.analisis-usedAnalisis)}/{limits.analisis} Análisis IA
+                  </span>
                 </div>
-              )}
+              </div>
+              <div style={{ position:'sticky', bottom:0, background:C.paper, borderTop:`1px solid ${C.steel1}`, padding:'12px 0', display:'flex', justifyContent:'space-between', zIndex:10 }}>
+                <button onClick={()=>setStep(2)} style={BTN_S}>← Atras</button>
+                <button onClick={()=>{
+                  if(plan.selectedChannels.length < 5){setAlert({title:'Selecciona al menos 5 canales',body:'Elige un mínimo de 5 canales para continuar al Plan Táctico.'});return}
+                  markDone(3);setStep(4);autoSave()
+                }} style={{ ...BTN_P, padding:'12px 32px' }}>Plan Táctico →</button>
+              </div>
 
               {showStrategy&&plan.estrategia&&(
                 <div>
