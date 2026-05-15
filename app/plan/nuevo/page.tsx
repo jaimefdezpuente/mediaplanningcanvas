@@ -261,7 +261,7 @@ function WizardInner() {
     tipo_negocio:'B2C', competidores:'', presupuesto:'', fase_negocio:'launch', usp:'',
     entorno:null, target:null, estrategia:null,
     edits:{}, completed:[], valueSteps:[],
-    objectives:[{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'ano',mandatory:false}],
+    objectives:[{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'año',mandatory:false}],
     selectedChannels:[],
   })
   const supabase = createClient()
@@ -358,7 +358,7 @@ function WizardInner() {
     const mandatoryKPIs = modelo === 'B2B' ? ['Leads','Ventas (unidades)'] : ['Ventas (unidades)','Ticket Medio']
     setPlan(p => {
       const nonMandatory = p.objectives.filter(o => !o.mandatory)
-      const newRows: ObjRow[] = mandatoryKPIs.map(kpi => ({ id:uid(), tipo:'Marketing', kpi, dato:'', tiempo:'ano', mandatory:true }))
+      const newRows: ObjRow[] = mandatoryKPIs.map(kpi => ({ id:uid(), tipo:'Marketing', kpi, dato:'', tiempo:'año', mandatory:true }))
       const existing = p.objectives.filter(o => o.mandatory)
       if (existing.length === 2 && existing[0].kpi === mandatoryKPIs[0] && existing[1].kpi === mandatoryKPIs[1]) return p
       return { ...p, objectives: [...newRows, ...nonMandatory] }
@@ -884,7 +884,7 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                 {plan.objectives.length>0&&(
                   <div style={{ marginBottom:12 }}>
                     <div style={{ display:'grid', gridTemplateColumns:'130px 1fr 120px auto', gap:8, marginBottom:6 }}>
-                      {['Tipo','KPI','Dato (ano)',''].map((h,i)=><div key={i} style={{ fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', fontFamily:"'Geist Mono',monospace" }}>{h}</div>)}
+                      {['Tipo','KPI','Dato (año)',''].map((h,i)=><div key={i} style={{ fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', fontFamily:"'Geist Mono',monospace" }}>{h}</div>)}
                     </div>
                     {plan.objectives.map(r=>{
                       const kpiList = r.tipo==='Marketing' ? KPI_MKT : KPI_COM
@@ -911,11 +911,11 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                     })}
                   </div>
                 )}
-                <button onClick={()=>setPlan(p=>({...p,objectives:[...p.objectives,{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'ano',mandatory:false}]}))} style={BTN_SM}>+ Anadir objetivo</button>
+                <button onClick={()=>setPlan(p=>({...p,objectives:[...p.objectives,{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'año',mandatory:false}]}))} style={BTN_SM}>+ Anadir objetivo</button>
               </div>
 
               <div style={{ background:'linear-gradient(135deg,#EFF6FF,#F0FDF4)', border:`1px solid ${C.steel1}`, borderRadius:12, padding:'20px 24px', marginBottom:24, textAlign:'center' }}>
-                <div style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:6 }}>Cuales son los mejores canales para tu proyecto?</div>
+                <div style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:6 }}>¿Cuáles son los mejores canales para tu proyecto?</div>
                 <p style={{ fontSize:13, color:C.steel, marginBottom:16 }}>Con los datos de tu target, sector, presupuesto y objetivos, la IA recomendara el mix de medios mas adecuado.</p>
                 <div style={{ display:'flex', justifyContent:'center' }}>
                   <AiBtn label={busy?'Analizando...':'Recomendar plan de medios'} used={usedAnalisis} max={limits.analisis}
@@ -962,13 +962,16 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
               )}
 
               {!showStrategy&&(
-                <div style={{ textAlign:'center', padding:'24px 0' }}>
-                  <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
-                    <button onClick={()=>setStep(2)} style={BTN_S}>Atras</button>
-                    <button onClick={()=>{createStrategy()}} disabled={busy} style={{ padding:'14px 36px', borderRadius:8, background:C.navy, border:'none', color:C.paper, fontWeight:700, fontSize:15, cursor:busy?'not-allowed':'pointer', fontFamily:"'Geist',sans-serif" }}>
-                      Crear estrategia de marketing
-                    </button>
-                  </div>
+                <div style={{ background:`linear-gradient(135deg,${C.navy},#1a4a7a)`, borderRadius:14, padding:'32px 24px', marginBottom:24, textAlign:'center' }}>
+                  <div style={{ fontSize:13, color:'rgba(246,244,239,0.6)', fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:10 }}>Paso final de estrategia</div>
+                  <div style={{ fontSize:22, fontWeight:700, color:C.paper, marginBottom:10, letterSpacing:'-0.02em' }}>✦ Crear Estrategia de Marketing</div>
+                  <p style={{ fontSize:14, color:'rgba(246,244,239,0.75)', marginBottom:24, maxWidth:480, margin:'0 auto 24px', lineHeight:1.6 }}>Desarrollamos por ti el detalle de la estrategia en base a los canales seleccionados, tu target y objetivos del plan.</p>
+                  <button onClick={()=>{
+                    if(plan.selectedChannels.length < 5){setAlert({title:'Selecciona al menos 5 canales',body:'Elige un mínimo de 5 canales antes de crear la estrategia.'});return}
+                    createStrategy()
+                  }} disabled={busy} style={{ padding:'14px 40px', borderRadius:8, background:C.accent, border:'none', color:C.paper, fontWeight:700, fontSize:15, cursor:busy?'not-allowed':'pointer', fontFamily:"'Geist',sans-serif", opacity:busy?0.7:1, boxShadow:'0 4px 14px rgba(199,90,60,0.4)' }}>
+                    {busy ? 'Analizando canales...' : '✦ Crear Estrategia'}
+                  </button>
                 </div>
               )}
 
@@ -1004,9 +1007,12 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                       </div>
                     )
                   })}
-                  <div style={{ display:'flex', justifyContent:'space-between', marginTop:16 }}>
-                    <button onClick={()=>setStep(2)} style={BTN_S}>Atras</button>
-                    <button onClick={()=>{markDone(3);setStep(4);autoSave()}} style={{ ...BTN_P, padding:'12px 32px' }}>Tactico & Presupuesto</button>
+                  <div style={{ position:'sticky', bottom:0, background:C.paper, borderTop:`1px solid ${C.steel1}`, padding:'12px 0', display:'flex', justifyContent:'space-between', zIndex:10, marginTop:16 }}>
+                    <button onClick={()=>setStep(2)} style={BTN_S}>← Atras</button>
+                    <button onClick={()=>{
+                      if(plan.selectedChannels.length < 5){setAlert({title:'Selecciona al menos 5 canales',body:'Elige un mínimo de 5 canales para continuar al Plan Táctico.'});return}
+                      markDone(3);setStep(4);autoSave()
+                    }} style={{ ...BTN_P, padding:'12px 32px' }}>Plan Táctico →</button>
                   </div>
                 </div>
               )}
