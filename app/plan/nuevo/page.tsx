@@ -557,7 +557,7 @@ function WizardInner() {
             })}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
-            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2 }}>🔬 {limits.analisis-usedAnalisis}/{limits.analisis} análisis</span><span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2, color:C.steel3 }}>✨ {limits.mejoras-usedMejoras}/{limits.mejoras} mejoras</span><span style={{ fontSize:10, padding:'3px 8px', borderRadius:4, background:C.navy, color:C.paper, fontWeight:600, fontFamily:"'Geist Mono',monospace" }}>{userPlan.toUpperCase()}</span>
+            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2 }}>📋 {limits.plans} plan{limits.plans!==1?"es":""}</span><span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2 }}>🔬 {limits.analisis-usedAnalisis}/{limits.analisis} análisis</span><span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2, color:C.steel3 }}>✨ {limits.mejoras-usedMejoras}/{limits.mejoras} mejoras</span><span style={{ fontSize:10, padding:'3px 8px', borderRadius:4, background:C.navy, color:C.paper, fontWeight:600, fontFamily:"'Geist Mono',monospace" }}>{userPlan.toUpperCase()}</span>
             <button onClick={()=>setSaveModal(true)} style={{ ...BTN_SM, background:C.navy, color:C.paper, border:'none' }}>Guardar</button>
           </div>
         </div>
@@ -692,8 +692,8 @@ function WizardInner() {
                   {[
                     {k:'d_op',lb:'Oportunidades (IA)',src:gn(plan.entorno,'dafo','oportunidades'),bg:'#F0FDF4',col:C.success,ia:true},
                     {k:'d_am',lb:'Amenazas (IA)',src:gn(plan.entorno,'dafo','amenazas'),bg:'#FFFBEB',col:C.warn,ia:true},
-                    {k:'d_fo',lb:'Fortalezas (tu) *',src:'',bg:'#EFF6FF',col:'#1E40AF',ia:false},
-                    {k:'d_de',lb:'Debilidades (tu) *',src:'',bg:'#FDF4FF',col:'#7E22CE',ia:false},
+                    {k:'d_fo',lb:'Fortalezas (tu) *',src:'',bg:'#EFF6FF',col:'#1E40AF',ia:true},
+                    {k:'d_de',lb:'Debilidades (tu) *',src:'',bg:'#FDF4FF',col:'#7E22CE',ia:true},
                   ].map(item=>(
                     <div key={item.k} style={{ background:item.bg, borderRadius:8, padding:14 }}>
                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
