@@ -1519,22 +1519,14 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
     document.addEventListener('DOMContentLoaded', function() {
       setTimeout(function() {
         if (typeof setMode === 'function') setMode(mode);
-        // Lock toggle — mode can only change from project config
-        var vb2c = document.getElementById('visB2C');
-        var vb2b = document.getElementById('visB2B');
-        if (vb2c && vb2b) {
-          vb2c.onclick = function(){ showToast('⚠️ El modelo se configura en los Datos del Proyecto'); return false; };
-          vb2b.onclick = function(){ showToast('⚠️ El modelo se configura en los Datos del Proyecto'); return false; };
-          vb2c.title = 'Configurable en Datos del Proyecto';
-          vb2b.title = 'Configurable en Datos del Proyecto';
-          var tog = vb2c.parentElement;
-          if(tog) tog.style.opacity = '0.75';
-        }
         // Lock sector and phase if passed as URL params
         var sector = p.get('sector');
         var phase = p.get('phase');
-        if (sector) { var ss = document.getElementById('sectorSelect'); if(ss){ ss.value = sector; ss.disabled = true; if(typeof onSectorChange==='function') onSectorChange(); } }
-        if (phase) { var ps = document.getElementById('obj_phase'); if(ps){ ps.value = phase; ps.disabled = true; if(typeof onPhaseChange==='function') onPhaseChange(); } }
+        if (sector) { var ss2 = document.getElementById('sectorSelect'); if(ss2){ ss2.value = sector; ss2.disabled = true; if(typeof onSectorChange==='function') onSectorChange(); } }
+        if (phase) { var ps2 = document.getElementById('obj_phase'); if(ps2){ ps2.value = phase; ps2.disabled = true; if(typeof onPhaseChange==='function') onPhaseChange(); } }
+        var clients = p.get('clients'); if(clients){ var ec=document.getElementById('obj_clients'); if(ec) ec.value=clients; }
+        var ticket = p.get('ticket'); if(ticket){ var et=document.getElementById('globalTicket'); if(et) et.value=ticket; if(typeof recalcAll==='function') recalcAll(); }
+        window._fromWizard = true;
       }, 150);
     });
   }
@@ -1560,20 +1552,13 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
       <div class="bb-n"><span class="l">% Asignado</span><span class="v" id="bb-pct">0%</span></div>
     </div>
     <span id="bb-alrt" style="font-size:12px;color:#ef4444;display:none">⚠️ Presupuesto superado</span>
-    <!-- B2C / B2B toggle — visible, siempre en la barra sticky -->
-    <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
-      <span style="font-size:10px;font-weight:600;color:#8AA0B5;font-family:'Geist Mono',monospace;text-transform:uppercase;letter-spacing:0.1em">Modelo</span>
-      <div style="display:inline-flex;background:#ECE8DF;border-radius:100px;padding:3px;gap:2px;border:1px solid #DDE2E8">
-        <button id="visB2C" onclick="setMode('B2C')" style="padding:6px 18px;border-radius:100px;border:none;cursor:pointer;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;transition:all 0.15s;background:#0F2942;color:#F6F4EF;box-shadow:0 1px 3px rgba(15,41,66,0.2)">B2C</button>
-        <button id="visB2B" onclick="setMode('B2B')" style="padding:6px 18px;border-radius:100px;border:none;cursor:pointer;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;transition:all 0.15s;background:transparent;color:#4A6B8A">B2B</button>
-      </div>
-    </div>
+    <span id="bb-mode-badge" style="margin-left:auto;background:#0F2942;color:#F6F4EF;border-radius:100px;padding:4px 16px;font-size:12px;font-weight:700;font-family:'Geist',sans-serif;letter-spacing:-0.01em">B2C</span>
   </div>
   <div class="bb-track"><div class="bb-fill" id="bb-fill" style="width:0%;background:#10b981"></div></div>
 </div>
 
 <!-- STEP 00: OBJETIVOS -->
-<div class="slbl"><div class="snum">00</div><div class="stit">Objetivos del Plan</div></div>
+<div class="slbl"><div class="snum">00</div><div class="stit">Objetivos del Plan Anual</div></div>
 <div class="ssub">Define primero el techo y el objetivo. El plan se construye hacia atrás desde aquí.</div>
 <div class="card">
   <div class="g4">
@@ -1583,17 +1568,12 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
       <span class="fs" id="budgetHint">Techo máximo de inversión</span>
     </div>
     <div class="fr">
-      <label class="fl">Objetivo de Clientes</label>
+      <label class="fl">Objetivo de Clientes Anual</label>
       <input class="fi mono" type="number" id="obj_clients" value="100" min="0" oninput="renderSummary()">
-      <span class="fs">¿Cuántos clientes necesitas?</span>
+      <span class="fs">¿Cuántos clientes quieres conseguir este año?</span>
     </div>
     <div class="fr">
-      <label class="fl">CAC Máximo (€)</label>
-      <input class="fi mono" type="number" id="obj_cac" value="50" min="0" oninput="renderSummary()">
-      <span class="fs">Coste máximo por cliente</span>
-    </div>
-    <div class="fr">
-      <label class="fl">Ticket Medio (€)</label>
+      <label class="fl">Ticket Medio por Producto (€)</label>
       <input class="fi mono" type="number" id="globalTicket" value="150" min="0" oninput="recalcAll()">
       <select class="fi" id="ticketType" onchange="recalcAll()" style="margin-top:6px!important">
         <option value="por_venta">Por Venta (precio unitario)</option>
@@ -1601,11 +1581,16 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
         <option value="anual">Anual por cliente</option>
       </select>
     </div>
+    <div class="fr">
+      <label class="fl">CAC Máximo (€)</label>
+      <input class="fi mono" type="number" id="obj_cac" value="50" min="0" oninput="renderSummary()">
+      <span class="fs">Coste máximo por cliente</span>
+    </div>
   </div>
   <div class="g2" style="margin-top:12px">
     <div class="fr">
       <label class="fl">Fase del Negocio</label>
-      <select class="fi" id="obj_phase" onchange="onPhaseChange()">
+      <select class="fi" id="obj_phase" onchange="onPhaseChange()" onclick="if(window._fromWizard){showLockedFieldModal('Fase del Negocio');return false}" style="cursor:pointer">
         <option value="launch">🚀 Lanzamiento</option>
         <option value="growth">📈 Crecimiento</option>
         <option value="maturity">🏛️ Madurez</option>
@@ -1613,7 +1598,7 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
     </div>
     <div class="fr">
       <label class="fl">Sector</label>
-      <select class="fi" id="sectorSelect" onchange="onSectorChange()">
+      <select class="fi" id="sectorSelect" onchange="onSectorChange()" onclick="if(window._fromWizard){showLockedFieldModal('Sector');return false}" style="cursor:pointer">
         <option value="">— Selecciona tu sector —</option>
         <option value="alimentacion">🛒 Alimentación</option>
         <option value="moda">👗 Moda y Accesorios</option>
@@ -1644,21 +1629,21 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 
 <!-- STEP 01: EJEMPLOS -->
 <div class="slbl np"><div class="snum">01</div><div class="stit">¿Cómo quieres empezar?</div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px" class="np">
-  <div class="start-opt" onclick="startFromScratch()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:8px;padding:16px;cursor:pointer;transition:border-color 0.2s">
-    <div style="font-size:18px;margin-bottom:6px">✦</div>
-    <div style="font-weight:600;font-size:14px;color:var(--mpc-navy);margin-bottom:3px">Desde cero</div>
-    <div style="font-size:12px;color:var(--mpc-steel)">Borra el plan actual y empieza con un lienzo vacío</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px" class="np">
+  <div class="start-opt" onclick="startFromScratch()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;text-align:center">
+    <div style="font-size:22px;margin-bottom:6px">✦</div>
+    <div style="font-weight:700;font-size:13px;color:var(--mpc-navy);margin-bottom:4px">Desde Cero</div>
+    <div style="font-size:11px;color:var(--mpc-steel);line-height:1.5">Borra el plan y empieza con el lienzo vacío</div>
   </div>
-  <div class="start-opt" id="btnMySelection" onclick="loadMySelection()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:8px;padding:16px;cursor:pointer;transition:border-color 0.2s;opacity:0.45" title="Completa la selección de canales en el paso anterior">
-    <div style="font-size:18px;margin-bottom:6px">◈</div>
-    <div style="font-weight:600;font-size:14px;color:var(--mpc-navy);margin-bottom:3px">Tu selección de canales</div>
-    <div style="font-size:12px;color:var(--mpc-steel)">Carga los canales que elegiste en el paso de estrategia</div>
+  <div class="start-opt" id="btnMySelection" onclick="loadMySelection()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;opacity:0.45;text-align:center" title="Completa la selección de canales en el paso anterior">
+    <div style="font-size:22px;margin-bottom:6px">◈</div>
+    <div style="font-weight:700;font-size:13px;color:var(--mpc-navy);margin-bottom:4px">Tu Selección</div>
+    <div style="font-size:11px;color:var(--mpc-steel);line-height:1.5">Distribuye y trabaja los medios elegidos en Estrategia</div>
   </div>
-  <div class="start-opt" onclick="proposeDistribution()" style="background:#fff;border:1.5px dashed #0F2942;border-radius:8px;padding:16px;cursor:pointer;transition:border-color 0.2s">
-    <div style="font-size:18px;margin-bottom:6px">💡</div>
-    <div style="font-weight:600;font-size:14px;color:var(--mpc-navy);margin-bottom:3px">Propuesta de mix</div>
-    <div style="font-size:12px;color:var(--mpc-steel)">Distribución óptima según tu modo, fase y sector</div>
+  <div class="start-opt" onclick="proposeDistribution()" style="background:linear-gradient(135deg,#F0F9FF,#F0FDF4);border:1.5px dashed #0F2942;border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;text-align:center">
+    <div style="font-size:22px;margin-bottom:6px">💡</div>
+    <div style="font-weight:700;font-size:13px;color:var(--mpc-navy);margin-bottom:4px">Recomendación IA</div>
+    <div style="font-size:11px;color:var(--mpc-steel);line-height:1.5">La IA propone la distribución óptima según tus objetivos</div>
   </div>
 </div>
 <div class="ex-mode-group" data-ex-mode="B2C">
@@ -1823,6 +1808,52 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
   <div class="scard scd"><span class="sc-ic">📈</span><span class="sc-lbl">Ingreso Neto Año 1</span><span class="sc-val" id="s_rev">€ 0</span><span class="sc-sub" id="s_rev_s">ROAS: —</span></div>
   <div class="scard sce"><span class="sc-ic">🎯</span><span class="sc-lbl">CAC</span><span class="sc-val" id="s_cac">€ 0</span><span class="sc-sub" id="s_cac_s">—</span></div>
   <div class="scard scf"><span class="sc-ic">♾️</span><span class="sc-lbl">Life Time Value</span><span class="sc-val" id="s_ltv">€ 0</span><span class="sc-sub" id="s_ltv_s">LTV/CAC: —</span></div>
+</div>
+
+<!-- CHARTS SECTION -->
+<div class="np" style="margin-top:24px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <!-- Chart 1: Awareness vs Performance -->
+    <div class="card" style="padding:20px">
+      <div style="font-size:12px;font-weight:700;color:#8AA0B5;text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace;margin-bottom:12px">Distribución Inversión</div>
+      <div style="font-size:15px;font-weight:600;color:#F0F6FF;margin-bottom:16px">Awareness vs Performance</div>
+      <div style="position:relative;height:32px;border-radius:8px;overflow:hidden;background:#1a2a3a;margin-bottom:10px">
+        <div id="chart_aw_bar" style="position:absolute;left:0;top:0;height:100%;background:#C75A3C;border-radius:8px 0 0 8px;transition:width 0.5s;width:0%"></div>
+        <div id="chart_pf_bar" style="position:absolute;right:0;top:0;height:100%;background:#0F2942;border-radius:0 8px 8px 0;transition:width 0.5s;width:0%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:#F0F6FF"><span style="width:10px;height:10px;border-radius:2px;background:#C75A3C;display:inline-block"></span>Awareness <span id="chart_aw_pct" style="font-weight:700;font-family:'Geist Mono',monospace">0%</span> · <span id="chart_aw_eur" style="color:#8AA0B5">€0</span></span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:#F0F6FF"><span id="chart_pf_eur" style="color:#8AA0B5">€0</span> <span id="chart_pf_pct" style="font-weight:700;font-family:'Geist Mono',monospace">0%</span> Performance<span style="width:10px;height:10px;border-radius:2px;background:#0F2942;border:1px solid #3d5370;display:inline-block"></span></span>
+      </div>
+    </div>
+    <!-- Chart 2: Own/Earned/Paid/Shared -->
+    <div class="card" style="padding:20px">
+      <div style="font-size:12px;font-weight:700;color:#8AA0B5;text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace;margin-bottom:12px">Distribución por Tipo</div>
+      <div style="font-size:15px;font-weight:600;color:#F0F6FF;margin-bottom:16px">Own · Earned · Paid · Shared</div>
+      <div style="position:relative;height:32px;border-radius:8px;overflow:hidden;background:#1a2a3a;margin-bottom:10px;display:flex">
+        <div id="chart_own_bar" style="height:100%;background:#2F7D5C;transition:width 0.5s;width:0%;flex-shrink:0"></div>
+        <div id="chart_earn_bar" style="height:100%;background:#C28840;transition:width 0.5s;width:0%;flex-shrink:0"></div>
+        <div id="chart_paid_bar" style="height:100%;background:#C75A3C;transition:width 0.5s;width:0%;flex-shrink:0"></div>
+        <div id="chart_shar_bar" style="height:100%;background:#4A6B8A;transition:width 0.5s;width:0%;flex-shrink:0"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#F0F6FF"><span style="width:8px;height:8px;border-radius:2px;background:#2F7D5C;display:inline-block"></span>Own <span id="chart_own_pct" style="font-weight:700;font-family:'Geist Mono',monospace;color:#2F7D5C">0%</span></span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#F0F6FF"><span style="width:8px;height:8px;border-radius:2px;background:#C28840;display:inline-block"></span>Earned <span id="chart_earn_pct" style="font-weight:700;font-family:'Geist Mono',monospace;color:#C28840">0%</span></span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#F0F6FF"><span style="width:8px;height:8px;border-radius:2px;background:#C75A3C;display:inline-block"></span>Paid <span id="chart_paid_pct" style="font-weight:700;font-family:'Geist Mono',monospace;color:#C75A3C">0%</span></span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#F0F6FF"><span style="width:8px;height:8px;border-radius:2px;background:#4A6B8A;display:inline-block"></span>Shared <span id="chart_shar_pct" style="font-weight:700;font-family:'Geist Mono',monospace;color:#4A6B8A">0%</span></span>
+      </div>
+    </div>
+  </div>
+  <!-- Glossary -->
+  <div class="card" style="padding:16px 20px">
+    <div style="font-size:11px;font-weight:700;color:#8AA0B5;text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace;margin-bottom:12px">Glosario de tipos de medios</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:10px;height:10px;border-radius:2px;background:#2F7D5C;flex-shrink:0;margin-top:2px;display:inline-block"></span><div><strong style="color:#2F7D5C;font-size:12px">Paid Media</strong><div style="font-size:11px;color:#8AA0B5;line-height:1.5">Inversión en publicidad pagada: SEM, Meta Ads, LinkedIn, Display, TV, Radio, Exterior. Tú pagas para aparecer.</div></div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:10px;height:10px;border-radius:2px;background:#C28840;flex-shrink:0;margin-top:2px;display:inline-block"></span><div><strong style="color:#C28840;font-size:12px">Earned Media</strong><div style="font-size:11px;color:#8AA0B5;line-height:1.5">Visibilidad ganada de forma orgánica: SEO, PR, Reviews, Boca a Oreja, cobertura espontánea en medios. No se paga directamente.</div></div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:10px;height:10px;border-radius:2px;background:#C75A3C;flex-shrink:0;margin-top:2px;display:inline-block"></span><div><strong style="color:#C75A3C;font-size:12px">Own Media</strong><div style="font-size:11px;color:#8AA0B5;line-height:1.5">Canales propios: web, blog, email, app, podcast propio, RRSS orgánico. Inversión en producción y gestión, sin coste de distribución.</div></div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:10px;height:10px;border-radius:2px;background:#4A6B8A;flex-shrink:0;margin-top:2px;display:inline-block"></span><div><strong style="color:#4A6B8A;font-size:12px">Shared Media</strong><div style="font-size:11px;color:#8AA0B5;line-height:1.5">Medios compartidos: influencers, colaboraciones, contenido co-creado, comunidades. El alcance se comparte con otro propietario.</div></div></div>
+    </div>
+  </div>
 </div>
 
 </div><!-- /inn -->
@@ -2173,7 +2204,7 @@ function calcEntry(entry,crMult){
   return{leads,clients,ingreso,inversion:inv,roas:inv>0?ingreso/inv:0,funnel,extraKPI};
 }
 
-function recalcAll(){S.channels.forEach(c=>{c.results=calcEntry(c);});updateBB();renderPlan();renderMonthly();renderSens();calcLTV();renderSummary();}
+function recalcAll(){S.channels.forEach(c=>{c.results=calcEntry(c);});updateBB();renderPlan();renderMonthly();renderSens();calcLTV();renderSummary();updateCharts();}
 
 function updateBB(){
   const tot=parseFloat(document.getElementById('obj_budget').value)||0;
@@ -2186,21 +2217,6 @@ function updateBB(){
   document.getElementById('bb-alrt').style.display=used>tot&&tot>0?'block':'none';
 }
 
-function setMode(m){
-  S.mode=m;
-  // Sync hidden state buttons
-  document.getElementById('btnB2C').className='mode-btn'+(m==='B2C'?' b2c':'');
-  document.getElementById('btnB2B').className='mode-btn'+(m==='B2B'?' b2b':'');
-  // Sync visible sticky toggle
-  const vB2C=document.getElementById('visB2C');
-  const vB2B=document.getElementById('visB2B');
-  if(vB2C&&vB2B){
-    const navyBg='#0F2942',navyTxt='#F6F4EF',offBg='transparent',offTxt='#4A6B8A',shadow='0 1px 3px rgba(15,41,66,0.2)';
-    vB2C.style.background=m==='B2C'?navyBg:offBg; vB2C.style.color=m==='B2C'?navyTxt:offTxt; vB2C.style.boxShadow=m==='B2C'?shadow:'none';
-    vB2B.style.background=m==='B2B'?navyBg:offBg; vB2B.style.color=m==='B2B'?navyTxt:offTxt; vB2B.style.boxShadow=m==='B2B'?shadow:'none';
-  }
-  onSectorChange();onPhaseChange();recalcAll();if(S.selectedCh)renderForm(S.selectedCh);showToast(m==='B2B'?'📊 Modo B2B':'🛒 Modo B2C');
-}
 
 function setPlanMode(pm){S.planMode=pm;document.querySelectorAll('#mpc-root .pm-btn').forEach(b=>b.classList.toggle('act',b.dataset.pm===pm));document.getElementById('pm-help').style.display=pm==='objective'?'block':'none';const bl=document.getElementById('budgetLabel');const bh=document.getElementById('budgetHint');if(pm==='objective'){bl.textContent='Inversión estimada (€)';bh.textContent='Se calcula automáticamente';}else{bl.textContent='Presupuesto Total (€)';bh.textContent='Techo máximo de inversión';}if(S.selectedCh)renderForm(S.selectedCh);recalcAll();}
 
@@ -2450,12 +2466,9 @@ function saveToStorage(){try{const d={mode:S.mode,sector:S.sector,uidCtr:S.uidCt
 function loadFromStorage(){try{const raw=localStorage.getItem('mpc_v3');if(!raw){showToast('📂 No hay plan guardado');return;}applyData(JSON.parse(raw));showToast('📂 Plan cargado correctamente');}catch(e){showToast('❌ Error al cargar');}}
 
 function applyData(d){S.mode=d.mode||'B2C';S.sector=d.sector||null;S.uidCtr=d.uidCtr||0;S.planMode=d.planMode||'budget';S.channels=(d.channels||[]).map(c=>({...c,results:null}));if(d.budget)document.getElementById('obj_budget').value=d.budget;if(d.clients)document.getElementById('obj_clients').value=d.clients;if(d.cac)document.getElementById('obj_cac').value=d.cac;if(d.ticket)document.getElementById('globalTicket').value=d.ticket;if(d.ticketType)document.getElementById('ticketType').value=d.ticketType;if(d.phase)document.getElementById('obj_phase').value=d.phase;if(d.sectorVal)document.getElementById('sectorSelect').value=d.sectorVal;if(d.ltv)Object.entries(d.ltv).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.value=v;});
-  // Sync hidden buttons
   document.getElementById('btnB2C').className='mode-btn'+(S.mode==='B2C'?' b2c':'');
   document.getElementById('btnB2B').className='mode-btn'+(S.mode==='B2B'?' b2b':'');
-  // Sync visible sticky toggle
-  const vB2C=document.getElementById('visB2C');const vB2B=document.getElementById('visB2B');
-  if(vB2C&&vB2B){const navyBg='#0F2942',navyTxt='#F6F4EF',offBg='transparent',offTxt='#4A6B8A',shadow='0 1px 3px rgba(15,41,66,0.2)';vB2C.style.background=S.mode==='B2C'?navyBg:offBg;vB2C.style.color=S.mode==='B2C'?navyTxt:offTxt;vB2C.style.boxShadow=S.mode==='B2C'?shadow:'none';vB2B.style.background=S.mode==='B2B'?navyBg:offBg;vB2B.style.color=S.mode==='B2B'?navyTxt:offTxt;vB2B.style.boxShadow=S.mode==='B2B'?shadow:'none';}
+  var badge=document.getElementById('bb-mode-badge');if(badge)badge.textContent=S.mode;
   onSectorChange();onPhaseChange();recalcAll();}
 
 const EX={
@@ -2493,7 +2506,7 @@ window.onFI=onFI;window.addOrUpdate=addOrUpdate;window.removeChannel=removeChann
 window.editChannel=editChannel;window.toggleM=toggleM;window.renderSens=renderSens;
 window.loadExample=loadExample;window.recalcAll=recalcAll;window.saveToStorage=saveToStorage;window.loadFromStorage=loadFromStorage;
 window.showStorageInfo=showStorageInfo;window.closeModal=closeModal;
-window.proposeDistribution=proposeDistribution;window.setPlanTitle=setPlanTitle;
+window.proposeDistribution=proposeDistribution;window.setPlanTitle=setPlanTitle;window.updateCharts=updateCharts;window.showLockedFieldModal=showLockedFieldModal;
 function init(){renderChGrid();onSectorChange();onPhaseChange();updateBB();renderSens();calcLTV();renderSummary();renderMonthly();}
 document.addEventListener('DOMContentLoaded',init);
 </script>

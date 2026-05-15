@@ -710,22 +710,16 @@ function WizardInner() {
       {step===4&&(
         <div style={{ maxWidth:1040, margin:'0 auto', padding:'40px 24px 0' }}>
           {/* Title */}
-          <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.02em' }}>Táctico & Presupuesto</h1>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:4, flexWrap:'wrap' }}>
+            <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, letterSpacing:'-0.02em', margin:0 }}>Táctico & Presupuesto</h1>
+            <span style={{ background:C.navy, color:C.paper, borderRadius:100, padding:'4px 14px', fontSize:13, fontWeight:700, fontFamily:"'Geist',sans-serif", letterSpacing:'-0.01em' }}>{plan.tipo_negocio}</span>
+          </div>
           <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>{plan.sector} · {plan.pais}</p>
 
           {/* Video */}
           <VideoBlock vimeoId="1103392013" title="Distribución táctica de presupuesto" />
 
-          {/* B2C/B2B Toggle — prominent, below video */}
-          <div style={{ display:'flex', justifyContent:'center', marginBottom:24, marginTop:8 }}>
-            <div style={{ background:C.paper2, borderRadius:100, padding:4, display:'inline-flex', gap:4, border:`1px solid ${C.steel1}` }}>
-              {(['B2C','B2B'] as const).map(m=>(
-                <button key={m} onClick={()=>upd('tipo_negocio',m)} style={{ padding:'10px 36px', borderRadius:100, border:'none', cursor:'pointer', fontFamily:"'Geist',sans-serif", fontWeight:600, fontSize:14, transition:'all 0.2s', background:plan.tipo_negocio===m?C.navy:'transparent', color:plan.tipo_negocio===m?C.paper:C.steel, boxShadow:plan.tipo_negocio===m?'0 2px 6px rgba(15,41,66,0.18)':'none' }}>
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
+
 
           {userPlan==='free'&&(
             <div style={{ background:'#FFFBEB', border:`1px solid #FDE68A`, borderRadius:8, padding:'12px 16px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
@@ -739,7 +733,18 @@ function WizardInner() {
             <iframe
               id="tactico-iframe"
               key={plan.tipo_negocio}
-              src={`/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000')?60000:1000}&mode=${plan.tipo_negocio==='B2B'?'B2B':'B2C'}&readonly=${userPlan==='free'?'1':'0'}&noheader=1`}
+              src={(() => {
+                const bud = plan.presupuesto.includes('1000_3000')?2000:plan.presupuesto.includes('3000_10000')?6000:plan.presupuesto.includes('10000_30000')?20000:plan.presupuesto.includes('mas_100000')?150000:plan.presupuesto.includes('30000_100000')?60000:1000
+                const objVentas = plan.objectives.find(o=>o.kpi.includes('unidades'))
+                const objLeads  = plan.objectives.find(o=>o.kpi==='Leads')
+                const objTicket = plan.objectives.find(o=>o.kpi==='Ticket Medio')
+                const clients   = objVentas?.dato||objLeads?.dato||''
+                const ticket    = objTicket?.dato||''
+                const sectorMap:Record<string,string>={'Moda y Accesorios':'moda','Alimentación':'alimentacion','Salud y Belleza':'salud','Tecnología':'tecnologia','Servicios B2B':'servicios','Formación y Educación':'cursos','Viajes y Turismo':'viajes','Inmobiliario':'servicios','Deporte y Fitness':'deporte','Hogar y Decoración':'hogar','Automoción':'automovil','Seguros y Finanzas':'seguros','Hostelería y Restauración':'alimentacion','Farmacia y Salud':'salud','Otros':'otros'}
+                const sector    = sectorMap[plan.sector]||''
+                const phase     = plan.fase_negocio||'launch'
+                return `/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${bud}&mode=${plan.tipo_negocio==='B2B'?'B2B':'B2C'}&readonly=${userPlan==='free'?'1':'0'}&noheader=1&sector=${sector}&phase=${phase}${clients?`&clients=${clients}`:''}${ticket?`&ticket=${ticket}`:''}`
+              })()} 
               style={{ width:'100%', height:600, border:'none', display:'block', minHeight:600 }}
               scrolling="no"
               title="Calculadora"
