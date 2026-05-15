@@ -553,7 +553,7 @@ function WizardInner() {
     const clients = objVentas?.dato || objLeads?.dato || ''
     const ticket  = objTicket?.dato || ''
     const mode = plan.tipo_negocio === 'B2B' ? 'B2B' : 'B2C'
-    const ro = userPlan === 'free' ? '1' : '0'
+    const ro = '0'
     let url = `/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${bud}&mode=${mode}&readonly=${ro}&noheader=1&sector=${sector}&phase=${plan.fase_negocio||'launch'}&plan=${userPlan}&usedAnalisis=${usedAnalisis}`
     if (clients) url += `&clients=${clients}`
     if (ticket)  url += `&ticket=${ticket}`
@@ -602,15 +602,10 @@ function WizardInner() {
           </div>
           <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>{plan.sector} - {plan.pais}</p>
           <VideoBlock vimeoId="1103392013" title="Distribucion tactica de presupuesto" />
-          {userPlan==='free'&&(
-            <div style={{ background:'#FFFBEB', border:`1px solid #FDE68A`, borderRadius:8, padding:'12px 16px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
-              <div style={{ fontSize:13, color:C.warn }}>Plan Gratuito: Solo lectura.</div>
-              <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_SM, color:C.accent, borderColor:C.accent }}>Activar Pro</button>
-            </div>
-          )}
+
           <div style={{ position:'relative', marginBottom:32, width:'100%', overflow:'hidden' }}>
             <iframe id="tactico-iframe" key={plan.tipo_negocio} src={buildIframeSrc()} style={{ width:'100%', height:600, border:'none', display:'block', minHeight:600 }} scrolling="no" title="Calculadora" />
-            {userPlan==='free'&&<div onClick={()=>setShowUpgrade(true)} style={{ position:'absolute', inset:0, cursor:'pointer', zIndex:10 }} />}
+
           </div>
           <div style={{ position:'sticky', bottom:0, background:C.paper, borderTop:`1px solid ${C.steel1}`, padding:'12px 0', display:'flex', justifyContent:'space-between', zIndex:10 }}>
             <button onClick={()=>setStep(3)} style={BTN_S}>Atras</button>
