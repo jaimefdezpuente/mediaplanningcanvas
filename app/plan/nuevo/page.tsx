@@ -419,20 +419,11 @@ function WizardInner() {
     if(r){setPlan(p=>({...p,entorno:r}));markDone(0);setStep(1);trackAnalisis();autoSave({entorno:r as Obj})}
   }
 
-  async function s1next() {
+  function s1next() {
     if(!ed('d_fo','').trim()){setAlert({title:'Fortalezas obligatorias',body:'Rellena tus Fortalezas antes de continuar.'});return}
     if(!ed('d_de','').trim()){setAlert({title:'Debilidades obligatorias',body:'Rellena tus Debilidades antes de continuar.'});return}
-    if(userPlan==='free'){setPlan(p=>({...p,target:{} as Obj}));markDone(1);setStep(2);return}
-    if(!canUseAnalisis()) return
-    if(plan.target){markDone(1);setStep(2);return}
-    const r = await callAI('target')
-    if(r){
-      const rawSteps = ga(r,'escalera_valor')
-      const steps:ValStep[] = rawSteps.map(s=>{const o=s as Obj;return{id:uid(),tipo:ss(o.tipo)||'MOFU',accion:ss(o.accion)||'',objetivo:ss(o.objetivo)||''}})
-      while(steps.length < 3) steps.push({id:uid(),tipo:'MOFU',accion:'',objetivo:''})
-      setPlan(p=>({...p,target:r as Obj,valueSteps:steps}));markDone(1);setStep(2)
-      trackAnalisis();autoSave({target:r as Obj})
-    }
+    markDone(1);setStep(2)
+    autoSave({})
   }
 
   function s2next() {
@@ -696,6 +687,7 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                   <h2 style={{ fontSize:18, fontWeight:600, color:C.navy }}>Situacion del Pais</h2>
                   <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI('entorno');if(r){se('e_res',gn(r,'situacion_pais','resumen'));se('e_mac',gn(r,'situacion_pais','variables_macro'));trackAnalisis()}}} disabled={busy} small />
                 </div>
+                <VideoBlock vimeoId="1103392013" title="Situación del País y Entorno" />
                 <EditField label="Resumen del entorno" fkey="e_res" value={ed('e_res',gn(plan.entorno,'situacion_pais','resumen'))} onChange={v=>se('e_res',v)} onRefine={p=>refine('e_res',ed('e_res',''),p)} />
                 <EditField label="Variables macroeconomicas" fkey="e_mac" value={ed('e_mac',gn(plan.entorno,'situacion_pais','variables_macro'))} onChange={v=>se('e_mac',v)} onRefine={p=>refine('e_mac',ed('e_mac',''),p)} />
                 <ToolsBlock title="Analisis Macro" tools={TOOLS_DATA.macro} />
@@ -707,6 +699,7 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                 </div>
                 <EditField label="Descripcion del mercado" fkey="e_mkt" value={ed('e_mkt',gn(plan.entorno,'mercado','descripcion'))} onChange={v=>se('e_mkt',v)} onRefine={p=>refine('e_mkt',ed('e_mkt',''),p)} />
                 <EditField label="Tamano estimado y tendencia" fkey="e_siz" value={ed('e_siz',[gn(plan.entorno,'mercado','tamano_estimado'),gn(plan.entorno,'mercado','tendencia')].filter(Boolean).join(' - '))} onChange={v=>se('e_siz',v)} onRefine={p=>refine('e_siz',ed('e_siz',''),p)} />
+                <VideoBlock vimeoId="1103392013" title="Análisis de Mercado" />
                 <ToolsBlock title="Analisis de Mercado" tools={TOOLS_DATA.mercado} />
               </div>
               <div style={CARD}>
@@ -715,12 +708,14 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                   <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI('entorno');if(r){se('e_cmp',gn(r,'competencia','analisis'));trackAnalisis()}}} disabled={busy} small />
                 </div>
                 <EditField label="Analisis de la competencia" fkey="e_cmp" value={ed('e_cmp',gn(plan.entorno,'competencia','analisis'))} onChange={v=>se('e_cmp',v)} onRefine={p=>refine('e_cmp',ed('e_cmp',''),p)} />
+                <VideoBlock vimeoId="1103392013" title="Análisis de Competencia" />
                 <ToolsBlock title="Competencia en Medios" tools={TOOLS_DATA.competencia} />
               </div>
               <div style={CARD}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
                   <h2 style={{ fontSize:18, fontWeight:600, color:C.navy }}>DAFO</h2>
                   <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI('entorno');if(r){se('d_op',gn(r,'dafo','oportunidades'));se('d_am',gn(r,'dafo','amenazas'));trackAnalisis()}}} disabled={busy} small />
+                <VideoBlock vimeoId="1103392013" title="DAFO Estratégico" />
                 </div>
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
                   {[
@@ -747,7 +742,7 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
               </div>
               <div style={{ display:'flex', justifyContent:'space-between' }}>
                 <button onClick={()=>setStep(0)} style={BTN_S}>Atras</button>
-                <AiBtn label={`Analizar Target ${plan.target?'(regenerar)':''}`} used={usedAnalisis} max={limits.analisis} onClick={s1next} disabled={busy} />
+                <button onClick={s1next} disabled={busy} style={{ padding:'11px 24px', borderRadius:6, background:C.navy, border:'none', color:C.paper, fontWeight:600, fontSize:14, cursor:busy?'not-allowed':'pointer', fontFamily:"'Geist',sans-serif", opacity:busy?0.7:1 }}>Continuar al Target →</button>
               </div>
             </div>
           )}
