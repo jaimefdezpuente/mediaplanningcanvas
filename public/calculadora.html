@@ -1512,18 +1512,30 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 // Handle noheader param - hide logo area, keep B2C/B2B
 (function() {
   var p = new URLSearchParams(location.search);
-  if (p.get('noheader') === '1') {
-    document.addEventListener('DOMContentLoaded', function() {
-      // Header already removed from HTML
-    });
-  }
-  // Auto-set mode from URL
+  // Auto-set mode from URL and LOCK controls when wizard passes params
   var mode = p.get('mode');
-  if (mode === 'B2B' || mode === 'B2C') {
+  var fromWizard = mode === 'B2B' || mode === 'B2C';
+  if (fromWizard) {
     document.addEventListener('DOMContentLoaded', function() {
       setTimeout(function() {
         if (typeof setMode === 'function') setMode(mode);
-      }, 100);
+        // Lock toggle — mode can only change from project config
+        var vb2c = document.getElementById('visB2C');
+        var vb2b = document.getElementById('visB2B');
+        if (vb2c && vb2b) {
+          vb2c.onclick = function(){ showToast('⚠️ El modelo se configura en los Datos del Proyecto'); return false; };
+          vb2b.onclick = function(){ showToast('⚠️ El modelo se configura en los Datos del Proyecto'); return false; };
+          vb2c.title = 'Configurable en Datos del Proyecto';
+          vb2b.title = 'Configurable en Datos del Proyecto';
+          var tog = vb2c.parentElement;
+          if(tog) tog.style.opacity = '0.75';
+        }
+        // Lock sector and phase if passed as URL params
+        var sector = p.get('sector');
+        var phase = p.get('phase');
+        if (sector) { var ss = document.getElementById('sectorSelect'); if(ss){ ss.value = sector; ss.disabled = true; if(typeof onSectorChange==='function') onSectorChange(); } }
+        if (phase) { var ps = document.getElementById('obj_phase'); if(ps){ ps.value = phase; ps.disabled = true; if(typeof onPhaseChange==='function') onPhaseChange(); } }
+      }, 150);
     });
   }
 })();
@@ -1564,13 +1576,6 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 <div class="slbl"><div class="snum">00</div><div class="stit">Objetivos del Plan</div></div>
 <div class="ssub">Define primero el techo y el objetivo. El plan se construye hacia atrás desde aquí.</div>
 <div class="card">
-  <div class="pm-tog">
-    <button class="pm-btn act" data-pm="budget" onclick="setPlanMode('budget')">💰 Maximizar Presupuesto<span class="pm-desc">Tengo €X — ¿cómo distribuirlo?</span></button>
-    <button class="pm-btn" data-pm="objective" onclick="setPlanMode('objective')">🎯 Alcanzar Objetivo<span class="pm-desc">Quiero N clientes — ¿cuánto necesito invertir?</span></button>
-  </div>
-  <div id="pm-help" class="info-box" style="display:none;margin-bottom:14px">
-    <strong>Modo Objetivo:</strong> En cada canal de Lead/Venta introduce cuántos clientes quieres conseguir de ese canal. La herramienta calculará la inversión necesaria según los ratios que establezcas.
-  </div>
   <div class="g4">
     <div class="fr">
       <label class="fl" id="budgetLabel">Presupuesto Total (€)</label>
@@ -1650,6 +1655,11 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
     <div style="font-weight:600;font-size:14px;color:var(--mpc-navy);margin-bottom:3px">Tu selección de canales</div>
     <div style="font-size:12px;color:var(--mpc-steel)">Carga los canales que elegiste en el paso de estrategia</div>
   </div>
+  <div class="start-opt" onclick="proposeDistribution()" style="background:#fff;border:1.5px dashed #0F2942;border-radius:8px;padding:16px;cursor:pointer;transition:border-color 0.2s">
+    <div style="font-size:18px;margin-bottom:6px">💡</div>
+    <div style="font-weight:600;font-size:14px;color:var(--mpc-navy);margin-bottom:3px">Propuesta de mix</div>
+    <div style="font-size:12px;color:var(--mpc-steel)">Distribución óptima según tu modo, fase y sector</div>
+  </div>
 </div>
 <div class="ex-mode-group" data-ex-mode="B2C">
 <div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--mpc-steel3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace" class="np">Ejemplos B2C</div>
@@ -1703,7 +1713,7 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 </div>
 
 <!-- STEP 03: PLAN -->
-<div class="slbl"><div class="snum">03</div><div class="stit">Plan de Medios</div></div>
+<div class="slbl"><div class="snum">03</div><div class="stit" id="planTit">Plan de Medios</div></div>
 <div id="planSection">
   <div class="empty" id="planEmpty"><span class="empty-ic">📋</span><div>Sin canales todavía.</div><div style="font-size:12px;margin-top:4px">Selecciona canales arriba o carga un ejemplo.</div></div>
   <div id="planContent" style="display:none">
@@ -1807,7 +1817,8 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 <div class="slbl"><div class="snum">07</div><div class="stit">Resumen del Plan</div></div>
 <div class="sumg">
   <div class="scard sca"><span class="sc-ic">💰</span><span class="sc-lbl">Inversión Total</span><span class="sc-val" id="s_inv">€ 0</span><span class="sc-sub" id="s_inv_s">—</span></div>
-  <div class="scard scb"><span class="sc-ic">👥</span><span class="sc-lbl">Clientes Estimados</span><span class="sc-val" id="s_cli">0</span><span class="sc-sub" id="s_cli_s">—</span></div>
+  <div class="scard scb" id="s_leads_card" style="display:none"><span class="sc-ic">🎯</span><span class="sc-lbl">Leads Generados</span><span class="sc-val" id="s_leads">0</span><span class="sc-sub" id="s_leads_s">—</span></div>
+  <div class="scard scb"><span class="sc-ic">👥</span><span class="sc-lbl" id="s_cli_lbl">Clientes Estimados</span><span class="sc-val" id="s_cli">0</span><span class="sc-sub" id="s_cli_s">—</span></div>
   <div class="scard scc"><span class="sc-ic">🏷️</span><span class="sc-lbl">Ticket Medio</span><span class="sc-val" id="s_tck">€ 0</span><span class="sc-sub" id="s_tck_s">—</span></div>
   <div class="scard scd"><span class="sc-ic">📈</span><span class="sc-lbl">Ingreso Neto Año 1</span><span class="sc-val" id="s_rev">€ 0</span><span class="sc-sub" id="s_rev_s">ROAS: —</span></div>
   <div class="scard sce"><span class="sc-ic">🎯</span><span class="sc-lbl">CAC</span><span class="sc-val" id="s_cac">€ 0</span><span class="sc-sub" id="s_cac_s">—</span></div>
@@ -1848,8 +1859,29 @@ const CHANNELS=[
   {id:'BRANDED_C',ph:'notoriedad',name:'Branded Content',icon:'🎬',color:'#7c3aed',desc:'Contenido de marca en medios',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'800'},{id:'alcance_m',lb:'Audiencia del medio',req:true,ph:'100000',tip:'Lectores/espectadores del medio'},{id:'pct_imp',lb:'% que lee/ve el contenido',def:10},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
   {id:'PR_MEDIOS',ph:'notoriedad',name:'PR Digital / Medios',icon:'📰',color:'#a78bfa',desc:'Notas de prensa, colaboraciones',kt:'awareness',fields:[{id:'inv',lb:'Agencia o freelance (€)',req:true,ph:'600'},{id:'n_medios',lb:'Nº Medios impactados',req:true,ph:'10'},{id:'alcance_m',lb:'Audiencia media por medio',req:true,ph:'50000'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
   {id:'EVENTO_PROP',ph:'notoriedad',name:'Eventos Propios / Sponsor',icon:'🎪',color:'#0891b2',desc:'Eventos de marca y patrocinios',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'2000'},{id:'asistentes',lb:'Asistentes esperados',req:true,ph:'200'},{id:'online_reach',lb:'Alcance online del evento',ph:'5000',tip:'Personas en redes/streaming'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
-  {id:'OOH',ph:'notoriedad',name:'Exterior / OOH / Digital Signage',icon:'🏙️',color:'#059669',desc:'Vallas, mupis, pantallas digitales',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'2000'},{id:'grp',lb:'GRPs estimados',req:true,ph:'100',tip:'Gross Rating Points'},{id:'poblacion',lb:'Población objetivo',ph:'100000'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'OOH',ph:'notoriedad',name:'Exterior / OOH / Digital Signage',icon:'🏙️',color:'#059669',desc:'Vallas, mupis, pantallas digitales',kt:'awareness',fields:[
+    {id:'inv',lb:'Inversión (€) — campaña total',req:true,ph:'2000',tip:'Inversión total. Circuito nacional básico (1 semana): ~€5.000-15.000. Mupis ciudad 2 semanas: ~€2.000-6.000. Digital Signage: desde €500/semana.'},
+    {id:'grp',lb:'GRPs estimados de la campaña',req:true,ph:'100',tip:'Gross Rating Points = cobertura% × frecuencia. Un GRP = 1% de la población objetivo impactada 1 vez. Campaña urbana media: 100-300 GRPs.'},
+    {id:'poblacion',lb:'Población objetivo en el área',ph:'500000',tip:'Número total de personas en el área de cobertura de los soportes. Ciudad de 500.000 hab., target 25-55 años ≈ 250.000 personas.'},
+    {id:'cr_sec',lb:'CR Secundario estimado (%)',req:false,ph:'0.05',tip:'% que convierte indirectamente. OOH digital: 0.05-0.15% (con call to action + QR). OOH estático: 0.01-0.05%. Mide con cupón o URL exclusiva.'}
+  ]},
   {id:'TV_RADIO',ph:'notoriedad',name:'TV / Radio / Prensa offline',icon:'📡',color:'#6366f1',desc:'Medios masivos tradicionales',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'5000'},{id:'audiencia',lb:'Audiencia bruta',req:true,ph:'500000',tip:'Audiencia total del medio'},{id:'frec',lb:'Frecuencia media',def:3},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'TV',ph:'notoriedad',name:'Televisión (TV)',icon:'📺',color:'#4f46e5',desc:'TV lineal, Smart TV y Connected TV',kt:'awareness',fields:[
+    {id:'inv',lb:'Inversión (€) — campaña total',req:true,ph:'15000',tip:'Inversión total: producción + emisión. Campañas nacionales desde ~€15.000. Regionales desde ~€3.000.'},
+    {id:'cpp',lb:'CPP — Coste por Punto de Rating (€)',def:500,tip:'€ por cada GRP comprado en tu target. Nacional prime time: €800-1.500. Temáticas: €50-200. Regionales: €100-400.'},
+    {id:'cobertura',lb:'Cobertura neta (%)',def:40,tip:'% de tu audiencia objetivo que verá el anuncio al menos 1 vez. Campaña media nacional: 40-60%. Regional: 20-35%.'},
+    {id:'poblacion',lb:'Universo objetivo (personas)',req:true,ph:'5000000',tip:'Nº total de personas en tu target. Ej: adultos 25-54 España ≈ 15M. Mujeres 25-45 ≈ 7.5M.'},
+    {id:'frec',lb:'Frecuencia media (OTS)',def:5,tip:'Nº veces que cada persona ve el anuncio. Mínimo 3 para recuerdo. Óptimo para persuasión: 5-7. Más de 10 produce desgaste.'},
+    {id:'cr_sec',lb:'CR Secundario estimado (%)',req:false,ph:'0.02',tip:'% del alcance que convierte de forma indirecta. TV: 0.01-0.05%. Mide con encuesta de recuerdo o uplift en search.'}
+  ]},
+  {id:'RADIO',ph:'notoriedad',name:'Radio',icon:'📻',color:'#7c3aed',desc:'Radio convencional, digital y podcasts publicitarios',kt:'awareness',fields:[
+    {id:'inv',lb:'Inversión (€) — campaña total',req:true,ph:'3000',tip:'Inversión total en cuñas. Incluye producción (~€300-800) y emisión. Cadena nacional 1 semana: ~€5.000-15.000. Local: ~€500-2.000.'},
+    {id:'oyentes',lb:'Oyentes diarios del medio',req:true,ph:'500000',tip:'Audiencia media diaria de la emisora. EGM España: SER ~4.5M, COPE ~2.5M, Onda Cero ~2M, Los 40 ~1.8M. Emisoras locales: 10.000-100.000.'},
+    {id:'frec',lb:'Cuñas emitidas por día',def:4,tip:'Nº de veces que se emite la cuña al día. Mínimo 3 para efectividad. Campaña intensiva: 6-8 cuñas/día. Se recomienda distribuir en distintas franjas.'},
+    {id:'dias',lb:'Días de campaña',def:21,tip:'Duración de la campaña. Campaña de lanzamiento: 21-30 días. Campaña táctica/promocional: 7-14 días. Mantenimiento: contrato mensual con 2-3 cuñas/día.'},
+    {id:'cobertura',lb:'Cobertura neta (%)',def:28,tip:'% de la audiencia que escucha al menos 1 cuña. Cadena nacional: 25-35%. Regional: 20-30%. Nota: la cobertura real es inferior a la audiencia diaria × días por repetición de escucha.'},
+    {id:'cr_sec',lb:'CR Secundario estimado (%)',req:false,ph:'0.02',tip:'% que convierte indirectamente. Radio local: 0.03-0.08% (llamadas, visitas). Nacional: 0.01-0.03%. Mide con código promo exclusivo en la cuña.'}
+  ]},
   {id:'RRSS_ORG_NOT',ph:'notoriedad',name:'RRSS Orgánico · Contenidos',icon:'📱',color:'#14b8a6',desc:'Posts propios en redes sociales',kt:'awareness',fields:[{id:'inv',lb:'Coste creación (€)',req:false,ph:'200',tip:'Community manager o agencia'},{id:'posts_mes',lb:'Nº Posts al mes',req:true,ph:'20'},{id:'alcance_post',lb:'Alcance medio por post',req:true,ph:'2000'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
   {id:'EMPL_BRAND',ph:'notoriedad',name:'Employee Branding',icon:'👔',color:'#8b5cf6',desc:'Empleados como embajadores',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:false,ph:'300'},{id:'n_empl',lb:'Nº Empleados activos',req:true,ph:'10'},{id:'seg',lb:'Seguidores medios',req:true,ph:'500'},{id:'posts_mes',lb:'Posts/empleado/mes',def:4},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
   // INTERACCIÓN (kt='traffic')
@@ -1920,6 +1952,8 @@ function calcEntry(entry,crMult){
     else if(ch.id==='BRANDED_C'){const am=parseFloat(f.alcance_m)||0;const pi=(parseFloat(f.pct_imp)||10)/100;extraKPI={type:'awareness',impresiones:am*pi,alcance:am,label:'Lectores/Viewers',cpm_real:am*pi>0?inv/(am*pi)*1000:0};}
     else if(ch.id==='PR_MEDIOS'){const nm=parseFloat(f.n_medios)||0;const am=parseFloat(f.alcance_m)||0;extraKPI={type:'awareness',impresiones:nm*am*0.1,alcance:nm*am,label:'Impresiones editoriales',cpm_real:0};}
     else if(ch.id==='EVENTO_PROP'){const a=parseFloat(f.asistentes)||0;const o=parseFloat(f.online_reach)||0;extraKPI={type:'awareness',impresiones:a+o,alcance:a+o,label:'Asistentes+Online',cpm_real:0};}
+    else if(ch.id==='TV'){const cpp=parseFloat(f.cpp)||500;const grpAct=cpp>0?inv/cpp:200;const cob=(parseFloat(f.cobertura)||40)/100;const pob=parseFloat(f.poblacion)||1000000;const fr=parseFloat(f.frec)||5;const alcance=cob*pob;const impresiones=alcance*fr;extraKPI={type:'awareness',impresiones,alcance,label:'Contactos brutos TV',cpm_real:impresiones>0?inv/impresiones*1000:0,grp:grpAct.toFixed(0)};}
+    else if(ch.id==='RADIO'){const oy=parseFloat(f.oyentes)||0;const fr=parseFloat(f.frec)||4;const dias=parseFloat(f.dias)||21;const cob=(parseFloat(f.cobertura)||28)/100;const impresiones=oy*fr*dias;const alcance=oy*cob;extraKPI={type:'awareness',impresiones,alcance,label:'Contactos brutos Radio',cpm_real:impresiones>0?inv/impresiones*1000:0};}
     else if(ch.id==='OOH'){const g=parseFloat(f.grp)||0;const p=parseFloat(f.poblacion)||100000;const imp=g/100*p;extraKPI={type:'awareness',impresiones:imp,alcance:p*0.6,label:'Impactos GRP',cpm_real:imp>0?inv/imp*1000:0};}
     else if(ch.id==='TV_RADIO'){const a=parseFloat(f.audiencia)||0;const fr=parseFloat(f.frec)||3;extraKPI={type:'awareness',impresiones:a*fr,alcance:a,label:'Contactos brutos',cpm_real:a>0?inv/(a*fr)*1000:0};}
     else if(ch.id==='RRSS_ORG_NOT'){const pm=parseFloat(f.posts_mes)||0;const ap=parseFloat(f.alcance_post)||0;extraKPI={type:'awareness',impresiones:pm*ap,alcance:ap,label:'Impresiones orgánicas',cpm_real:0};}
@@ -2040,7 +2074,34 @@ function onPhaseChange(){renderMixRec();}
 
 function setPhaseTab(ph){S.phase=ph;document.querySelectorAll('#mpc-root .ph-tab').forEach(t=>t.classList.toggle('act',t.dataset.ph===ph));document.getElementById('phNote').innerHTML=PH_NOTES[ph];document.getElementById('phNote').dataset.ph=ph;S.selectedCh=null;S.editUid=null;document.getElementById('chForm').style.display='none';renderChGrid();}
 
-function renderMixRec(){const ph=document.getElementById('obj_phase').value;const key=S.mode+'_'+ph;const box=document.getElementById('mixBox');if(!MIX[key]){box.style.display='none';return;}box.style.display='block';const rows=MIX[key].map(r=>{const ch=getCh(r.id);return`<div class="mr"><span class="mp">${r.pct}%</span><span>${ch?ch.icon:'•'} ${r.id}</span><div class="mbt"><div class="mbf" style="width:${r.pct}%"></div></div><span class="mw">${r.why}</span></div>`;}).join('');box.innerHTML=`<div class="mix-box"><div class="mix-tt">💡 Mix recomendado · ${S.mode} · ${ph} (orientativo, no prescriptivo)</div>${rows}</div>`;}
+function renderMixRec(){document.getElementById('mixBox').style.display='none';}
+
+function setPlanTitle(label){var el=document.getElementById('planTit');if(el)el.textContent=label;}
+
+const EX_NAMES={ecom_b2c:'Ejemplo E-commerce Moda',academia:'Ejemplo Academia Online',fitness_b2c:'Ejemplo App Fitness',retail_b2c:'Ejemplo Retail Local',travel_b2c:'Ejemplo Viajes y Turismo',beauty_b2c:'Ejemplo Belleza y Cosmética',saas_b2b:'Ejemplo SaaS B2B',consulting_b2b:'Ejemplo Consultoría B2B',industrial_b2b:'Ejemplo Industrial B2B',hr_b2b:'Ejemplo RRHH y Formación',agency_b2b:'Ejemplo Agencia Digital',fintech_b2b:'Ejemplo Fintech B2B'};
+
+function proposeDistribution(){
+  var phase=document.getElementById('obj_phase').value;
+  var key=S.mode+'_'+phase;
+  if(!MIX[key]){showToast('⚠️ Define modo y fase primero');return;}
+  var budget=parseFloat(document.getElementById('obj_budget').value)||5000;
+  S.channels=[];S.uidCtr=0;
+  var b=bch(S.sector,S.mode);
+  MIX[key].forEach(function(item){
+    var ch=getCh(item.id);if(!ch)return;
+    var alloc=Math.round(budget*item.pct/100);
+    var fields={inv:alloc};
+    ch.fields.forEach(function(fd){if(fd.id!=='inv'&&fd.def!=null)fields[fd.id]=fd.def;if(fd.bench)fields[fd.id]=b.toFixed(2);});
+    // B2B defaults
+    if(S.mode==='B2B'){fields.lead2mql=fields.lead2mql||30;fields.mql2sql=fields.mql2sql||50;fields.demo2client=fields.demo2client||20;}
+    else{fields.carrito2venta=fields.carrito2venta||35;}
+    var entry={uid:UID(),channelId:ch.id,fields:fields,results:null,months:Array(12).fill(true)};
+    entry.results=calcEntry(entry);S.channels.push(entry);
+  });
+  recalcAll();
+  setPlanTitle('Propuesta '+S.mode+' · '+phase+' ('+fE(budget)+')');
+  showToast('💡 Distribución óptima cargada — ajusta los valores');
+}
 
 function renderChGrid(){
   const pch=CHANNELS.filter(c=>c.ph===S.phase);
@@ -2053,6 +2114,42 @@ function selectCh(id){S.selectedCh=id;S.editUid=null;renderChGrid();renderForm(i
 
 function cancelForm(){S.selectedCh=null;S.editUid=null;renderChGrid();document.getElementById('chForm').style.display='none';}
 
+// Field descriptions lookup — appears below each label in the form
+const FIELD_HINTS={
+  inv:'💶 Inversión anual total asignada a este canal.',
+  cpm:'📊 Coste por cada 1.000 impresiones. Referencia: Meta ~7-9€, YouTube ~4-6€, LinkedIn ~15-22€.',
+  cpc:'📊 Coste por clic. Referencia: SEM España ~1,5-3€, LinkedIn ~6-9€, Display ~0,3-0,6€.',
+  ctr:'📈 % de personas que hacen clic. Meta: 1-2%, LinkedIn: 0,4-0,8%, Email propio: 15-25%.',
+  cr:'🎯 % de visitas que se convierten en lead o venta. Varía por sector (ver benchmark arriba).',
+  deflaccion:'🔽 % de tráfico no cualificado a descontar: rebotes, bots, dispositivos no alineados.',
+  frec:'🔁 Nº de veces que una persona ve el anuncio. Óptimo para recuerdo: 3-5x.',
+  n_emails:'📬 Total de contactos en BBDD a los que se envía. Anual: suma todos los envíos.',
+  base_cli:'👥 Clientes activos en la base de datos en el período.',
+  pct_activo:'✅ % de clientes que recompran o responden al programa.',
+  frec_compra:'📈 Aumento en frecuencia de compra (%) gracias al programa de fidelización.',
+  lead2mql:'🔽 % de leads que Marketing califica como oportunidades reales (MQL). Típico: 20-40%.',
+  mql2sql:'🔽 % de MQLs que Ventas acepta como SQL. Típico: 40-60%.',
+  demo2client:'🔽 % de demos/propuestas que cierran como cliente. Típico: 15-30%.',
+  cierre:'🎯 % de demos o propuestas que terminan en contrato. Comercial B2B medio: 20-30%.',
+  carrito2venta:'🛒 % usuarios que inician compra y la completan. Media e-commerce España: 25-40%.',
+  n_demo:'📅 Nº de demos, workshops o sesiones de venta realizadas en el período.',
+  demos_por:'👤 Asistentes o contactos por sesión/demo.',
+  n_inf:'⭐ Nº de influencers o embajadores en el programa.',
+  seg:'👁️ Seguidores medios de los influencers seleccionados.',
+  pct_imp:'📢 % de seguidores que realmente ven el contenido (reach real). Macro: 10-15%, Micro: 30-50%.',
+  invitaciones:'📨 Nº de invitaciones enviadas para el webinar o evento.',
+  pct_reg:'📝 % de invitados que se registran. Email B2B: 8-15%, LinkedIn: 5-10%.',
+  pct_asist:'🙋 % de registrados que asisten en directo. Típico: 40-55%. Los no-asistentes reciben replay.',
+  vis_est:'🌐 Visitas estimadas al canal de afiliación en el período.',
+  vis_lp:'🌐 Visitas a la landing page donde está el lead magnet.',
+  vis_tienda:'🏪 Visitas físicas al punto de venta o marketplace en el período.',
+  n_cupones:'🎫 Nº total de cupones distribuidos en el período.',
+  com_pct:'💸 Comisión % sobre la venta. Solo pagas si hay conversión (CPA).',
+  busq_mes:'🔍 Búsquedas mensuales en Google Maps / Google Business de tu categoría.',
+  pct_click:'🖱️ % de búsquedas que hacen clic hacia tu web. Perfil optimizado: 20-30%.',
+  inv_anual:'💶 Inversión anual total del canal.',
+};
+
 function renderForm(id,ef){
   const ch=getCh(id);if(!ch)return;
   const b=bch(S.sector,S.mode);const isB2B=S.mode==='B2B';
@@ -2062,8 +2159,8 @@ function renderForm(id,ef){
   ch.fields.forEach(fd=>{
     if(!fd.lb)return;
     const val=ef&&ef[fd.id]!=null?ef[fd.id]:(fd.bench?b.toFixed(2):(fd.def!=null?fd.def:''));
-    const tip=fd.tip?`<span class="fs">${fd.tip}</span>`:'';
-    const bh=fd.bench?`<span class="bench-hint">📊 Benchmark sector: ${b.toFixed(2)}%</span>`:'';
+    const tip=fd.tip?`<span class="fs" style="color:#4A6B8A;font-size:11px;margin-top:2px">${fd.tip}</span>`:(FIELD_HINTS[fd.id]?`<span class="fs" style="color:#4A6B8A;font-size:11px;margin-top:2px">${FIELD_HINTS[fd.id]}</span>`:'');
+    const bh=fd.bench?`<span class="bench-hint" style="font-size:11px;color:#059669;margin-top:2px">📊 Benchmark sector: ${b.toFixed(2)}%</span>`:'';
     html+=`<div class="fr"><label class="fl">${fd.lb}${fd.req===false?' <span style="color:#3d5370;font-weight:400">(opcional)</span>':''}</label><input class="fi mono" type="number" data-id="${fd.id}" ${fd.bench?'data-bench="1"':''} value="${val}" placeholder="${fd.ph||''}" step="any" min="0" oninput="onFI()"> ${tip}${bh}</div>`;
   });
   document.getElementById('fFields').innerHTML=html;
@@ -2195,10 +2292,16 @@ function calcLTV(){
 function renderSummary(){
   const lv=S.channels.filter(c=>['conversion','variable','demo','direct','retention'].includes(getCh(c.channelId)?.kt));
   const totInv=S.channels.reduce((s,c)=>s+(c.results?.inversion||0),0);const totCl=lv.reduce((s,c)=>s+(c.results?.clients||0),0);const totRev=lv.reduce((s,c)=>s+(c.results?.ingreso||0),0);
+  const totLeads=lv.reduce((s,c)=>s+(c.results?.leads||0),0);
   const ticket=annTk();const tp=document.getElementById('ticketType').value;const ticketLabel=tp==='mensual'?'€/mes × 12 = '+fE(ticket)+'/año':tp==='anual'?'€/año por cliente':'€ por venta';
   const roas=totInv>0?totRev/totInv:0;const cac=totCl>0?totInv/totCl:0;const objCl=parseFloat(document.getElementById('obj_clients').value)||0;const cacMax=parseFloat(document.getElementById('obj_cac').value)||0;const ltvCac=cac>0?S.ltvPerCl/cac:0;
   const maxYrs=Math.max(parseFloat(document.getElementById('lh_y').value)||0,parseFloat(document.getElementById('lm_y').value)||0,parseFloat(document.getElementById('lb_y').value)||0);
   document.getElementById('s_inv').textContent=fE(totInv);document.getElementById('s_inv_s').textContent=S.channels.length+' canales · '+fP(totInv/Math.max(parseFloat(document.getElementById('obj_budget').value)||1,1)*100)+' del presupuesto';
+  // Leads card (B2B only)
+  const leadsCard=document.getElementById('s_leads_card');
+  if(leadsCard)leadsCard.style.display=S.mode==='B2B'?'':'none';
+  if(S.mode==='B2B'){const sl=document.getElementById('s_leads');const sls=document.getElementById('s_leads_s');if(sl)sl.textContent=fN(totLeads);if(sls)sls.textContent='→ '+fN(totCl)+' clientes (pipeline completo)';}
+  const cliLbl=document.getElementById('s_cli_lbl');if(cliLbl)cliLbl.textContent=S.mode==='B2B'?'Clientes Cerrados':'Clientes Estimados';
   document.getElementById('s_cli').textContent=fN(totCl);document.getElementById('s_cli_s').textContent='Objetivo: '+fN(objCl)+' ('+fP(objCl>0?totCl/objCl*100:0)+')';
   document.getElementById('s_tck').textContent=fE(ticket);document.getElementById('s_tck_s').textContent=ticketLabel;
   document.getElementById('s_rev').textContent=fE(totRev);document.getElementById('s_rev_s').textContent='ROAS: '+fR(roas)+(roas>=3?' ✅':roas>=1?' 👍':totRev>0?' ⚠️':'');
@@ -2217,7 +2320,7 @@ function applyData(d){S.mode=d.mode||'B2C';S.sector=d.sector||null;S.uidCtr=d.ui
   // Sync visible sticky toggle
   const vB2C=document.getElementById('visB2C');const vB2B=document.getElementById('visB2B');
   if(vB2C&&vB2B){const navyBg='#0F2942',navyTxt='#F6F4EF',offBg='transparent',offTxt='#4A6B8A',shadow='0 1px 3px rgba(15,41,66,0.2)';vB2C.style.background=S.mode==='B2C'?navyBg:offBg;vB2C.style.color=S.mode==='B2C'?navyTxt:offTxt;vB2C.style.boxShadow=S.mode==='B2C'?shadow:'none';vB2B.style.background=S.mode==='B2B'?navyBg:offBg;vB2B.style.color=S.mode==='B2B'?navyTxt:offTxt;vB2B.style.boxShadow=S.mode==='B2B'?shadow:'none';}
-  document.querySelectorAll('#mpc-root .pm-btn').forEach(b=>b.classList.toggle('act',b.dataset.pm===S.planMode));document.getElementById('pm-help').style.display=S.planMode==='objective'?'block':'none';const bl=document.getElementById('budgetLabel');const bh=document.getElementById('budgetHint');if(bl&&bh){if(S.planMode==='objective'){bl.textContent='Inversión estimada (€)';bh.textContent='Se calcula automáticamente';}else{bl.textContent='Presupuesto Total (€)';bh.textContent='Techo máximo de inversión';}}onSectorChange();onPhaseChange();recalcAll();}
+  onSectorChange();onPhaseChange();recalcAll();}
 
 const EX={
   ecom_b2c:{mode:'B2C',sectorVal:'moda',phase:'launch',planMode:'budget',budget:3500,clients:80,cac:44,ticket:120,ticketType:'por_venta',channels:[{uid:1,channelId:'META_BRAND',fields:{inv:600,cpm:7,frec:4},months:[1,1,1,1,1,1,0,0,1,1,1,1]},{uid:2,channelId:'META_PERF',fields:{inv:1200,cpm:8,ctr:1.5,deflaccion:25,cr:0.91,carrito2venta:35},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:3,channelId:'SEM',fields:{inv:700,cpc:1.8,deflaccion:20,cr:0.91,carrito2venta:35},months:[1,1,1,1,1,1,1,1,1,1,1,1]},{uid:4,channelId:'INF_BRAND',fields:{inv:600,n_inf:5,seg:15000,pct_imp:12},months:[1,1,1,0,0,1,0,0,1,1,1,0]},{uid:5,channelId:'EMAIL_OWN',fields:{inv:150,n_emails:3000,ctr:18,deflaccion:10,cr:0.91,carrito2venta:40},months:[0,1,0,1,0,1,0,1,0,1,0,1]},{uid:6,channelId:'LOYALTY',fields:{inv:250,base_cli:200,pct_activo:30,frec_compra:25},months:[1,1,1,1,1,1,1,1,1,1,1,1]}],ltv:{lh_p:30,lh_f:3,lh_y:2,lh_t:120,lm_p:30,lm_f:2,lm_y:1,lm_t:80,lb_p:20,lb_f:1,lb_y:1,lb_t:50,ln_p:20}},
@@ -2235,7 +2338,9 @@ function loadExample(k){
     channels:ex.channels.map(function(c){return Object.assign({},c,{results:null,months:c.months||[1,1,1,1,1,1,1,1,1,1,1,1]});})
   });
   applyData(d);
-  showToast('📦 Ejemplo cargado: '+k);
+  var name=EX_NAMES[k]||k;
+  setPlanTitle(name);
+  showToast('📦 Ejemplo cargado: '+name);
 }
 
 function showStorageInfo(){document.getElementById('storageModal').classList.add('open');}
@@ -2252,6 +2357,7 @@ window.onFI=onFI;window.addOrUpdate=addOrUpdate;window.removeChannel=removeChann
 window.editChannel=editChannel;window.toggleM=toggleM;window.renderSens=renderSens;
 window.loadExample=loadExample;window.recalcAll=recalcAll;window.saveToStorage=saveToStorage;window.loadFromStorage=loadFromStorage;
 window.showStorageInfo=showStorageInfo;window.closeModal=closeModal;
+window.proposeDistribution=proposeDistribution;window.setPlanTitle=setPlanTitle;
 function init(){renderChGrid();onSectorChange();onPhaseChange();updateBB();renderSens();calcLTV();renderSummary();renderMonthly();}
 document.addEventListener('DOMContentLoaded',init);
 </script>
