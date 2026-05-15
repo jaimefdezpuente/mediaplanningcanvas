@@ -385,7 +385,10 @@ function WizardInner() {
   // When reaching step 3 or when model changes, ensure mandatory objectives
   useEffect(() => {
     if (step === 3) ensureMandatoryObjectives()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, plan.tipo_negocio])
+
+  async function callAI(fase:string, extra?:Record<string,string>) {
     setBusy(true); setErr('')
     const msgs:Record<string,string> = {
       entorno:`Analizando mercado de ${plan.sector} en ${plan.pais}...`,
