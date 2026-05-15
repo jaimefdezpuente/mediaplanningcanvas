@@ -307,13 +307,11 @@ function WizardInner() {
               valueSteps: savedPlan.value_steps || [],
               selectedChannels: savedPlan.selected_channels || [],
               completed: [
-                ...(savedPlan.entorno ? [0] : []),
-                1,
+                ...(savedPlan.entorno ? [0, 1] : []),
                 ...(savedPlan.estrategia ? [2, 3] : []),
               ],
             }))
             if (savedPlan.estrategia) setStep(4)
-            else if (savedPlan.target) setStep(3)
             else if (savedPlan.entorno) setStep(2)
             else setStep(1)
           }
