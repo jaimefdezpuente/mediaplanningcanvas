@@ -1636,13 +1636,13 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
     <div id="selectionUpdateBadge" style="display:none;position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#C75A3C;color:#fff;border-radius:100px;padding:3px 12px;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(199,90,60,0.4)">⚠ Objetivos cambiados — actualizar</div>
   </div>
   <!-- B) Empezar de Cero -->
-  <div onclick="startFromScratch()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:10px;padding:20px 16px;cursor:pointer;transition:all 0.15s;text-align:center;box-shadow:0 1px 4px rgba(15,41,66,0.06)">
+  <div id="btnScratch" onclick="startFromScratch()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:10px;padding:20px 16px;cursor:pointer;transition:all 0.15s;text-align:center;box-shadow:0 1px 4px rgba(15,41,66,0.06)">
     <div style="font-size:28px;margin-bottom:10px">✦</div>
     <div style="font-weight:700;font-size:14px;color:var(--mpc-navy);margin-bottom:6px">Empezar de Cero</div>
     <div style="font-size:12px;color:var(--mpc-steel);line-height:1.6">Borra el plan y empieza con el lienzo vacío</div>
   </div>
   <!-- C) Otros Ejemplos (toggleable) -->
-  <div onclick="toggleExamples()" style="background:#fff;border:1.5px dashed var(--mpc-steel1);border-radius:10px;padding:20px 16px;cursor:pointer;transition:all 0.15s;text-align:center;box-shadow:0 1px 4px rgba(15,41,66,0.06)">
+  <div id="btnExamples" onclick="toggleExamples()" style="background:#fff;border:1.5px dashed var(--mpc-steel1);border-radius:10px;padding:20px 16px;cursor:pointer;transition:all 0.15s;text-align:center;box-shadow:0 1px 4px rgba(15,41,66,0.06)">
     <div style="font-size:28px;margin-bottom:10px">📂</div>
     <div style="font-weight:700;font-size:14px;color:var(--mpc-navy);margin-bottom:6px">Otros Ejemplos</div>
     <div style="font-size:12px;color:var(--mpc-steel);line-height:1.6">Ver ejemplos por sector e industria para inspirarte</div>
@@ -2584,7 +2584,8 @@ function setMode(m){
 
 function toggleExamples(){
   var p=document.getElementById('examplesPanel');
-  if(p){p.style.display=p.style.display==='none'?'block':'none';}
+  if(p){ p.style.display=p.style.display==='none'?'block':'none'; }
+  if(typeof _setActiveStartBtn==='function') _setActiveStartBtn('examples');
 }
 
 // ── Plan Táctico con IA ────────────────────────────────────────────────────
@@ -2729,16 +2730,48 @@ function _markSelectionLoaded(){
 function handleMySelection(){
   var badge = document.getElementById('selectionUpdateBadge');
   var hasChanges = badge && badge.style.display !== 'none';
-  if(hasChanges){
-    showToast('🤔 Actualizando plan con nuevos objetivos...');
-  }
+  if(hasChanges){ showToast('🤔 Actualizando plan con nuevos objetivos...'); }
   window.loadMySelection();
+  if(typeof _setActiveStartBtn==='function') _setActiveStartBtn('mysel');
 }
 
 window.handleMySelection = handleMySelection;
+
+function _setActiveStartBtn(which) {
+  var styles = {
+    mysel: document.getElementById('btnMySelection'),
+    scratch: document.getElementById('btnScratch'),
+    examples: document.getElementById('btnExamples'),
+  };
+  Object.keys(styles).forEach(function(k){
+    var el = styles[k]; if(!el) return;
+    if(k === which){
+      el.style.boxShadow = '0 0 0 3px rgba(15,41,66,0.35), 0 2px 8px rgba(15,41,66,0.2)';
+      el.style.borderWidth = '2px';
+    } else {
+      el.style.boxShadow = '';
+      el.style.borderWidth = '1.5px';
+    }
+  });
+}
+window._setActiveStartBtn = _setActiveStartBtn;
 window.toggleExamples=toggleExamples;
 window.showLockedFieldModal=showLockedFieldModal;window.updateCharts=updateCharts;window.setMode=setMode;
-function init(){renderChGrid();onSectorChange();onPhaseChange();updateBB();renderSens();calcLTV();renderSummary();renderMonthly();}
+function init(){
+  renderChGrid();onSectorChange();onPhaseChange();updateBB();renderSens();calcLTV();renderSummary();renderMonthly();
+  // Auto-load channels from wizard URL — runs AFTER CHANNELS array is ready
+  var p = new URLSearchParams(window.location.search);
+  var chParam = p.get('channels');
+  if(chParam && chParam.trim()){
+    window.loadMySelection();
+    setTimeout(function(){ if(typeof _markSelectionLoaded==='function') _markSelectionLoaded(); }, 400);
+  }
+  // Update credits display if plan info is in URL
+  var plan = p.get('plan') || 'free';
+  var usedA = parseInt(p.get('usedAnalisis')||'0',10);
+  var maxA = {free:0,pro:20,business:60,enterprise:999}[plan]||0;
+  if(typeof _updateCreditsDisplay==='function') _updateCreditsDisplay(maxA-usedA, plan);
+}
 document.addEventListener('DOMContentLoaded',init);
 </script>
 
@@ -2866,29 +2899,60 @@ const EXTRA_EXAMPLES = {
 })();
 
 const CHANNEL_NAME_MAP = {
-  'Meta Ads Branding':'META_BRAND','TikTok Ads Branding':'TIKTOK_BRAND','LinkedIn Ads Branding':'LI_BRAND',
-  'YouTube Branding':'YT_BRAND','Display Branding':'DISP_BRAND','Influencer Paid':'INF_BRAND',
-  'Influencer Envío Producto':'INF_PROD','Brand Ambassadors':'BRAND_AMB','Branded Content':'BRANDED_C',
-  'Podcast Propio':'PODCAST','Contenidos RRSS':'RRSS_CONT','Employer Branding':'EMPL_BRAND',
-  'Employee Advocacy':'EMPL_BRAND','Sponsorship':'EVENTO_PROP','Blog / Vblog':'SEO_BLOG',
-  'Webinars':'WEBINAR','Google Business':'GOOGLE_BIZ','WhatsApp Business':'WHATSAPP_B',
-  'Concursos y Sorteos':'CONCURSO','Comunidad Propia':'COMUNIDAD',
-  'SEO':'SEO_BLOG','SEM / Buscadores':'SEM','LLM Ads':'SEM','Meta Ads Performance':'META_PERF',
-  'TikTok Performance':'TIKTOK_PERF','LinkedIn Performance':'LINKEDIN_PERF','YouTube Performance':'YT_PERF',
-  'Display Retargeting':'DISPLAY_P','Display Performance':'DISPLAY_P',
-  'Email BBDD Propia':'EMAIL_OWN','Email Automation':'EMAIL_AUTO','Newsletters':'EMAIL_OWN',
-  'Cold Outreach':'EMAIL_OUT','Marketing de Afiliación':'AFILIACION','Member Get Member':'MGM',
-  'SMS':'SMS_PERF','Influencer Performance':'INF_PERF','Lead Magnets':'LEAD_MAG',
-  'Cupones':'CUPONES','Punto de Venta':'POS','Demos':'DEMO_WORK',
-  'Partners Comerciales':'PARTNERS','Sales Force':'SALESFORCE','Social Selling':'LINKEDIN_PERF',
+  // ── NOTORIEDAD ────────────────────────────────────────────────────────
+  'Meta Ads Branding':'META_BRAND','TikTok Ads Branding':'TIKTOK_BRAND',
+  'LinkedIn Ads Branding':'LI_BRAND','YouTube Branding':'YT_BRAND',
+  'Display Branding':'DISP_BRAND','Influencer Paid':'INF_BRAND',
+  'Influencer Envío Producto':'INF_PROD','Brand Ambassadors':'BRAND_AMB',
+  'Employer Branding':'EMPL_BRAND','Employee Advocacy':'EMPL_BRAND',
+  'Ponencias en Eventos':'EVENTO_PROP','Contenidos Medios Pagados':'PR_MEDIOS',
+  'Colaboración con Medios':'PR_MEDIOS','Branded Content':'BRANDED_C',
+  'Sponsorship':'SPONSORSHIP','Podcast Propio':'PODCAST',
+  'Blog / Vblog':'SEO_BLOG','Contenidos RRSS':'RRSS_ORG_NOT',
+  'Boca a Oreja':'WOM','Premios':'EVENTO_PROP','Brand Days':'EVENTO_PROP',
+  'Exterior':'OOH','Prensa y Revistas':'PRENSA_PRINT','Radio':'RADIO',
+  'TV':'TV','Cine':'CINE',
+  // ── INTERACCIÓN ───────────────────────────────────────────────────────
+  'LinkedIn Empresa':'LI_EMPRESA','LinkedIn Perfiles Personales':'LI_PERFILES',
+  'LinkedIn Groups':'LI_EMPRESA','Webinars':'WEBINAR','Workshops':'DEMO_WORK',
+  'Contenidos Formativos':'SEO_BLOG','Eventos Propios':'EVENTO_PROP',
+  'Google Business':'GOOGLE_BIZ','Live Streaming':'LIVESTREAM',
+  'Referencias Online':'REVIEWS','Web Corporativa':'SEO_BLOG',
+  'Concursos':'CONCURSO','Acudir a Eventos':'EVENTOS_ASIST',
+  'Comunidad Propia':'COMUNIDAD','Networking':'NETWORKING',
+  'WhatsApp Business':'WHATSAPP_B','Bot IA':'CHATBOT','Demos':'DEMO_WORK',
+  'Casos de Éxito':'BRANDED_C','Propuestas Interactivas':'DEMO_WORK',
+  'Soporte Humano':'CUST_SUCCESS','Call Center':'CUST_SUCCESS',
+  'Banners Interactivos':'BANNER_INT','Slideshare':'SEO_BLOG',
+  'Puntos de Venta':'POS','Flyers':'OOH','Seeding':'SEEDING_N',
+  'Internet of Things':'BANNER_INT',
+  // ── LEAD / VENTA ──────────────────────────────────────────────────────
+  'SEO':'SEO_BLOG','ASO':'ASO','Link Building':'SEO_BLOG',
+  'SEM / Buscadores':'SEM','LLM Ads':'LLM_ADS',
+  'Meta Ads Performance':'META_PERF','TikTok Performance':'TIKTOK_PERF',
+  'LinkedIn Performance':'LINKEDIN_PERF','Display Retargeting':'DISPLAY_P',
+  'Display Performance':'DISPLAY_P','Email BBDD Propia':'EMAIL_OWN',
+  'Email Automation':'EMAIL_AUTO','Newsletters':'NEWSLETTERS_LEAD',
+  'Alquiler de BBDD':'EMAIL_BBDD','Cold Outreach':'EMAIL_OUT',
+  'Social Selling':'SOCIAL_SELLING','Marketing de Afiliación':'AFILIACION',
+  'Member Get Member':'MGM','SMS':'SMS_PERF',
+  'Influencer Performance':'INF_PERF','Lead Magnets':'LEAD_MAG',
+  'Cupones':'CUPONES','Landing de Venta':'LEAD_MAG',
+  'Workshops Lead':'EVENTOS_ONLINE_LEAD','Eventos Online':'EVENTOS_ONLINE_LEAD',
+  'Eventos Presenciales':'EVENTOS_PRES','Punto de Venta':'POS',
+  'Merchandising':'POS',
+  // ── FIDELIZACIÓN ──────────────────────────────────────────────────────
   'Email Automation CRM':'EMAIL_AUTO','WhatsApp Fidelización':'WHATSAPP_F',
   'Programa Fidelización':'LOYALTY','Push Notifications':'PUSH_NOT',
-  'SMS Fidelización':'SMS_FID','Reviews / Reputación':'REVIEWS','Customer Success':'CUST_SUCCESS',
+  'SMS Fidelización':'SMS_FID','Reviews / Reputación':'REVIEWS',
+  'Customer Success':'CUST_SUCCESS','NPS y Feedback':'NPS',
+  'Contenido Exclusivo':'CONT_EXCL',
 };
 
 window.startFromScratch = function() {
   if(S.channels.length > 0 && !confirm('¿Borrar el plan actual?')) return;
-  S.channels = []; recalcAll();
+  S.channels = []; recalcAll(); if(typeof updateCharts==='function') updateCharts();
+  if(typeof _setActiveStartBtn==='function') _setActiveStartBtn('scratch');
   showToast('✦ Lienzo vacío');
 };
 
@@ -2916,7 +2980,8 @@ window.loadMySelection = function() {
   });
   recalcAll(); updateBB(); updateCharts();
   if(typeof _markSelectionLoaded === 'function') _markSelectionLoaded();
-  showToast('✓ '+mapped.length+' canales cargados — usa ✨ Plan Táctico con IA para rellenar las variables');
+  if(typeof _setActiveStartBtn==='function') _setActiveStartBtn('mysel');
+  showToast('✓ '+mapped.length+' canales cargados — rellena las variables o usa ✨ Plan Táctico con IA');
 };
 
 // Init
@@ -2937,16 +3002,7 @@ window.addEventListener('DOMContentLoaded', function(){
     var btn = document.getElementById('btnTacticoIA');
     if(btn && plan==='free'){ btn.style.opacity='0.5'; btn.title='Actualiza tu plan para usar esta función'; }
   };
-  // Auto-load channels from wizard if present
-  if(chParam && chParam.trim()){
-    setTimeout(function(){
-      if(typeof loadMySelection === 'function') loadMySelection();
-      // After loading, mark as loaded and set hash
-      setTimeout(function(){
-        if(typeof _markSelectionLoaded === 'function') _markSelectionLoaded();
-      }, 300);
-    }, 200);
-  }
+  // Auto-load is handled inside init() after CHANNELS is ready
 });
 </script>
 
