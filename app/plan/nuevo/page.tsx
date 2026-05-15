@@ -261,8 +261,18 @@ function WizardInner() {
         if (!user) { router.push('/login'); return }
         const planKey = (user.user_metadata?.plan || 'free').toLowerCase()
         setUserPlan(planKey)
-        setUsedMejoras(Number(user.user_metadata?.used_mejoras || 0))
-        setUsedAnalisis(Number(user.user_metadata?.used_analisis || 0))
+        // Monthly auto-reset: if new month, reset credits
+        const now = new Date()
+        const thisMonth = now.getFullYear() + '-' + (now.getMonth()+1)
+        const lastReset = user.user_metadata?.credits_reset_month || ''
+        if (lastReset !== thisMonth) {
+          await supabase.auth.updateUser({ data: { used_analisis: 0, used_mejoras: 0, credits_reset_month: thisMonth } })
+          setUsedMejoras(0)
+          setUsedAnalisis(0)
+        } else {
+          setUsedMejoras(Number(user.user_metadata?.used_mejoras || 0))
+          setUsedAnalisis(Number(user.user_metadata?.used_analisis || 0))
+        }
         if (user.user_metadata?.avatar_url) setUserAvatar(user.user_metadata.avatar_url)
         const planId = searchParams.get('plan_id')
         if (planId) {

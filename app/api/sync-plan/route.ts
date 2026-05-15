@@ -38,10 +38,32 @@ export async function POST(req: NextRequest) {
     const { data: users } = await admin.auth.admin.listUsers()
     const user = users?.users?.find(u => u.email === email)
     if (user) {
+      const meta = user.user_metadata || {}
+      const prevPlan = meta.plan || 'free'
+      const now = new Date()
+      const thisMonth = now.getFullYear() + '-' + (now.getMonth()+1)
+      const lastReset = meta.credits_reset_month || ''
+      
+      // Reset credits if: plan upgraded OR new month
+      const planChanged = prevPlan !== plan
+      const newMonth = lastReset !== thisMonth
+      
+      const updatedMeta: Record<string, unknown> = { 
+        ...meta, 
+        plan,
+        credits_reset_month: thisMonth,
+      }
+      
+      if (planChanged || newMonth) {
+        updatedMeta.used_analisis = 0
+        updatedMeta.used_mejoras = 0
+        console.log(`Credits reset for ${email}: planChanged=${planChanged} newMonth=${newMonth}`)
+      }
+      
       await admin.auth.admin.updateUserById(user.id, {
-        user_metadata: { ...user.user_metadata, plan }
+        user_metadata: updatedMeta
       })
-      return NextResponse.json({ plan })
+      return NextResponse.json({ plan, creditsReset: planChanged || newMonth })
     }
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   } catch (e) {
