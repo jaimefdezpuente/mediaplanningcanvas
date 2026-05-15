@@ -45,7 +45,7 @@ function gn(obj:Obj|null,...keys:string[]):string { if(!obj)return ''; let cur:J
 function ga(obj:Obj|null,...keys:string[]):Jv[] { if(!obj)return []; let cur:Jv=obj; for(const k of keys){if(!cur||typeof cur!=='object'||Array.isArray(cur))return []; cur=(cur as Obj)[k]} return Array.isArray(cur)?cur:[] }
 function uid() { return Math.random().toString(36).slice(2) }
 
-const KPI_MKT = ['Ventas','Ventas (ingresos €)','Ventas (unidades)','Leads','CAC','LTV','MRR/ARR','Registros','Demos','Descargas','Suscripciones','Tráfico web','Churn','Share of market','Uso del producto','Fidelización','Otro...']
+const KPI_MKT = ['Ventas (ingresos €)','Ventas (unidades)','Ticket Medio','Leads','LTV','MRR/ARR','Registros','Demos','Descargas','Suscripciones','Tráfico web','Churn','Share of market','Uso del producto','Fidelización','Otro...']
 const KPI_COM = ['Notoriedad de marca','Cobertura','Alcance','Seguidores RRSS','Conocimiento de funcionalidad','Afinidad de marca','Frecuencia de impacto','Compartir experiencia','Visualizaciones','Reposicionamiento','Otro...']
 
 // ─── PLAN LIMITS ─────────────────────────────────────────────────────────────
@@ -364,7 +364,7 @@ function WizardInner() {
   // Ensure mandatory objectives exist based on model B2B/B2C
   function ensureMandatoryObjectives(tipoNegocio?: string) {
     const modelo = tipoNegocio || plan.tipo_negocio
-    const mandatoryKPIs = modelo === 'B2B' ? ['Leads','Ventas'] : ['Ventas','CAC']
+    const mandatoryKPIs = modelo === 'B2B' ? ['Leads','Ventas (unidades)'] : ['Ventas (unidades)','Ticket Medio']
     setPlan(p => {
       const existing = p.objectives.filter(o => o.mandatory).map(o => o.kpi)
       const missing = mandatoryKPIs.filter(k => !existing.includes(k))
@@ -494,8 +494,8 @@ function WizardInner() {
           }
         }
       })
-      // Merge existing selection with recommended
-      const merged = Array.from(new Set([...plan.selectedChannels, ...recommendedNames]))
+      // Replace selection with AI recommended channels (clean slate so user sees exactly what IA chose)
+      const merged = Array.from(new Set(recommendedNames))
       setPlan(p=>({...p, estrategia:r as Obj, selectedChannels:merged}))
       setShowStrategy(true)
       setChannelsChanged(false)
@@ -911,12 +911,13 @@ function WizardInner() {
               <p style={{ fontSize:15, color:C.steel, marginBottom:24 }}>Define tu propuesta de valor y conoce en profundidad a tu cliente.</p>
 
               <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.01em' }}>USP — Propuesta Única de Valor <span style={{ color:C.accent, fontSize:14 }}>*</span></h2>
-                <p style={{ fontSize:13, color:C.steel, marginBottom:14 }}>Una frase que ningún competidor pueda copiar. Obligatoria para continuar.</p>
-                <EditField label="" fkey="usp" value={ed('usp',plan.usp)} onChange={v=>{se('usp',v);upd('usp',v)}} onRefine={p=>refine('usp',ed('usp',plan.usp),p)} multiline={false} />
-                <div style={{ display:'flex', gap:8, marginTop:8 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:4, flexWrap:'wrap', gap:10 }}>
+                  <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, letterSpacing:'-0.01em' }}>USP — Propuesta Única de Valor <span style={{ color:C.accent, fontSize:14 }}>*</span></h2>
                   <AiBtn label="Sugerir USP con IA" used={usedMejoras} max={limits.mejoras} onClick={suggestUSP} disabled={busy} small />
                 </div>
+                <VideoBlock vimeoId="1103392013" title="Cómo crear tu Propuesta Única de Valor" />
+                <p style={{ fontSize:13, color:C.steel, marginBottom:14 }}>Una frase que ningún competidor pueda copiar. Obligatoria para continuar.</p>
+                <EditField label="" fkey="usp" value={ed('usp',plan.usp)} onChange={v=>{se('usp',v);upd('usp',v)}} onRefine={p=>refine('usp',ed('usp',plan.usp),p)} multiline={false} />
               </div>
 
               <div style={CARD}>
@@ -980,7 +981,13 @@ function WizardInner() {
               </div>
 
               <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:14, letterSpacing:'-0.01em' }}>Escalera de Valor</h2>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:4, flexWrap:'wrap', gap:10 }}>
+                  <div>
+                    <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, letterSpacing:'-0.01em' }}>Escalera de Valor <span style={{ color:C.accent, fontSize:14 }}>*</span></h2>
+                    <p style={{ fontSize:12, color:C.steel3, marginTop:3, fontFamily:"'Geist Mono',monospace" }}>Mínimo 3 pasos obligatorios para continuar</p>
+                  </div>
+                  <AiBtn label="Ideas de Escalera IA" used={usedAnalisis} max={limits.analisis} onClick={getValIdeas} disabled={busy} small />
+                </div>
                 <VideoBlock vimeoId="1103392013" title="La Escalera de Valor" />
                 <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                   {plan.valueSteps.map((s,i)=>{
@@ -1009,7 +1016,6 @@ function WizardInner() {
                 </div>
                 <div style={{ display:'flex', gap:8, marginTop:10 }}>
                   <button onClick={()=>setPlan(p=>({...p,valueSteps:[...p.valueSteps,{id:uid(),tipo:'MOFU',accion:'',objetivo:''}]}))} style={BTN_SM}>+ Añadir paso</button>
-                  <AiBtn label="Ideas de Escalera IA" used={usedAnalisis} max={limits.analisis} onClick={getValIdeas} disabled={busy} small />
                 </div>
               </div>
 
