@@ -9,7 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 type Jv = string | number | boolean | null | Jv[] | { [k: string]: Jv }
 type Obj = { [k: string]: Jv }
 interface ValStep { id: string; tipo: string; accion: string; objetivo: string }
-interface ObjRow { id: string; tipo: string; kpi: string; dato: string; tiempo: string }
+interface ObjRow { id: string; tipo: string; kpi: string; dato: string; tiempo: string; mandatory?: boolean }
 interface PlanData {
   projectName: string
   pais: string; sector: string; producto: string; web: string
@@ -45,7 +45,7 @@ function gn(obj:Obj|null,...keys:string[]):string { if(!obj)return ''; let cur:J
 function ga(obj:Obj|null,...keys:string[]):Jv[] { if(!obj)return []; let cur:Jv=obj; for(const k of keys){if(!cur||typeof cur!=='object'||Array.isArray(cur))return []; cur=(cur as Obj)[k]} return Array.isArray(cur)?cur:[] }
 function uid() { return Math.random().toString(36).slice(2) }
 
-const KPI_MKT = ['Ventas','Leads','Registros','Tráfico web','Share of market','CAC','LTV','Churn','MRR/ARR','Uso del producto','Fidelización','Demos','Descargas','Suscripciones','Otro...']
+const KPI_MKT = ['Ventas','Ventas (ingresos €)','Ventas (unidades)','Leads','CAC','LTV','MRR/ARR','Registros','Demos','Descargas','Suscripciones','Tráfico web','Churn','Share of market','Uso del producto','Fidelización','Otro...']
 const KPI_COM = ['Notoriedad de marca','Cobertura','Alcance','Seguidores RRSS','Conocimiento de funcionalidad','Afinidad de marca','Frecuencia de impacto','Compartir experiencia','Visualizaciones','Reposicionamiento','Otro...']
 
 // ─── PLAN LIMITS ─────────────────────────────────────────────────────────────
@@ -360,7 +360,32 @@ function WizardInner() {
   function ed(k:string,fb:string) { return plan.edits[k]!==undefined?plan.edits[k]:fb }
   function markDone(s:number) { setPlan(p=>({...p,completed:p.completed.includes(s)?p.completed:[...p.completed,s]})) }
 
-  async function callAI(fase:string, extra?:Record<string,string>) {
+  // Ensure mandatory objectives exist based on model B2B/B2C
+  function ensureMandatoryObjectives(tipoNegocio?: string) {
+    const modelo = tipoNegocio || plan.tipo_negocio
+    const mandatoryKPIs = modelo === 'B2B' ? ['Leads','Ventas'] : ['Ventas','CAC']
+    setPlan(p => {
+      const existing = p.objectives.filter(o => o.mandatory).map(o => o.kpi)
+      const missing = mandatoryKPIs.filter(k => !existing.includes(k))
+      if (missing.length === 0) {
+        // Update mandatory kpis if model changed
+        const updatedMandatory = mandatoryKPIs.map((kpi,i) => {
+          const cur = p.objectives.find(o => o.mandatory && p.objectives.filter(x=>x.mandatory).indexOf(o)===i)
+          return cur ? { ...cur, kpi } : { id: uid(), tipo:'Marketing', kpi, dato:'', tiempo:'mes', mandatory:true }
+        })
+        const nonMandatory = p.objectives.filter(o => !o.mandatory)
+        return { ...p, objectives: [...updatedMandatory, ...nonMandatory] }
+      }
+      const newRows: ObjRow[] = mandatoryKPIs.map(kpi => ({ id:uid(), tipo:'Marketing', kpi, dato:'', tiempo:'mes', mandatory:true }))
+      const nonMandatory = p.objectives.filter(o => !o.mandatory)
+      return { ...p, objectives: [...newRows, ...nonMandatory] }
+    })
+  }
+
+  // When reaching step 3 or when model changes, ensure mandatory objectives
+  useEffect(() => {
+    if (step === 3) ensureMandatoryObjectives()
+  }, [step, plan.tipo_negocio])
     setBusy(true); setErr('')
     const msgs:Record<string,string> = {
       entorno:`Analizando mercado de ${plan.sector} en ${plan.pais}...`,
@@ -442,6 +467,7 @@ function WizardInner() {
   }
 
   async function createStrategy() {
+    setAiModal(`Analizando ${plan.sector} · ${plan.tipo_negocio} · Presupuesto ${plan.presupuesto} para crear tu estrategia personalizada...`)
     const objText = plan.objectives.map(o=>`${o.tipo}: ${o.kpi} = ${o.dato} / ${o.tiempo}`).join(' | ')
     const r = await callAI('estrategia',{objetivos:objText,canales_seleccionados:plan.selectedChannels.join(', ')||'Sin selección',fortalezas:ed('d_fo','')})
     if(r){
@@ -718,8 +744,7 @@ function WizardInner() {
                     <select style={{ ...INP, cursor:'pointer' }} value={plan.tipo_negocio} onChange={e=>upd('tipo_negocio',e.target.value)}>
                       <option value="B2C">B2C — Vendes a consumidores</option>
                       <option value="B2B">B2B — Vendes a empresas</option>
-                      <option value="B2B2C">B2B2C — Ambos</option>
-                    </select>
+                                          </select>
                   </div>
                   <div>
                     <label style={LBL}>Fase del negocio</label>
@@ -956,23 +981,31 @@ function WizardInner() {
                     {plan.objectives.map(r=>{
                       const kpiList = r.tipo==='Marketing' ? KPI_MKT : KPI_COM
                       const isCustom = r.kpi==='Otro...' || (!kpiList.includes(r.kpi) && r.kpi!=='')
+                      const isMandatory = !!r.mandatory
                       return(
                         <div key={r.id} style={{ marginBottom:8 }}>
                           <div style={{ display:'grid', gridTemplateColumns:'130px 1fr 120px 100px auto', gap:8, alignItems:'center' }}>
-                            <select value={r.tipo} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tipo:e.target.value,kpi:''}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer' }}>
-                              <option>Marketing</option><option>Comunicación</option>
-                            </select>
-                            <select value={isCustom?'Otro...':r.kpi} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,kpi:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer' }}>
+                            <div style={{ position:'relative' }}>
+                              <select value={r.tipo} onChange={e=>!isMandatory&&setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tipo:e.target.value,kpi:''}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:isMandatory?'default':'pointer', background:isMandatory?'#F0FDF4':'', borderColor:isMandatory?C.success:'' }}>
+                                <option>Marketing</option><option>Comunicación</option>
+                              </select>
+                              {isMandatory&&<span style={{ position:'absolute', right:6, top:'50%', transform:'translateY(-50%)', fontSize:9, color:C.success, fontWeight:700 }}>●</span>}
+                            </div>
+                            <select value={isCustom?'Otro...':r.kpi} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,kpi:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer', borderColor:isMandatory?C.success:'' }}>
                               <option value="">— KPI —</option>
                               {kpiList.map(k=><option key={k}>{k}</option>)}
                             </select>
-                            <input style={{ ...INP, marginBottom:0, fontSize:13 }} placeholder="Ej: 1.000" value={r.dato} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,dato:e.target.value}:o)}))} />
-                            <select value={r.tiempo} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tiempo:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer' }}>
+                            <input style={{ ...INP, marginBottom:0, fontSize:13, borderColor:isMandatory?C.success:'' }} placeholder="Ej: 1.000" value={r.dato} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,dato:e.target.value}:o)}))} />
+                            <select value={r.tiempo} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tiempo:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer', borderColor:isMandatory?C.success:'' }}>
                               <option value="mes">Al mes</option><option value="trimestre">Trimestre</option><option value="semestre">Semestre</option><option value="año">Al año</option>
                             </select>
-                            <button onClick={()=>setPlan(p=>({...p,objectives:p.objectives.filter(o=>o.id!==r.id)}))} style={{ ...BTN_SM, padding:'8px 10px', color:C.accent, borderColor:'#FECACA', background:'#FEF2F2' }}>✕</button>
+                            {isMandatory
+                              ? <div style={{ width:38, height:36, display:'flex', alignItems:'center', justifyContent:'center', color:C.success, fontSize:16 }} title="Objetivo obligatorio — no se puede eliminar">🔒</div>
+                              : <button onClick={()=>setPlan(p=>({...p,objectives:p.objectives.filter(o=>o.id!==r.id)}))} style={{ ...BTN_SM, padding:'8px 10px', color:C.accent, borderColor:'#FECACA', background:'#FEF2F2' }}>✕</button>
+                            }
                           </div>
-                          {isCustom&&(
+                          {isMandatory&&<div style={{ paddingLeft:0, marginTop:3 }}><span style={{ fontSize:10, color:C.success, fontFamily:"'Geist Mono',monospace" }}>Objetivo obligatorio {plan.tipo_negocio} — editable, no borrable</span></div>}
+                          {isCustom&&!isMandatory&&(
                             <div style={{ marginTop:4, paddingLeft:138 }}>
                               <input style={{ ...INP, marginBottom:0, fontSize:13 }} placeholder="Escribe tu propio KPI..." value={r.kpi==='Otro...'?'':r.kpi} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,kpi:e.target.value||'Otro...'}:o)}))} autoFocus />
                             </div>
@@ -985,6 +1018,23 @@ function WizardInner() {
                 <div style={{ display:'flex', gap:8 }}>
                   <button onClick={()=>setPlan(p=>({...p,objectives:[...p.objectives,{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'mes'}]}))} style={BTN_SM}>+ Añadir objetivo</button>
                 </div>
+              </div>
+
+              {/* RECOMMEND PLAN BUTTON — prominent CTA below objectives */}
+              <div style={{ background:'linear-gradient(135deg,#EFF6FF,#F0FDF4)', border:`1px solid ${C.steel1}`, borderRadius:12, padding:'20px 24px', marginBottom:24, textAlign:'center' }}>
+                <div style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:6 }}>💡 ¿Cuáles son los mejores canales para tu proyecto?</div>
+                <p style={{ fontSize:13, color:C.steel, marginBottom:16, maxWidth:480, margin:'0 auto 16px' }}>Con los datos de tu target, sector, presupuesto y objetivos, la IA analizará y recomendará el mix de medios más adecuado.</p>
+                <AiBtn
+                  label={busy ? 'Analizando tu proyecto...' : '✦ Recomendar plan de medios'}
+                  used={usedAnalisis} max={limits.analisis}
+                  onClick={()=>{
+                    const mandatoryFilled = plan.objectives.filter(o=>o.mandatory&&!o.dato)
+                    if(mandatoryFilled.length>0){setAlert({title:'Completa los objetivos obligatorios',body:`Rellena el dato de los objetivos obligatorios (${mandatoryFilled.map(o=>o.kpi).join(', ')}) antes de pedir la recomendación.`});return}
+                    setAiModal(`Analizando tu proyecto ${plan.sector} para recomendar el mejor plan de medios...`)
+                    createStrategy()
+                  }}
+                  disabled={busy}
+                />
               </div>
 
               <VideoBlock vimeoId="1103392013" title="Cómo definir tus objetivos de marketing" />
@@ -1044,7 +1094,6 @@ function WizardInner() {
 
               {!showStrategy&&(
                 <div style={{ textAlign:'center', padding:'24px 0 32px' }}>
-                  <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>Necesitas al menos 2 objetivos de Marketing para crear la estrategia.</p>
                   {(()=>{const v=validateObjectivesForStrategy();return !v.ok&&(
                     <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:8, padding:'10px 14px', fontSize:13, color:C.warn, marginBottom:16, textAlign:'left', maxWidth:500, margin:'0 auto 16px' }}>
                       ⚠️ Tienes {v.mkt}/2 objetivos de Marketing mínimos. Añade los que faltan arriba.
@@ -1052,9 +1101,13 @@ function WizardInner() {
                   )})()}
                   <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
                     <button onClick={()=>setStep(2)} style={BTN_S}>← Atrás</button>
-                    <AiBtn label={busy?'Creando...':'Crear Estrategia'} used={usedAnalisis} max={limits.analisis}
+                    <button
                       onClick={()=>{const v=validateObjectivesForStrategy();if(!v.ok){setAlert({title:'Objetivos insuficientes',body:`Necesitas al menos 2 objetivos de Marketing para crear la estrategia. Ahora tienes ${v.mkt}. Añade los que faltan arriba.`});return;}createStrategy()}}
-                      disabled={busy} />
+                      disabled={busy}
+                      style={{ padding:'14px 36px', borderRadius:8, background:C.navy, border:'none', color:C.paper, fontWeight:700, fontSize:15, cursor:busy?'not-allowed':'pointer', fontFamily:"'Geist',sans-serif", letterSpacing:'-0.01em', display:'flex', alignItems:'center', gap:8, opacity:busy?0.7:1, boxShadow:'0 4px 12px rgba(15,41,66,0.2)' }}
+                    >
+                      <span style={{ fontSize:18 }}>✦</span> Crear estrategia de marketing
+                    </button>
                   </div>
                 </div>
               )}
