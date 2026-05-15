@@ -498,7 +498,8 @@ function WizardInner() {
 
   async function autoSaveFromRef() {
     const current = planRef.current
-    if (!current) return
+    console.log("autoSaveFromRef called, savedPlanId:", savedPlanId, "current edits:", current?.edits)
+    if (!current) { console.log("no current plan"); return }
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     setAutoSaving(true)
