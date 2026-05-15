@@ -302,6 +302,10 @@ function WizardInner() {
               entorno: savedPlan.entorno || null,
               target: savedPlan.target || null,
               estrategia: savedPlan.estrategia || null,
+              edits: savedPlan.edits || {},
+              objectives: savedPlan.objectives || [{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'año',mandatory:false}],
+              valueSteps: savedPlan.value_steps || [],
+              selectedChannels: savedPlan.selected_channels || [],
               completed: [
                 ...(savedPlan.entorno ? [0] : []),
                 1,
@@ -498,18 +502,24 @@ function WizardInner() {
           name: current.projectName || `Plan ${current.sector}`,
           pais: current.pais, sector: current.sector, producto: current.producto,
           tipo_negocio: current.tipo_negocio, fase_negocio: current.fase_negocio,
-web: current.web, presupuesto: current.presupuesto, competidores: current.competidores,
+          web: current.web, presupuesto: current.presupuesto, competidores: current.competidores,
           usp: current.usp, entorno: current.entorno, target: current.target,
-          estrategia: current.estrategia, status: 'in_progress', updated_at: new Date().toISOString(),
+          estrategia: current.estrategia, edits: current.edits,
+          objectives: current.objectives, value_steps: current.valueSteps,
+          selected_channels: current.selectedChannels,
+          status: 'in_progress', updated_at: new Date().toISOString(),
         }).eq('id', savedPlanId)
       } else {
         const { data } = await supabase.from('plans').insert({
           user_id: user.id, name: current.projectName || `Plan ${current.sector || 'nuevo'}`,
           pais: current.pais, sector: current.sector, producto: current.producto,
           tipo_negocio: current.tipo_negocio, fase_negocio: current.fase_negocio,
-web: current.web, presupuesto: current.presupuesto, competidores: current.competidores,
+          web: current.web, presupuesto: current.presupuesto, competidores: current.competidores,
           usp: current.usp, entorno: current.entorno, target: current.target,
-          estrategia: current.estrategia, status: 'in_progress',
+          estrategia: current.estrategia, edits: current.edits,
+          objectives: current.objectives, value_steps: current.valueSteps,
+          selected_channels: current.selectedChannels,
+          status: 'in_progress',
         }).select('id').single()
         if (data?.id) setSavedPlanId(data.id)
       }
@@ -522,9 +532,9 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
     if (savedPlanId) {
-      await supabase.from('plans').update({ name: name.trim(), usp: plan.usp, entorno: plan.entorno, target: plan.target, estrategia: plan.estrategia, status: 'completed', updated_at: new Date().toISOString() }).eq('id', savedPlanId)
+      await supabase.from('plans').update({ name: name.trim(), pais: plan.pais, sector: plan.sector, producto: plan.producto, web: plan.web, presupuesto: plan.presupuesto, competidores: plan.competidores, tipo_negocio: plan.tipo_negocio, fase_negocio: plan.fase_negocio, usp: plan.usp, entorno: plan.entorno, target: plan.target, estrategia: plan.estrategia, edits: plan.edits, objectives: plan.objectives, value_steps: plan.valueSteps, selected_channels: plan.selectedChannels, status: 'completed', updated_at: new Date().toISOString() }).eq('id', savedPlanId)
     } else {
-      await supabase.from('plans').insert({ user_id: user.id, name: name.trim(), pais: plan.pais, sector: plan.sector, producto: plan.producto, tipo_negocio: plan.tipo_negocio, fase_negocio: plan.fase_negocio, usp: plan.usp, entorno: plan.entorno, target: plan.target, estrategia: plan.estrategia, status: 'completed' })
+      await supabase.from('plans').insert({ user_id: user.id, name: name.trim(), pais: plan.pais, sector: plan.sector, producto: plan.producto, web: plan.web, presupuesto: plan.presupuesto, competidores: plan.competidores, tipo_negocio: plan.tipo_negocio, fase_negocio: plan.fase_negocio, usp: plan.usp, entorno: plan.entorno, target: plan.target, estrategia: plan.estrategia, edits: plan.edits, objectives: plan.objectives, value_steps: plan.valueSteps, selected_channels: plan.selectedChannels, status: 'completed' })
     }
     router.push('/dashboard?saved=true')
     setBusy(false)
@@ -844,7 +854,7 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
                   <div>
                     <h2 style={{ fontSize:18, fontWeight:600, color:C.navy }}>Escalera de Valor *</h2>
-                    <p style={{ fontSize:12, color:C.steel3, marginTop:3 }}>Minimo 3 pasos obligatorios</p>
+                    
                   </div>
                   <AiBtn label="Ideas de Escalera IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{
                     if(!canUseAnalisis()) return
