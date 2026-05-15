@@ -39,7 +39,7 @@ const KPI_MKT = ['Ventas (ingresos EUR)','Ventas (unidades)','Ticket Medio','Lea
 const KPI_COM = ['Notoriedad de marca','Cobertura','Alcance','Seguidores RRSS','Conocimiento de funcionalidad','Afinidad de marca','Frecuencia de impacto','Compartir experiencia','Visualizaciones','Reposicionamiento','Otro...']
 
 const PLAN_LIMITS: Record<string, { plans: number; mejoras: number; analisis: number }> = {
-  free:       { plans: 1,   mejoras: 10,  analisis: 5 },
+  free:       { plans: 1,   mejoras: 10,  analisis: 3 },
   pro:        { plans: 10,  mejoras: 70,  analisis: 20 },
   business:   { plans: 30,  mejoras: 150, analisis: 60 },
   enterprise: { plans: 999, mejoras: 999, analisis: 999 },
@@ -172,7 +172,7 @@ function EditField({ label, fkey, value, onChange, onRefine, multiline=true, sma
     <div style={{ marginBottom:16 }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
         {label&&<label style={{ fontSize:small?11:12, fontWeight:500, color:C.steel3, letterSpacing:'0.1em', textTransform:'uppercase', fontFamily:"'Geist Mono',monospace" }}>{label}</label>}
-        <button onClick={()=>setShow(!show)} style={{ fontSize:11, color:C.accent, background:'none', border:'none', cursor:'pointer', fontWeight:500, marginLeft:'auto', fontFamily:"'Geist',sans-serif" }}>AI Mejorar</button>
+        <button onClick={()=>setShow(!show)} style={{ fontSize:11, color:C.accent, background:'none', border:'none', cursor:'pointer', fontWeight:500, marginLeft:'auto', fontFamily:"'Geist',sans-serif" }}>✨ Mejorar con IA</button>
       </div>
       {multiline
         ? <textarea ref={ref} style={{ ...INP, minHeight:72, resize:'none', overflow:'hidden', fontSize:small?13:15 }} value={value} onChange={e=>{ onChange(e.target.value); if(ref.current){ref.current.style.height='auto'; ref.current.style.height=ref.current.scrollHeight+'px'} }} />
@@ -394,14 +394,17 @@ function WizardInner() {
 
   async function s0next() {
     if(!plan.sector||!plan.producto) { setErr('Rellena sector y descripcion del producto'); return }
+    if(!plan.presupuesto){setErr('El presupuesto es obligatorio');return}
     if(plan.entorno){markDone(0);setStep(1);return}
+    if(userPlan==='free'){setPlan(p=>({...p,entorno:{} as Obj}));markDone(0);setStep(1);return}
     if(!canUseAnalisis()) return
     const r = await callAI('entorno')
     if(r){setPlan(p=>({...p,entorno:r}));markDone(0);setStep(1);trackAnalisis();autoSave({entorno:r as Obj})}
   }
 
   async function s1next() {
-    if(!ed('d_fo','')) { setAlert({title:'Fortalezas obligatorias',body:'Las fortalezas son necesarias para que la IA cree una estrategia personalizada.'}); return }
+    if(!ed('d_fo','').trim()){setAlert({title:'Fortalezas obligatorias',body:'Rellena tus Fortalezas.'});return}
+    if(!ed('d_de','').trim()){setAlert({title:'Debilidades obligatorias',body:'Rellena tus Debilidades.'});return}
     if(!canUseAnalisis()) return
     if(plan.target){markDone(1);setStep(2);return}
     const r = await callAI('target')
@@ -420,6 +423,7 @@ function WizardInner() {
     if(filledSteps.length < 3) { setAlert({title:'Escalera de Valor incompleta',body:'Necesitas al menos 3 pasos de la Escalera de Valor con una accion definida.'}); return }
     ensureMandatoryObjectives()
     markDone(2);setStep(3);setShowStrategy(false)
+    setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),50)
     autoSave({usp:ed('usp',plan.usp)||plan.usp})
   }
 
@@ -553,7 +557,7 @@ function WizardInner() {
             })}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
-            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>{limits.analisis-usedAnalisis}/{limits.analisis} creditos</span>
+            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2 }}>🔬 {limits.analisis-usedAnalisis}/{limits.analisis} análisis</span><span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2, color:C.steel3 }}>✨ {limits.mejoras-usedMejoras}/{limits.mejoras} mejoras</span><span style={{ fontSize:10, padding:'3px 8px', borderRadius:4, background:C.navy, color:C.paper, fontWeight:600, fontFamily:"'Geist Mono',monospace" }}>{userPlan.toUpperCase()}</span>
             <button onClick={()=>setSaveModal(true)} style={{ ...BTN_SM, background:C.navy, color:C.paper, border:'none' }}>Guardar</button>
           </div>
         </div>
@@ -567,15 +571,10 @@ function WizardInner() {
           </div>
           <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>{plan.sector} - {plan.pais}</p>
           <VideoBlock vimeoId="1103392013" title="Distribucion tactica de presupuesto" />
-          {userPlan==='free'&&(
-            <div style={{ background:'#FFFBEB', border:`1px solid #FDE68A`, borderRadius:8, padding:'12px 16px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
-              <div style={{ fontSize:13, color:C.warn }}>Plan Gratuito: Solo lectura.</div>
-              <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_SM, color:C.accent, borderColor:C.accent }}>Activar Pro</button>
-            </div>
-          )}
+
           <div style={{ position:'relative', marginBottom:32, width:'100%', overflow:'hidden' }}>
             <iframe id="tactico-iframe" key={plan.tipo_negocio} src={buildIframeSrc()} style={{ width:'100%', height:600, border:'none', display:'block', minHeight:600 }} scrolling="no" title="Calculadora" />
-            {userPlan==='free'&&<div onClick={()=>setShowUpgrade(true)} style={{ position:'absolute', inset:0, cursor:'pointer', zIndex:10 }} />}
+            
           </div>
           <div style={{ position:'sticky', bottom:0, background:C.paper, borderTop:`1px solid ${C.steel1}`, padding:'12px 0', display:'flex', justifyContent:'space-between', zIndex:10 }}>
             <button onClick={()=>setStep(3)} style={BTN_S}>Atras</button>
@@ -596,7 +595,7 @@ function WizardInner() {
               <VideoBlock vimeoId="1103392013" title="Como empezar tu Media Planning Canvas" />
               <div style={CARD}>
                 <label style={LBL}>Nombre del proyecto *</label>
-                <input style={INP} type="text" placeholder="Ej: Lanzamiento App Q3 2025" value={plan.projectName} onChange={e=>upd('projectName',e.target.value)} />
+                <input style={INP} type="text" placeholder="Ej: Lanzamiento App Q3 2025" maxLength={35} value={plan.projectName} onChange={e=>upd('projectName',e.target.value.slice(0,35))} />
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
                   <div>
                     <label style={LBL}>Pais *</label>
@@ -651,7 +650,7 @@ function WizardInner() {
                 )}
                 <label style={LBL}>Presupuesto mensual estimado</label>
                 <select style={{ ...INP, cursor:'pointer' }} value={plan.presupuesto} onChange={e=>upd('presupuesto',e.target.value)}>
-                  <option value="">No especificado</option>
+                  <option value="" disabled>Selecciona presupuesto *</option>
                   <option value="menos_1000">Menos de 1.000 EUR/mes</option>
                   <option value="1000_3000">1.000 - 3.000 EUR/mes</option>
                   <option value="3000_10000">3.000 - 10.000 EUR/mes</option>
@@ -720,10 +719,10 @@ function WizardInner() {
               <div style={CARD}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
                   <h2 style={{ fontSize:18, fontWeight:600, color:C.navy }}>USP - Propuesta Unica de Valor *</h2>
-                  <AiBtn label="Sugerir USP" used={usedMejoras} max={limits.mejoras} onClick={async()=>{
-                    if(!canUseMejora()) return
+                  <AiBtn label="Sugerir USP" used={usedAnalisis} max={limits.analisis} onClick={async()=>{
+                    if(!canUseAnalisis()) return
                     const r = await callAI('refine',{field_key:'usp',current_value:ed('usp',plan.usp)||'',user_prompt:`Crea una USP impactante para: ${plan.producto}. Sector: ${plan.sector}. Tipo: ${plan.tipo_negocio}. Una sola frase corta.`})
-                    if(r&&typeof r.refined_text==='string'){se('usp',r.refined_text);upd('usp',r.refined_text);trackMejora()}
+                    if(r&&typeof r.refined_text==='string'){se('usp',r.refined_text);upd('usp',r.refined_text);trackAnalisis()}
                   }} disabled={busy} small />
                 </div>
                 <VideoBlock vimeoId="1103392013" title="Como crear tu Propuesta Unica de Valor" />
@@ -850,7 +849,7 @@ function WizardInner() {
                 {plan.objectives.length>0&&(
                   <div style={{ marginBottom:12 }}>
                     <div style={{ display:'grid', gridTemplateColumns:'130px 1fr 120px auto', gap:8, marginBottom:6 }}>
-                      {['Tipo','KPI','Dato (ano)',''].map((h,i)=><div key={i} style={{ fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', fontFamily:"'Geist Mono',monospace" }}>{h}</div>)}
+                      {['Tipo','KPI','Dato (Año)',''].map((h,i)=><div key={i} style={{ fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', fontFamily:"'Geist Mono',monospace" }}>{h}</div>)}
                     </div>
                     {plan.objectives.map(r=>{
                       const kpiList = r.tipo==='Marketing' ? KPI_MKT : KPI_COM
@@ -867,7 +866,7 @@ function WizardInner() {
                             </select>
                             <input style={{ ...INP, marginBottom:0, fontSize:13, borderColor:isMandatory?C.success:'' }} placeholder="1.000" value={r.dato} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,dato:e.target.value}:o)}))} />
                             {isMandatory
-                              ? <div style={{ width:38, textAlign:'center', color:C.success, fontSize:14 }} title="Obligatorio">Lock</div>
+                              ? <div style={{ width:38, textAlign:'center', color:C.success, fontSize:18 }} title="Obligatorio">🔒</div>
                               : <button onClick={()=>setPlan(p=>({...p,objectives:p.objectives.filter(o=>o.id!==r.id)}))} style={{ ...BTN_SM, padding:'8px 10px', color:C.accent, borderColor:'#FECACA', background:'#FEF2F2' }}>X</button>
                             }
                           </div>
@@ -940,7 +939,7 @@ function WizardInner() {
 
               {showStrategy&&plan.estrategia&&(
                 <div>
-                  <h2 style={{ fontSize:20, fontWeight:600, color:C.navy, marginBottom:10, marginTop:8 }}>Descriptivo de Canales</h2>
+                  <h2 style={{ fontSize:20, fontWeight:600, color:C.navy, marginBottom:6, marginTop:8 }}>Detalle de uso de los canales</h2><div style={{ background:C.paper, borderRadius:8, padding:"10px 14px", marginBottom:14, display:"flex", gap:16, flexWrap:"wrap" }}><span style={{ fontSize:11, color:C.steel3, fontWeight:600 }}>Puntuación IA:</span>{([{d:5,l:"Muy recomendado"},{d:4,l:"Recomendado"},{d:3,l:"Posible"},{d:1,l:"No prioritario"}] as {d:number,l:string}[]).map(({d,l})=>(<span key={d} style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color:C.steel }}><span style={{ display:"flex", gap:2 }}>{[1,2,3,4,5].map(n=><span key={n} style={{ width:7, height:7, borderRadius:2, background:n<=d?C.navy:C.steel1, display:"inline-block" }}/>)}</span>{l}</span>))}</div>
                   <div style={{ ...CARD, background:'#F0F9FF', border:`1px solid #BAE6FD` }}>
                     <h2 style={{ fontSize:16, fontWeight:600, color:'#0369A1', marginBottom:10 }}>Estrategia Recomendada</h2>
                     <p style={{ fontSize:15, color:C.navy, lineHeight:1.7 }}>{gn(plan.estrategia,'estrategia_resumen')}</p>
