@@ -253,6 +253,7 @@ function WizardInner() {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const [showStrategy, setShowStrategy] = useState(false)
+  const [channelsChanged, setChannelsChanged] = useState(false)
   const [competidorLoading, setCompetidorLoading] = useState(false)
   const [suggestedComps, setSuggestedComps] = useState<{nombre:string;descripcion:string;url:string}[]>([])
   const [showUpgrade, setShowUpgrade] = useState(false)
@@ -267,7 +268,7 @@ function WizardInner() {
     projectName:'', pais:'España', sector:'', producto:'', web:'',
     tipo_negocio:'B2C', competidores:'', presupuesto:'', fase_negocio:'launch', usp:'',
     entorno:null, target:null, estrategia:null,
-    edits:{}, completed:[], valueSteps:[], objectives:[{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'mes'}],
+    edits:{}, completed:[], valueSteps:[], objectives:[{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'año'}],
     selectedChannels:[],
   })
   const supabase = createClient()
@@ -376,7 +377,7 @@ function WizardInner() {
         const nonMandatory = p.objectives.filter(o => !o.mandatory)
         return { ...p, objectives: [...updatedMandatory, ...nonMandatory] }
       }
-      const newRows: ObjRow[] = mandatoryKPIs.map(kpi => ({ id:uid(), tipo:'Marketing', kpi, dato:'', tiempo:'mes', mandatory:true }))
+      const newRows: ObjRow[] = mandatoryKPIs.map(kpi => ({ id:uid(), tipo:'Marketing', kpi, dato:'', tiempo:'año', mandatory:true }))
       const nonMandatory = p.objectives.filter(o => !o.mandatory)
       return { ...p, objectives: [...newRows, ...nonMandatory] }
     })
@@ -465,6 +466,8 @@ function WizardInner() {
 
   function s2next() {
     if(!ed('usp',plan.usp).trim()) { setAlert({title:'USP obligatoria',body:'Define tu Propuesta Única de Valor antes de continuar. Es la base de toda tu estrategia.'}); return }
+    const filledSteps = plan.valueSteps.filter(s=>s.accion.trim())
+    if(filledSteps.length < 3) { setAlert({title:'Escalera de Valor incompleta',body:'Necesitas al menos 3 pasos de la Escalera de Valor con una acción definida antes de continuar. Añade o completa los pasos que faltan.'}); return }
     markDone(2);setStep(3);setShowStrategy(false)
     autoSave({usp:ed('usp',plan.usp)||plan.usp})
   }
@@ -495,6 +498,7 @@ function WizardInner() {
       const merged = Array.from(new Set([...plan.selectedChannels, ...recommendedNames]))
       setPlan(p=>({...p, estrategia:r as Obj, selectedChannels:merged}))
       setShowStrategy(true)
+      setChannelsChanged(false)
       autoSave({estrategia:r as Obj})
     }
   }
@@ -514,6 +518,51 @@ function WizardInner() {
     if(!canUseMejora()) return
     const r = await callAI('refine',{field_key:'usp',current_value:ed('usp',plan.usp)||'',user_prompt:`Crea una USP impactante y única para este producto: ${plan.producto}. Sector: ${plan.sector}. Tipo: ${plan.tipo_negocio}. En UNA sola frase corta, sin clichés.`})
     if(r&&typeof r.refined_text==='string'){se('usp',r.refined_text);upd('usp',r.refined_text);trackMejora()}
+  }
+
+  async function suggestTarget() {
+    if(!canUseAnalisis()) return
+    setAiModal('Analizando tu mercado para sugerir el mejor target...')
+    const r = await callAI('refine',{field_key:'target_suggestion',current_value:'',user_prompt:`Analiza y sugiere el Core Target y Broad Target para: Producto: ${plan.producto}. Sector: ${plan.sector}. País: ${plan.pais}. Tipo: ${plan.tipo_negocio}. USP: ${ed('usp',plan.usp)}. Competidores: ${plan.competidores}. Devuelve un JSON con: { core_desc, core_volumen, core_sociodem, broad_desc, broad_volumen, broad_edad }. Solo JSON, sin texto extra.`})
+    if(r&&typeof r.refined_text==='string'){
+      try {
+        const clean = r.refined_text.replace(/```json|```/g,'').trim()
+        const d = JSON.parse(clean)
+        if(d.core_desc) se('t_cor',d.core_desc)
+        if(d.core_volumen) se('t_vol',d.core_volumen)
+        if(d.core_sociodem) se('t_soc',d.core_sociodem)
+        if(d.broad_desc) se('t_bro',d.broad_desc)
+        if(d.broad_volumen) se('t_bvol',d.broad_volumen)
+        if(d.broad_edad) se('t_bage',d.broad_edad)
+      } catch { /* use as text fallback */ }
+      trackAnalisis()
+    }
+  }
+
+  async function suggestBuyerPersona() {
+    if(!canUseAnalisis()) return
+    setAiModal('Creando tu Buyer Persona con IA... Esto tarda 15-20 segundos.')
+    const uspVal = ed('usp',plan.usp)
+    const targetVal = ed('t_cor',gn(plan.target,'core_target','descripcion'))
+    const r = await callAI('refine',{field_key:'buyer_persona_full',current_value:'',user_prompt:`Crea un Buyer Persona completo y realista para: Producto: ${plan.producto}. Sector: ${plan.sector}. País: ${plan.pais}. Tipo: ${plan.tipo_negocio}. USP: ${uspVal}. Target: ${targetVal}. Fase: ${plan.fase_negocio}. Devuelve SOLO un JSON con estos campos exactos (cada array máximo 3 bullet points, texto corto y directo): { narrativa, momentos, piensa, informa, escucha, dice, expectativas, barreras_compra, barreras_com, insight }. Sin texto extra, solo JSON.`})
+    if(r&&typeof r.refined_text==='string'){
+      try {
+        const clean = r.refined_text.replace(/```json|```/g,'').trim()
+        const d = JSON.parse(clean)
+        const fmt = (v: string|string[]) => Array.isArray(v) ? v.slice(0,3).map((x:string)=>'• '+x).join('\n') : String(v||'')
+        if(d.narrativa) se('bp_nar', typeof d.narrativa==='string'?d.narrativa:fmt(d.narrativa))
+        if(d.momentos)  se('bp_mom', fmt(d.momentos))
+        if(d.piensa)    se('bp_pns', fmt(d.piensa))
+        if(d.informa)   se('bp_inf', fmt(d.informa))
+        if(d.escucha)   se('bp_esc', fmt(d.escucha))
+        if(d.dice)      se('bp_dic', fmt(d.dice))
+        if(d.expectativas) se('bp_exp', fmt(d.expectativas))
+        if(d.barreras_compra) se('bp_bar', fmt(d.barreras_compra))
+        if(d.barreras_com)   se('bp_cre', fmt(d.barreras_com))
+        if(d.insight)   se('bp_ins', typeof d.insight==='string'?d.insight:fmt(d.insight))
+      } catch { /* fallback */ }
+      trackAnalisis()
+    }
   }
 
   async function getQuickWinsIA() {
@@ -870,10 +919,13 @@ function WizardInner() {
                 </div>
               </div>
 
-              <VideoBlock vimeoId="1103392013" title="Cómo definir tu target" />
-
               <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.01em' }}>Target</h2>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:4, flexWrap:'wrap', gap:10 }}>
+                  <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, letterSpacing:'-0.01em' }}>Target</h2>
+                  <AiBtn label="Sugerir Target con IA" used={usedAnalisis} max={limits.analisis} onClick={suggestTarget} disabled={busy||!ed('usp',plan.usp).trim()} small />
+                </div>
+                {!ed('usp',plan.usp).trim()&&<div style={{ fontSize:12, color:C.warn, marginBottom:8, fontFamily:"'Geist Mono',monospace" }}>⚠️ Rellena la USP para activar la sugerencia de Target con IA</div>}
+                <VideoBlock vimeoId="1103392013" title="Cómo definir tu target" />
                 <p style={{ fontSize:12, color:C.steel3, marginBottom:14, fontFamily:"'Geist Mono',monospace" }}>* Datos generados con IA. Pueden no ser exactos. Recomendamos contrastar con las herramientas complementarias.</p>
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
                   <div style={{ background:C.paper, borderRadius:8, padding:16, border:`1px solid ${C.steel1}` }}>
@@ -896,10 +948,12 @@ function WizardInner() {
                 <ToolsBlock title="Análisis de Audiencias" tools={TOOLS_DATA.target} />
               </div>
 
-              <VideoBlock vimeoId="1103392013" title="Buyer Persona y Escalera de Valor" />
 
               <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.01em' }}>Buyer Persona</h2>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:4, flexWrap:'wrap', gap:10 }}>
+                  <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, letterSpacing:'-0.01em' }}>Buyer Persona</h2>
+                  <AiBtn label="Sugerir Buyer Persona con IA" used={usedAnalisis} max={limits.analisis} onClick={suggestBuyerPersona} disabled={busy} small />
+                </div>
                 <VideoBlock vimeoId="1103392013" title="Cómo construir el Buyer Persona" />
                 <div style={{ background:C.paper, borderRadius:8, padding:16, border:`1px solid ${C.steel1}`, marginBottom:16 }}>
                   <div style={{ fontSize:11, fontWeight:600, color:C.navy, fontFamily:"'Geist Mono',monospace", letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:8 }}>Descripción narrativa</div>
@@ -974,12 +1028,13 @@ function WizardInner() {
 
               <div style={CARD}>
                 <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:6, letterSpacing:'-0.01em' }}>Objetivos del Plan</h2>
-                <p style={{ fontSize:13, color:C.steel, marginBottom:16 }}>Define qué quieres conseguir. Añade tantos como necesites.</p>
+                <p style={{ fontSize:13, color:C.steel, marginBottom:16 }}>Define qué quieres conseguir. Añade tantos como necesites. Todos los objetivos son anuales.</p>
+                <VideoBlock vimeoId="1103392013" title="Cómo definir tus objetivos de marketing" />
 
                 {plan.objectives.length>0&&(
                   <div style={{ marginBottom:12 }}>
                     <div style={{ display:'grid', gridTemplateColumns:'130px 1fr 120px 100px auto', gap:8, marginBottom:6 }}>
-                      {['Tipo','KPI','Dato','Tiempo',''].map((h,i)=><div key={i} style={{ fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.1em', fontFamily:"'Geist Mono',monospace" }}>{h}</div>)}
+                      {['Tipo','KPI','Dato (año)',''].map((h,i)=><div key={i} style={{ fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.1em', fontFamily:"'Geist Mono',monospace" }}>{h}</div>)}
                     </div>
                     {plan.objectives.map(r=>{
                       const kpiList = r.tipo==='Marketing' ? KPI_MKT : KPI_COM
@@ -987,7 +1042,7 @@ function WizardInner() {
                       const isMandatory = !!r.mandatory
                       return(
                         <div key={r.id} style={{ marginBottom:8 }}>
-                          <div style={{ display:'grid', gridTemplateColumns:'130px 1fr 120px 100px auto', gap:8, alignItems:'center' }}>
+                          <div style={{ display:'grid', gridTemplateColumns:'130px 1fr 120px auto', gap:8, alignItems:'center' }}>
                             <div style={{ position:'relative' }}>
                               <select value={r.tipo} onChange={e=>!isMandatory&&setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tipo:e.target.value,kpi:''}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:isMandatory?'default':'pointer', background:isMandatory?'#F0FDF4':'', borderColor:isMandatory?C.success:'' }}>
                                 <option>Marketing</option><option>Comunicación</option>
@@ -999,9 +1054,7 @@ function WizardInner() {
                               {kpiList.map(k=><option key={k}>{k}</option>)}
                             </select>
                             <input style={{ ...INP, marginBottom:0, fontSize:13, borderColor:isMandatory?C.success:'' }} placeholder="Ej: 1.000" value={r.dato} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,dato:e.target.value}:o)}))} />
-                            <select value={r.tiempo} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tiempo:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer', borderColor:isMandatory?C.success:'' }}>
-                              <option value="mes">Al mes</option><option value="trimestre">Trimestre</option><option value="semestre">Semestre</option><option value="año">Al año</option>
-                            </select>
+
                             {isMandatory
                               ? <div style={{ width:38, height:36, display:'flex', alignItems:'center', justifyContent:'center', color:C.success, fontSize:16 }} title="Objetivo obligatorio — no se puede eliminar">🔒</div>
                               : <button onClick={()=>setPlan(p=>({...p,objectives:p.objectives.filter(o=>o.id!==r.id)}))} style={{ ...BTN_SM, padding:'8px 10px', color:C.accent, borderColor:'#FECACA', background:'#FEF2F2' }}>✕</button>
@@ -1027,20 +1080,20 @@ function WizardInner() {
               <div style={{ background:'linear-gradient(135deg,#EFF6FF,#F0FDF4)', border:`1px solid ${C.steel1}`, borderRadius:12, padding:'20px 24px', marginBottom:24, textAlign:'center' }}>
                 <div style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:6 }}>💡 ¿Cuáles son los mejores canales para tu proyecto?</div>
                 <p style={{ fontSize:13, color:C.steel, marginBottom:16, maxWidth:480, margin:'0 auto 16px' }}>Con los datos de tu target, sector, presupuesto y objetivos, la IA analizará y recomendará el mix de medios más adecuado.</p>
-                <AiBtn
-                  label={busy ? 'Analizando tu proyecto...' : '✦ Recomendar plan de medios'}
-                  used={usedAnalisis} max={limits.analisis}
-                  onClick={()=>{
-                    const mandatoryFilled = plan.objectives.filter(o=>o.mandatory&&!o.dato)
-                    if(mandatoryFilled.length>0){setAlert({title:'Completa los objetivos obligatorios',body:`Rellena el dato de los objetivos obligatorios (${mandatoryFilled.map(o=>o.kpi).join(', ')}) antes de pedir la recomendación.`});return}
-                    setAiModal(`Analizando tu proyecto ${plan.sector} para recomendar el mejor plan de medios...`)
-                    createStrategy()
-                  }}
-                  disabled={busy}
-                />
+                <div style={{ display:'flex', justifyContent:'center' }}>
+                  <AiBtn
+                    label={busy ? 'Analizando tu proyecto...' : '✦ Recomendar plan de medios'}
+                    used={usedAnalisis} max={limits.analisis}
+                    onClick={()=>{
+                      const mandatoryFilled = plan.objectives.filter(o=>o.mandatory&&!o.dato)
+                      if(mandatoryFilled.length>0){setAlert({title:'Completa los objetivos obligatorios',body:`Rellena el dato de los objetivos obligatorios (${mandatoryFilled.map(o=>o.kpi).join(', ')}) antes de pedir la recomendación.`});return}
+                      setAiModal(`Analizando tu proyecto ${plan.sector} para recomendar el mejor plan de medios...`)
+                      createStrategy()
+                    }}
+                    disabled={busy}
+                  />
+                </div>
               </div>
-
-              <VideoBlock vimeoId="1103392013" title="Cómo definir tus objetivos de marketing" />
 
               <div style={CARD}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:6, flexWrap:'wrap', gap:10 }}>
@@ -1073,7 +1126,7 @@ function WizardInner() {
                         {channels.map(ch=>{
                           const on=plan.selectedChannels.includes(ch)
                           return(
-                            <button key={ch} onClick={()=>setPlan(p=>({...p,selectedChannels:on?p.selectedChannels.filter(s=>s!==ch):[...p.selectedChannels,ch]}))} style={{ padding:'6px 12px', borderRadius:999, border:`1px solid ${on?phCol[phase]:C.steel1}`, background:on?phCol[phase]+'18':C.white, color:on?phCol[phase]:C.steel, fontWeight:on?600:400, fontSize:12, cursor:'pointer', fontFamily:"'Geist',sans-serif", transition:'all 0.15s' }}>
+                            <button key={ch} onClick={()=>{setPlan(p=>({...p,selectedChannels:on?p.selectedChannels.filter(s=>s!==ch):[...p.selectedChannels,ch]}));if(showStrategy)setChannelsChanged(true)}} style={{ padding:'6px 12px', borderRadius:999, border:`1px solid ${on?phCol[phase]:C.steel1}`, background:on?phCol[phase]+'18':C.white, color:on?phCol[phase]:C.steel, fontWeight:on?600:400, fontSize:12, cursor:'pointer', fontFamily:"'Geist',sans-serif", transition:'all 0.15s' }}>
                               {on?'✓ ':''}{ch}
                             </button>
                           )
@@ -1083,17 +1136,18 @@ function WizardInner() {
                     </div>
                   )
                 })}
-                {/* Score legend */}
-                <div style={{ marginTop:12, background:C.paper, borderRadius:8, padding:'10px 14px', display:'flex', gap:20, flexWrap:'wrap' }}>
-                  <span style={{ fontSize:11, color:C.steel3, fontFamily:"'Geist Mono',monospace", fontWeight:600 }}>Puntuación IA:</span>
-                  {[{dots:5,label:'Muy recomendado'},{dots:4,label:'Recomendado'},{dots:3,label:'Posible'},{dots:1,label:'No prioritario'}].map(({dots,label})=>(
-                    <span key={dots} style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, color:C.steel }}>
-                      <span style={{ display:'flex', gap:2 }}>{[1,2,3,4,5].map(n=><span key={n} style={{ width:7, height:7, borderRadius:2, background:n<=dots?C.navy:C.steel1, display:'inline-block' }}/>)}</span>
-                      {label}
-                    </span>
-                  ))}
-                </div>
+
               </div>
+
+              {showStrategy&&channelsChanged&&(
+                <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:10, padding:'16px 20px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
+                  <div>
+                    <div style={{ fontSize:14, fontWeight:600, color:C.warn, marginBottom:3 }}>⚠️ Has modificado los canales seleccionados</div>
+                    <div style={{ fontSize:13, color:C.steel }}>Los cambios no se reflejan en el descriptivo de canales. Puedes regenerar la estrategia con la nueva selección.</div>
+                  </div>
+                  <button onClick={()=>{setChannelsChanged(false);createStrategy()}} style={{ ...BTN_SM, borderColor:C.warn, color:C.warn, whiteSpace:'nowrap', fontWeight:600 }}>↺ Actualizar estrategia</button>
+                </div>
+              )}
 
               {!showStrategy&&(
                 <div style={{ textAlign:'center', padding:'24px 0 32px' }}>
@@ -1117,6 +1171,18 @@ function WizardInner() {
 
               {showStrategy&&plan.estrategia&&(
                 <div>
+                  <div style={{ marginBottom:8, marginTop:8 }}>
+                    <h2 style={{ fontSize:20, fontWeight:600, color:C.navy, letterSpacing:'-0.01em', marginBottom:10 }}>Descriptivo de Canales</h2>
+                    <div style={{ background:C.paper, borderRadius:8, padding:'10px 14px', display:'flex', gap:20, flexWrap:'wrap', marginBottom:16 }}>
+                      <span style={{ fontSize:11, color:C.steel3, fontFamily:"'Geist Mono',monospace", fontWeight:600 }}>Puntuación IA:</span>
+                      {[{dots:5,label:'Muy recomendado'},{dots:4,label:'Recomendado'},{dots:3,label:'Posible'},{dots:1,label:'No prioritario'}].map(({dots,label})=>(
+                        <span key={dots} style={{ display:'flex', alignItems:'center', gap:4, fontSize:11, color:C.steel }}>
+                          <span style={{ display:'flex', gap:2 }}>{[1,2,3,4,5].map(n=><span key={n} style={{ width:7, height:7, borderRadius:2, background:n<=dots?C.navy:C.steel1, display:'inline-block' }}/>)}</span>
+                          {label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                   <div style={{ ...CARD, background:'#F0F9FF', border:`1px solid #BAE6FD` }}>
                     <h2 style={{ fontSize:16, fontWeight:600, color:'#0369A1', marginBottom:10 }}>Estrategia Recomendada</h2>
                     <p style={{ fontSize:15, color:C.navy, lineHeight:1.7 }}>{gn(plan.estrategia,'estrategia_resumen')}</p>
@@ -1180,9 +1246,8 @@ function WizardInner() {
                     </div>
                   )}
                   <div style={{ display:'flex', justifyContent:'space-between' }}>
-                    <div style={{ display:'flex', gap:8 }}>
+                    <div>
                       <button onClick={()=>setStep(2)} style={BTN_S}>← Atrás</button>
-                      <button onClick={()=>{setShowStrategy(false);}} style={BTN_S}>↺ Rehacer estrategia</button>
                     </div>
                     <button onClick={()=>{markDone(3);setStep(4);autoSave()}} style={BTN_P}>Táctico & Presupuesto →</button>
                   </div>
