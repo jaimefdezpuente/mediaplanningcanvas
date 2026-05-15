@@ -1884,6 +1884,33 @@ const CHANNELS=[
   ]},
   {id:'RRSS_ORG_NOT',ph:'notoriedad',name:'RRSS Orgánico · Contenidos',icon:'📱',color:'#14b8a6',desc:'Posts propios en redes sociales',kt:'awareness',fields:[{id:'inv',lb:'Coste creación (€)',req:false,ph:'200',tip:'Community manager o agencia'},{id:'posts_mes',lb:'Nº Posts al mes',req:true,ph:'20'},{id:'alcance_post',lb:'Alcance medio por post',req:true,ph:'2000'},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
   {id:'EMPL_BRAND',ph:'notoriedad',name:'Employee Branding',icon:'👔',color:'#8b5cf6',desc:'Empleados como embajadores',kt:'awareness',fields:[{id:'inv',lb:'Inversión (€)',req:false,ph:'300'},{id:'n_empl',lb:'Nº Empleados activos',req:true,ph:'10'},{id:'seg',lb:'Seguidores medios',req:true,ph:'500'},{id:'posts_mes',lb:'Posts/empleado/mes',def:4},{id:'cr_sec',lb:'CR Secundario Estimado (%)',req:false,ph:'0.1',tip:'Conversión indirecta por notoriedad. Recomendado 0.05-0.5% (10-20x inferior a tu canal de conversión directa)'}]},
+  {id:'SPONSORSHIP',ph:'notoriedad',name:'Sponsorship / Patrocinio',icon:'🏆',color:'#b45309',desc:'Patrocinio de eventos, ligas, contenidos o medios',kt:'awareness',fields:[
+    {id:'inv',lb:'Inversión (€) — total patrocinio',req:true,ph:'5000',tip:'Derechos de patrocinio + activación. Regla: activa con un 50% adicional sobre los derechos. Evento local: €1.000-5.000. Liga/evento nacional: €20.000-200.000.'},
+    {id:'audiencia',lb:'Audiencia total del evento / medio',req:true,ph:'50000',tip:'Personas que asisten, ven o escuchan. Evento local: 5.000. Liga regional: 50.000. Evento nacional: 500.000.'},
+    {id:'frec',lb:'Nº de impactos / apariciones de marca',def:5,tip:'Veces que la marca aparece en el evento (banners, menciones, pantallas). Mínimo 3 para recuerdo.'},
+    {id:'duracion',lb:'Duración del patrocinio (meses)',def:6,tip:'Duración del acuerdo. Patrocinios anuales suelen ser más eficientes en CPM.'},
+    {id:'cr_sec',lb:'CR Secundario estimado (%)',req:false,ph:'0.05',tip:'% que convierte indirectamente. B2B evento sector: 0.1-0.3%. Patrocinio masivo: 0.01-0.05%.'}
+  ]},
+  {id:'PRENSA_PRINT',ph:'notoriedad',name:'Prensa y Revistas',icon:'📄',color:'#6b7280',desc:'Publicidad en prensa impresa y digital de pago',kt:'awareness',fields:[
+    {id:'inv',lb:'Inversión (€) — inserciones totales',req:true,ph:'2000',tip:'Coste total de inserciones + producción del anuncio. Página entera periódico nacional: ~€15.000. Media página revista especializada: €1.000-5.000. Prensa regional: €200-2.000.'},
+    {id:'tirada',lb:'Lectores únicos del medio',req:true,ph:'100000',tip:'Audiencia del medio (EGM / OJD). El País ~1.5M lectores, El Mundo ~1M, ABC ~600k. Revista sectorial B2B: 10.000-50.000.'},
+    {id:'n_inserciones',lb:'Nº de inserciones en el período',def:2,tip:'Nº de anuncios publicados. Para recuerdo mínimo 3 inserciones. Frecuencia semanal en 1 mes = 4.'},
+    {id:'cr_sec',lb:'CR Secundario estimado (%)',req:false,ph:'0.03',tip:'% que responde al anuncio. Prensa con URL/QR: 0.02-0.08%. Revista especializada B2B: 0.1-0.5%.'}
+  ]},
+  {id:'CINE',ph:'notoriedad',name:'Publicidad en Cine',icon:'🎬',color:'#1d4ed8',desc:'Spots en salas de cine',kt:'awareness',fields:[
+    {id:'inv',lb:'Inversión (€) — campaña total',req:true,ph:'3000',tip:'Producción del spot + emisión en salas. Circuito nacional (50 salas, 2 semanas): ~€5.000-15.000. Circuito local/regional: ~€500-2.000.'},
+    {id:'espectadores_semana',lb:'Espectadores/semana en salas contratadas',req:true,ph:'10000',tip:'Aforo × proyecciones × tasa ocupación media (40-60%). Multiplex grande: 5.000-15.000/semana.'},
+    {id:'semanas',lb:'Duración campaña (semanas)',def:2,tip:'Semanas de emisión. Coincide con estreno de película para tráfico alto. Campaña estacional: 1-2 semanas.'},
+    {id:'frec',lb:'Visionados por espectador',def:1,tip:'En cine es casi siempre 1 (una visita = un visionado). Alta atención del medio: sala oscura, sin pantalla del móvil.'},
+    {id:'cr_sec',lb:'CR Secundario estimado (%)',req:false,ph:'0.03',tip:'% que busca la marca o convierte. Cine: 0.02-0.08%. Alta atención compensa baja frecuencia.'}
+  ]},
+  {id:'SEEDING_N',ph:'notoriedad',name:'Seeding / Envío de Producto',icon:'📦',color:'#059669',desc:'Producto enviado a creadores para earned media orgánico',kt:'awareness',fields:[
+    {id:'inv',lb:'Coste producto + logística (€)',req:true,ph:'500',tip:'Coste total de productos enviados + gastos de envío. No incluye pago al creador — eso sería Influencer Gifting con contrato (ver Influencer Producto).'},
+    {id:'n_envios',lb:'Nº de envíos realizados',req:true,ph:'20',tip:'Número de creadores a los que envías producto. Ratio publicación espontánea: 40-70% si el producto es relevante para su audiencia.'},
+    {id:'pct_publica',lb:'% que publica contenido voluntariamente',def:50,tip:'% de receptores que publican. Micro-influencers nicho: 50-70%. Macros genéricos: 20-40%. Sin relación previa: 30%.'},
+    {id:'alcance_medio',lb:'Alcance medio por publicación',def:5000,tip:'Seguidores o alcance medio. Nano (1k-10k): ~2.000 de alcance. Micro (10k-100k): ~15.000. Selecciona perfiles alineados con tu target.'},
+    {id:'cr_sec',lb:'CR Secundario estimado (%)',req:false,ph:'0.1',tip:'% del alcance que busca o compra. Seeding nicho muy relevante: 0.2-0.5%. Consumo masivo: 0.05-0.15%.'}
+  ]},
   // INTERACCIÓN (kt='traffic')
   {id:'SEO_BLOG',ph:'interaccion',name:'SEO / Blog Contenidos',icon:'🌱',color:'#10b981',desc:'Tráfico orgánico de buscadores',kt:'traffic',fields:[{id:'inv',lb:'Agencia/Freelance (€)',req:false,ph:'500'},{id:'vis_org',lb:'Visitas orgánicas/mes',req:true,ph:'5000'},{id:'deflaccion',lb:'Deflacción (%)',def:30,tip:'% rebote/irrelevantes'}]},
   {id:'RRSS_CONT',ph:'interaccion',name:'Contenidos RRSS · Engagement',icon:'👍',color:'#3b82f6',desc:'Posts engagement y tráfico',kt:'traffic',fields:[{id:'inv',lb:'Inversión (€)',req:false,ph:'300'},{id:'seg_tot',lb:'Seguidores totales',req:true,ph:'5000'},{id:'eng_rate',lb:'Engagement Rate (%)',def:3,tip:'% seguidores que interactúan'}]},
@@ -1894,6 +1921,43 @@ const CHANNELS=[
   {id:'GOOGLE_BIZ',ph:'interaccion',name:'Google Business / Maps',icon:'📍',color:'#4285F4',desc:'Perfil local y búsquedas locales',kt:'traffic',fields:[{id:'inv',lb:'Gestión (€/mes)',req:false,ph:'100'},{id:'busq_mes',lb:'Búsquedas mensuales',req:true,ph:'1000'},{id:'pct_click',lb:'CTR a web (%)',def:20}]},
   {id:'CONCURSO',ph:'interaccion',name:'Concursos y Sorteos',icon:'🎰',color:'#ec4899',desc:'Viralización y captación seguidores',kt:'traffic',fields:[{id:'inv',lb:'Inversión + Premio (€)',req:true,ph:'500'},{id:'part_ini',lb:'Participantes iniciales',req:true,ph:'100'},{id:'coef_viral',lb:'Coeficiente viral',def:3,tip:'Veces que cada participante lo comparte'}]},
   {id:'BANNER_INT',ph:'interaccion',name:'Banners Interactivos / Display',icon:'🖥️',color:'#0ea5e9',desc:'Display CPC tráfico a web',kt:'traffic',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'400'},{id:'cpc',lb:'CPC (€)',def:0.4},{id:'deflaccion',lb:'Deflacción (%)',def:35}]},
+  {id:'LI_EMPRESA',ph:'interaccion',name:'LinkedIn Empresa (Orgánico)',icon:'🏢',color:'#0077B5',desc:'Página de empresa — contenido orgánico',kt:'traffic',fields:[
+    {id:'inv',lb:'Coste gestión (€/mes)',req:false,ph:'500',tip:'Community manager o agencia. Si es equipo interno, estima coste hora × horas/mes.'},
+    {id:'seguidores',lb:'Seguidores actuales de la página',req:true,ph:'2000',tip:'Alcance orgánico medio: 5-10% de seguidores por post. Páginas < 1.000 seg: 8-12%. Páginas > 10.000: 3-6%.'},
+    {id:'eng_rate',lb:'Engagement Rate (%)',def:3,tip:'% de seguidores que interactúan. LinkedIn B2B: 2-5%. Contenido educativo/útil: 5-8%.'},
+    {id:'posts_mes',lb:'Posts al mes',def:15,tip:'Recomendado: 3-5 posts/semana = 12-20/mes. Más de 2/día pierde alcance.'}
+  ]},
+  {id:'LI_PERFILES',ph:'interaccion',name:'LinkedIn Perfiles Personales',icon:'👔',color:'#0A66C2',desc:'Perfiles de empleados y directivos como amplificadores',kt:'traffic',fields:[
+    {id:'inv',lb:'Formación / ghostwriting (€/mes)',req:false,ph:'300',tip:'Coste de formación en personal branding o ghostwriter. Un perfil directivo bien activado equivale a 10x el alcance de la página empresa.'},
+    {id:'n_perfiles',lb:'Nº de perfiles activos',req:true,ph:'5',tip:'Personas del equipo que publican regularmente. Empieza con 3-5: CEO, comerciales, expertos técnicos.'},
+    {id:'seg_medio',lb:'Seguidores medios por perfil',def:800,tip:'Conexiones medias de los perfiles. Perfil directivo: 500-2.000. Experto con buena actividad: 2.000-10.000.'},
+    {id:'posts_mes',lb:'Posts por persona al mes',def:8,tip:'Calidad > cantidad. 2 posts/semana = 8-9/mes es el estándar recomendado.'},
+    {id:'eng_rate',lb:'Engagement Rate (%)',def:5,tip:'% de conexiones que interactúan. Perfiles personales duplican el engagement de páginas empresa: 4-8%.'}
+  ]},
+  {id:'LIVESTREAM',ph:'interaccion',name:'Live Streaming',icon:'📹',color:'#7c3aed',desc:'Directos en LinkedIn, Instagram, YouTube, Twitch',kt:'traffic',fields:[
+    {id:'inv',lb:'Coste producción (€/directo)',req:false,ph:'200',tip:'Equipo técnico + plataforma + edición replay. Amateur: €0. Producción básica: €100-300. Estudio: €500+. Cada directo genera contenido VOD reutilizable.'},
+    {id:'n_directos',lb:'Nº de directos al mes',req:true,ph:'4',tip:'1/semana construye hábito de audiencia. Los replays generan 3x-5x las vistas del directo.'},
+    {id:'audiencia_media',lb:'Audiencia media en directo',def:100,tip:'Espectadores simultáneos en pico. Canal nuevo: 20-100. Consolidado: 200-2.000.'},
+    {id:'cr_web',lb:'% Audiencia que va a tu web',def:5,tip:'% del directo que hace clic en el link. LinkedIn Lives: 5-10%. YouTube Lives con CTA claro: 3-8%.'}
+  ]},
+  {id:'EVENTOS_ASIST',ph:'interaccion',name:'Acudir a Eventos / Ferias',icon:'🎪',color:'#d97706',desc:'Asistencia a ferias y eventos del sector como visitante',kt:'direct',fields:[
+    {id:'inv',lb:'Inversión (€) — inscripciones + desplazamiento',req:true,ph:'2000',tip:'Inscripción + transporte + alojamiento + material (tarjetas, demos, regalos). Feria nacional: €500-3.000. Internacional: €2.000-10.000.'},
+    {id:'n_eventos',lb:'Nº de eventos al año',req:true,ph:'4',tip:'Recomendado: 4-8 eventos/año combinando grandes ferias y eventos nicho de tu sector.'},
+    {id:'contactos_evento',lb:'Contactos cualificados por evento',def:20,tip:'Contactos que son target real y dan datos. No confundir con tarjetas totales. Evento bien trabajado: 20-50 contactos cualificados.'},
+    {id:'cr',lb:'CR contacto → lead (%)',def:20,tip:'% de contactos que avanzan a oportunidad en 30 días. Con seguimiento sistemático: 15-30%. Sin seguimiento: cae al 5%.'}
+  ]},
+  {id:'NETWORKING',ph:'interaccion',name:'Networking Activo',icon:'🤝',color:'#0891b2',desc:'Clubs de empresa, asociaciones, eventos de networking',kt:'direct',fields:[
+    {id:'inv',lb:'Cuotas + eventos (€/mes)',req:true,ph:'300',tip:'Cuotas de asociaciones + eventos + coste de tiempo del equipo. Club empresa: €100-500/mes. Asociación sectorial: €50-200/año.'},
+    {id:'n_eventos',lb:'Eventos / reuniones al mes',req:true,ph:'4',tip:'1/semana. Calidad > cantidad: 2-3 eventos muy seleccionados generan más leads que 10 generalistas.'},
+    {id:'contactos_evento',lb:'Contactos nuevos por evento',def:5,tip:'Contactos con los que se establece relación real (no solo tarjeta). En networking de calidad: 3-8 contactos/evento con potencial.'},
+    {id:'cr',lb:'CR contacto → lead (%)',def:15,tip:'% que deriva en oportunidad en 60-90 días. Networking sector B2B: 10-25%. Depende del seguimiento.'}
+  ]},
+  {id:'CHATBOT',ph:'interaccion',name:'Bot IA / Chatbot Web',icon:'🤖',color:'#6366f1',desc:'Chatbot para captar y cualificar leads en la web',kt:'conversion',fields:[
+    {id:'inv',lb:'Plataforma + setup (€/mes)',req:true,ph:'200',tip:'Intercom ~€100-400/mes, Drift ~€400/mes, HubSpot Chat (incluido en Hub), Manychat ~€15/mes. Setup inicial: €500-2.000.'},
+    {id:'visitas_web',lb:'Visitas web al mes',req:true,ph:'5000',tip:'Visitas únicas mensuales en páginas donde está activo el chatbot. Fuente: Google Analytics.'},
+    {id:'pct_chat',lb:'% de visitas que abren el chat',def:8,tip:'Chatbot proactivo bien configurado: 5-15%. Solo reactivo (usuario lo abre): 2-5%.'},
+    {id:'cr',lb:'CR conversación → lead (%)',def:20,tip:'% de conversaciones que terminan en datos de contacto. Bot con flow bien diseñado: 15-30%. Bot básico: 5-10%.'}
+  ]},
   // LEAD / VENTA (kt='conversion'/'variable'/'demo'/'direct')
   {id:'SEM',ph:'lead_venta',name:'SEM · Buscadores',icon:'🔍',color:'#4285F4',desc:'Google/Bing Ads CPC',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'1000'},{id:'cpc',lb:'CPC (€/clic)',req:true,ph:'2.00'},{id:'deflaccion',lb:'Deflacción (%)',def:20},{id:'cr',lb:'CR Lead/Venta (%)',bench:true}]},
   {id:'META_PERF',ph:'lead_venta',name:'Meta Ads · Performance',icon:'📘',color:'#1877F2',desc:'Facebook/Instagram leads/ventas',kt:'conversion',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'1000'},{id:'cpm',lb:'CPM (€/1.000)',def:8},{id:'ctr',lb:'CTR (%)',def:1.5},{id:'deflaccion',lb:'Deflacción (%)',def:25},{id:'cr',lb:'CR Lead/Venta (%)',bench:true}]},
@@ -1914,6 +1978,50 @@ const CHANNELS=[
   {id:'SALESFORCE',ph:'lead_venta',name:'Sales Force',icon:'📞',color:'#f43f5e',desc:'Equipo comercial propio',kt:'demo',fields:[{id:'inv',lb:'Coste equipo (€)',req:true,ph:'3000'},{id:'n_demo',lb:'Nº Comerciales',req:true,ph:'2'},{id:'demos_por',lb:'Demos por comercial',req:true,ph:'20'},{id:'cierre',lb:'% Cierre',def:20}]},
   {id:'MGM',ph:'lead_venta',name:'Referidos / Member Get Member',icon:'🔗',color:'#84cc16',desc:'Clientes que traen nuevos clientes',kt:'direct',fields:[{id:'inv',lb:'Incentivo (€)',req:false,ph:'100'},{id:'base_cli',lb:'Clientes activos',req:true,ph:'500'},{id:'cr',lb:'% que refieren',def:5}]},
   {id:'POS',ph:'lead_venta',name:'Punto de Venta / POS / Marketplace',icon:'🏪',color:'#065f46',desc:'Tienda física o marketplace',kt:'direct',fields:[{id:'inv',lb:'Inversión (€)',req:true,ph:'1000'},{id:'vis_tienda',lb:'Visitas a tienda/mes',req:true,ph:'500'},{id:'cr',lb:'CR Compra (%)',def:15}]},
+  {id:'LLM_ADS',ph:'lead_venta',name:'LLM Ads (ChatGPT · Perplexity · Gemini)',icon:'🧠',color:'#10b981',desc:'Publicidad en IAs generativas — canal emergente',kt:'conversion',fields:[
+    {id:'inv',lb:'Inversión (€)',req:true,ph:'500',tip:'Mercado emergente 2025-2026. Perplexity Ads ya disponible. ChatGPT Ads en beta. Alta intención de compra: el usuario está en modo búsqueda activa.'},
+    {id:'cpc',lb:'CPC estimado (€/clic)',def:0.5,tip:'Actualmente muy inferior al SEM tradicional. Perplexity Ads: ~€0.3-0.8. ChatGPT Ads (estimado): €0.5-1.5. Se espera que suba a medida que madure.'},
+    {id:'deflaccion',lb:'Deflacción (%)',def:25,tip:'LLM traffic tiene alta intención pero puede ser geográficamente disperso. Estima 20-30% de descuento por tráfico no alineado.'},
+    {id:'cr',lb:'CR Lead / Venta (%)',bench:true}
+  ]},
+  {id:'NEWSLETTERS_LEAD',ph:'lead_venta',name:'Newsletter / Email Suscriptores',icon:'📰',color:'#0891b2',desc:'Base de suscriptores propios — canal de captación y venta',kt:'conversion',fields:[
+    {id:'inv',lb:'Herramienta (€/mes)',req:false,ph:'50',tip:'Mailchimp (gratis hasta 500), Klaviyo (~€25/mes hasta 1.000), Brevo (gratis hasta 300/día), Kit (~€25/mes). ROI promedio email: 40:1.'},
+    {id:'suscriptores',lb:'Suscriptores activos',req:true,ph:'3000',tip:'Total de suscriptores confirmados y activos. Excluye los que no abren desde hace 6+ meses.'},
+    {id:'open_rate',lb:'Open Rate (%)',def:28,tip:'% que abre el email. Newsletter de contenido/valor: 30-50%. Lista propia activa: 25-40%. Benchmark España 2025: ~28%.'},
+    {id:'ctr',lb:'CTR (% de aperturas que hacen clic)',def:15,tip:'% de los que abren y hacen clic. Newsletter B2B: 10-20%. Newsletter e-commerce: 5-15%. CTA claro = CTR más alto.'},
+    {id:'deflaccion',lb:'Deflacción (%)',def:15,tip:'% de clics que no son relevantes. Lista sana: 10-20%.'},
+    {id:'cr',lb:'CR clic → lead / venta (%)',bench:true}
+  ]},
+  {id:'SOCIAL_SELLING',ph:'lead_venta',name:'Social Selling',icon:'💬',color:'#1877F2',desc:'Venta activa a través de LinkedIn, DMs y redes sociales',kt:'conversion',fields:[
+    {id:'inv',lb:'Coste equipo (€/mes)',req:true,ph:'1500',tip:'Salario SDR/BDR + herramientas. LinkedIn Sales Navigator ~€80/mes. Lemlist ~€50/mes. Apollo ~€50/mes. 1 SDR puede generar 20-40 oportunidades/mes en B2B.'},
+    {id:'contactos_mes',lb:'Prospectos contactados al mes',req:true,ph:'200',tip:'Mensajes de prospección enviados. LinkedIn: ~100 mensajes/día en cuenta normal. Sales Navigator: hasta 25 InMails + mensajes a conectados.'},
+    {id:'cr_respuesta',lb:'CR respuesta al primer mensaje (%)',def:8,tip:'% de contactados que responden. Mensaje personalizado + relevante: 8-15%. Mensaje genérico/spam: 1-3%. A/B test del primer mensaje es crítico.'},
+    {id:'cr',lb:'CR respuesta → lead cualificado (%)',def:25,tip:'% de conversaciones que derivan en reunión o lead. Buena gestión de conversación: 20-35%.'}
+  ]},
+  {id:'EVENTOS_ONLINE_LEAD',ph:'lead_venta',name:'Eventos Online — Lead Gen',icon:'💻',color:'#7c3aed',desc:'Webinars, masterclasses y demos colectivas para captación',kt:'demo',fields:[
+    {id:'inv',lb:'Inversión por evento (€)',req:true,ph:'400',tip:'Plataforma (Zoom Webinar ~€150/mes, Demio ~€50, BigMarker) + diseño promo + ampliación a lista fría. Bajo coste, ROI muy alto en B2B.'},
+    {id:'registrados',lb:'Registrados por evento',req:true,ph:'150',tip:'Total de registros. Lista fría: 3-8% de la audiencia contactada. Lista warm: 10-20%. Multiplica por los eventos al mes para el total anual.'},
+    {id:'pct_asistencia',lb:'% Asistencia real',def:45,tip:'% de registrados que asisten. Típico: 35-55%. Los ausentes que ven el replay aún convierten: 20-30% de ausentes ven el replay.'},
+    {id:'cierre',lb:'% Asistentes → lead / cliente (%)',def:15,tip:'% que toma acción (pide reunión, compra, solicita demo). Con oferta clara + follow-up: 10-25%. Solo información, sin CTA: 3-8%.'}
+  ]},
+  {id:'EVENTOS_PRES',ph:'lead_venta',name:'Eventos Presenciales / Stand en Ferias',icon:'🏛️',color:'#b45309',desc:'Stand propio o co-exposición en ferias y congresos sectoriales',kt:'demo',fields:[
+    {id:'inv',lb:'Inversión total (€) — stand + material + equipo',req:true,ph:'5000',tip:'Stand + producción + personal + viaje + alojamiento + material. Stand básico (6m²) feria sectorial: €3.000-8.000. Stand premium: €15.000-50.000.'},
+    {id:'visitantes_stand',lb:'Visitantes al stand estimados',req:true,ph:'200',tip:'Personas que se detienen en tu stand. Stand activo con demo vivo, bien ubicado en feria media: 50-300 visitantes/día.'},
+    {id:'pct_contacto',lb:'% que dan datos de contacto (%)',def:25,tip:'% que deja tarjeta, escanea QR o se registra. Stand activo con demo: 20-40%. Stand pasivo: 5-10%.'},
+    {id:'cierre',lb:'% contactos → oportunidad / venta (%)',def:15,tip:'% de contactos que se convierten en oportunidad real en 30-60 días. Con seguimiento sistematizado post-feria: 10-25%.'}
+  ]},
+  {id:'WOM',ph:'lead_venta',name:'Boca a Oreja / Programa WOM',icon:'👂',color:'#16a34a',desc:'Programa formal de referencias entre clientes satisfechos',kt:'direct',fields:[
+    {id:'inv',lb:'Inversión en programa (€/mes)',req:false,ph:'200',tip:'Herramienta de gestión de referidos + incentivos (descuento, regalo, comisión). Programa básico: €50-200/mes. El WOM orgánico sin incentivo también existe — ponlo a €0.'},
+    {id:'base_cli',lb:'Clientes satisfechos (NPS 8-10)',req:true,ph:'200',tip:'Filtra solo promotores activos, no toda la base. Clientes con NPS 8-10 o que han mostrado satisfacción explícita.'},
+    {id:'pct_recomienda',lb:'% que hacen una recomendación activa (%)',def:10,tip:'Sin programa formal: 5-10%. Con programa activo + incentivo: 15-25%. El member-get-member puede llegar al 30%.'},
+    {id:'cr',lb:'CR recomendación → nuevo cliente (%)',def:40,tip:'El lead referido convierte 3-5x mejor que un lead frío. Tasa típica: 30-50%.'}
+  ]},
+  {id:'ASO',ph:'lead_venta',name:'ASO — App Store Optimization',icon:'📱',color:'#059669',desc:'Optimización de ficha en App Store y Google Play',kt:'direct',fields:[
+    {id:'inv',lb:'Agencia / herramienta ASO (€/mes)',req:true,ph:'500',tip:'AppFollow ~€100/mes, AppTweak ~€100/mes, Sensor Tower ~€500/mes, o agencia €500-2.000/mes. Una buena optimización puede multiplicar descargas x2-x5.'},
+    {id:'descargas_actuales',lb:'Descargas orgánicas actuales/mes',req:true,ph:'1000',tip:'Punto de partida. Si eres nuevo, estima basándote en competidores con herramientas como Sensor Tower.'},
+    {id:'cr_incremento',lb:'Incremento de descargas esperado (%)',def:30,tip:'Optimización de screenshots + título + descripción: +20-40%. Cambio de icono A/B test: +10-30%. Mejorar rating de 3.5 a 4.5: +50% descargas.'},
+    {id:'cr',lb:'CR descarga → usuario activo (%)',def:35,tip:'% de descargas que se convierten en usuarios activos (1 sesión en 30 días). Onboarding bien diseñado: 30-50%. Sin onboarding: 10-20%.'}
+  ]},
   // FIDELIZACIÓN (kt='retention')
   {id:'EMAIL_AUTO',ph:'fidelizacion',name:'Email Automation / CRM',icon:'⚙️',color:'#8b5cf6',desc:'Nurturing y recuperación automáticos',kt:'retention',fields:[{id:'inv',lb:'Herramienta (€/mes)',req:true,ph:'200'},{id:'base_cli',lb:'Clientes en BBDD',req:true,ph:'1000'},{id:'pct_activo',lb:'% Clientes que recompran',def:20},{id:'frec_compra',lb:'Aumento frecuencia (%)',def:20,tip:'Incremento de frecuencia de compra'}]},
   {id:'WHATSAPP_F',ph:'fidelizacion',name:'WhatsApp Fidelización',icon:'💬',color:'#25D366',desc:'Retención y recompra por WhatsApp',kt:'retention',fields:[{id:'inv',lb:'Herramienta (€/mes)',req:false,ph:'50'},{id:'base_cli',lb:'Clientes en lista',req:true,ph:'500'},{id:'pct_activo',lb:'% que recompran',def:15},{id:'frec_compra',lb:'Aumento frecuencia (%)',def:10}]},
@@ -1923,6 +2031,18 @@ const CHANNELS=[
   {id:'REVIEWS',ph:'fidelizacion',name:'Reviews y Reputación',icon:'⭐',color:'#fbbf24',desc:'Google, Trustpilot, reseñas activas',kt:'retention',fields:[{id:'inv',lb:'Herramienta (€/mes)',req:false,ph:'100'},{id:'base_cli',lb:'Clientes contactados',req:true,ph:'500'},{id:'pct_activo',lb:'% que dejan reseña',def:10},{id:'frec_compra',lb:'Impacto en recompra (%)',def:5}]},
   {id:'COMUNIDAD',ph:'fidelizacion',name:'Comunidad Propia',icon:'🏘️',color:'#0891b2',desc:'Discord, Telegram, grupo privado',kt:'retention',fields:[{id:'inv',lb:'Gestión (€/mes)',req:false,ph:'200'},{id:'base_cli',lb:'Miembros activos',req:true,ph:'300'},{id:'pct_activo',lb:'% Conversión recompra',def:20},{id:'frec_compra',lb:'Aumento frecuencia (%)',def:15}]},
   {id:'CUST_SUCCESS',ph:'fidelizacion',name:'Customer Success B2B',icon:'🎯',color:'#14b8a6',desc:'Onboarding y éxito del cliente',kt:'retention',fields:[{id:'inv',lb:'Coste equipo (€/mes)',req:true,ph:'2000'},{id:'base_cli',lb:'Clientes gestionados',req:true,ph:'100'},{id:'pct_activo',lb:'Tasa retención (%)',def:85},{id:'frec_compra',lb:'Expansión revenue (%)',def:20}]},
+  {id:'NPS',ph:'fidelizacion',name:'NPS y Feedback Activo',icon:'💛',color:'#f59e0b',desc:'Programa NPS para retener clientes en riesgo',kt:'retention',fields:[
+    {id:'inv',lb:'Herramienta (€/mes)',req:false,ph:'100',tip:'Typeform ~€25/mes, Delighted ~€100/mes, Qualtrics (enterprise). El coste real es el tiempo de seguimiento personalizado con detractores.'},
+    {id:'base_cli',lb:'Clientes encuestados en el período',req:true,ph:'500',tip:'Clientes a los que envías la encuesta NPS. Frecuencia: trimestral. Tasa de respuesta media: 20-35%.'},
+    {id:'pct_activo',lb:'% Detractores rescatados (%)',def:20,tip:'% de clientes en riesgo (NPS 0-6) que tras contacto personal se reconvierten o renuevan. Con acción proactiva: 15-30%.'},
+    {id:'frec_compra',lb:'Aumento en tasa de retención (%)',def:10,tip:'Incremento en retención gracias al programa. Pasar de 70% a 80% de retención = +14% ingresos recurrentes. Cada punto de NPS ≈ +2% retención.'}
+  ]},
+  {id:'CONT_EXCL',ph:'fidelizacion',name:'Contenido Exclusivo / Members Area',icon:'🔐',color:'#7c3aed',desc:'Área privada, newsletter premium y recursos para clientes',kt:'retention',fields:[
+    {id:'inv',lb:'Producción de contenido (€/mes)',req:true,ph:'500',tip:'Redactores, vídeos, infografías, webinars exclusivos. Un contenido exclusivo de calidad/mes: €200-500. Membresía full con comunidad: €500-2.000/mes.'},
+    {id:'base_cli',lb:'Clientes con acceso al contenido',req:true,ph:'300',tip:'No todos los clientes necesitan acceso — segmenta los de mayor LTV o los que están en risk of churn.'},
+    {id:'pct_activo',lb:'% que consume activamente (%)',def:35,tip:'% que abre o visualiza el contenido. Newsletter premium: 40-60% open rate. Área de miembros: 20-40% visitas mensuales.'},
+    {id:'frec_compra',lb:'Aumento en frecuencia de compra (%)',def:20,tip:'Incremento en frecuencia de compra de los activos vs los pasivos. Comunidades activas generan 2x más upsell que clientes sin comunidad.'}
+  ]},
 ];
 
 const S={mode:'B2C',sector:null,phase:'notoriedad',planMode:'budget',selectedCh:null,editUid:null,uidCtr:0,channels:[],ltvRev:0,ltvPerCl:0};
@@ -1957,6 +2077,10 @@ function calcEntry(entry,crMult){
     else if(ch.id==='OOH'){const g=parseFloat(f.grp)||0;const p=parseFloat(f.poblacion)||100000;const imp=g/100*p;extraKPI={type:'awareness',impresiones:imp,alcance:p*0.6,label:'Impactos GRP',cpm_real:imp>0?inv/imp*1000:0};}
     else if(ch.id==='TV_RADIO'){const a=parseFloat(f.audiencia)||0;const fr=parseFloat(f.frec)||3;extraKPI={type:'awareness',impresiones:a*fr,alcance:a,label:'Contactos brutos',cpm_real:a>0?inv/(a*fr)*1000:0};}
     else if(ch.id==='RRSS_ORG_NOT'){const pm=parseFloat(f.posts_mes)||0;const ap=parseFloat(f.alcance_post)||0;extraKPI={type:'awareness',impresiones:pm*ap,alcance:ap,label:'Impresiones orgánicas',cpm_real:0};}
+    else if(ch.id==='SPONSORSHIP'){const aud=parseFloat(f.audiencia)||0;const fr=parseFloat(f.frec)||5;extraKPI={type:'awareness',impresiones:aud*fr,alcance:aud,label:'Contactos patrocinio',cpm_real:aud>0?inv/(aud*fr)*1000:0};}
+    else if(ch.id==='PRENSA_PRINT'){const tirada=parseFloat(f.tirada)||0;const nins=parseFloat(f.n_inserciones)||1;extraKPI={type:'awareness',impresiones:tirada*nins,alcance:tirada,label:'Lectores únicos',cpm_real:tirada>0?inv/(tirada*nins)*1000:0};}
+    else if(ch.id==='CINE'){const esp=parseFloat(f.espectadores_semana)||0;const sem=parseFloat(f.semanas)||2;const fr=parseFloat(f.frec)||1;extraKPI={type:'awareness',impresiones:esp*sem*fr,alcance:esp*sem*0.7,label:'Visionados en sala',cpm_real:esp*sem*fr>0?inv/(esp*sem*fr)*1000:0};}
+    else if(ch.id==='SEEDING_N'){const ne=parseFloat(f.n_envios)||0;const pp=(parseFloat(f.pct_publica)||50)/100;const am=parseFloat(f.alcance_medio)||5000;const pubs=ne*pp;extraKPI={type:'awareness',impresiones:pubs*am,alcance:pubs*am*0.8,label:'Impactos earned media',cpm_real:0};}
     else{const cpm=parseFloat(f.cpm)||8;const fr=parseFloat(f.frec)||3;const imp=(inv/cpm)*1000;extraKPI={type:'awareness',impresiones:imp,alcance:imp/fr,label:'Impresiones',cpm_real:cpm};}
     const crSec=(parseFloat(f.cr_sec)||0)/100;
     if(crSec>0&&extraKPI.alcance>0){
@@ -1977,6 +2101,9 @@ function calcEntry(entry,crMult){
     else if(ch.id==='GOOGLE_BIZ'){const bq=parseFloat(f.busq_mes)||0;const pc=(parseFloat(f.pct_click)||0)/100;extraKPI={type:'traffic',visits:bq*pc,label:'Clics a web desde Maps'};}
     else if(ch.id==='CONCURSO'){const pi=parseFloat(f.part_ini)||0;const cv=parseFloat(f.coef_viral)||3;extraKPI={type:'traffic',visits:pi*cv,label:'Participantes totales'};}
     else if(ch.id==='BANNER_INT'){const cpc2=parseFloat(f.cpc)||0.4;const clics=cpc2>0?inv/cpc2:0;extraKPI={type:'traffic',visits:clics*(1-defl),label:'Visitas cualificadas'};}
+    else if(ch.id==='LI_EMPRESA'){const seg=parseFloat(f.seguidores)||0;const er=(parseFloat(f.eng_rate)||3)/100;const pm=parseFloat(f.posts_mes)||15;const interacc=seg*er*pm;extraKPI={type:'traffic',visits:Math.round(interacc*0.1),label:'Interacciones/mes',extra:`Alcance est.: ${fN(seg*0.08*pm)}`};}
+    else if(ch.id==='LI_PERFILES'){const np=parseFloat(f.n_perfiles)||0;const sm=parseFloat(f.seg_medio)||800;const pm=parseFloat(f.posts_mes)||8;const er=(parseFloat(f.eng_rate)||5)/100;const impactos=np*sm*pm*er;extraKPI={type:'traffic',visits:Math.round(impactos*0.05),label:'Interacciones equipo',extra:`Alcance est.: ${fN(np*sm*pm*0.08)}`};}
+    else if(ch.id==='LIVESTREAM'){const nd=parseFloat(f.n_directos)||0;const am=parseFloat(f.audiencia_media)||100;const cw=(parseFloat(f.cr_web)||5)/100;extraKPI={type:'traffic',visits:Math.round(nd*am*cw),label:'Visitas desde directo',extra:`Audiencia total: ${fN(nd*am)} (directo + replay est. ×3.5)`};}
     else{extraKPI={type:'traffic',visits:0,label:'KPI tráfico'};}
     const crSec=(parseFloat(f.cr_sec)||0)/100;
     if(crSec>0&&extraKPI.alcance>0){
@@ -2001,8 +2128,11 @@ function calcEntry(entry,crMult){
   }
 
   if(ch.kt==='demo'){
-    const nd=parseFloat(f.n_demo)||0;const dp=parseFloat(f.demos_por)||1;const cp=(parseFloat(f.cierre)||0)/100;
-    const demos=nd*dp;clients=demos*cp;ingreso=clients*ticket;leads=demos;
+    let demos=0;
+    if(ch.id==='EVENTOS_ONLINE_LEAD'){const reg=parseFloat(f.registrados)||0;const pa=(parseFloat(f.pct_asistencia)||45)/100;demos=reg*pa;}
+    else if(ch.id==='EVENTOS_PRES'){const vis2=parseFloat(f.visitantes_stand)||0;const pc2=(parseFloat(f.pct_contacto)||25)/100;demos=vis2*pc2;}
+    else{const nd=parseFloat(f.n_demo)||0;const dp=parseFloat(f.demos_por)||1;demos=nd*dp;}
+    const cp=(parseFloat(f.cierre)||0)/100;clients=demos*cp;ingreso=clients*ticket;leads=demos;
     return{leads,clients,ingreso,inversion:inv,roas:inv>0?ingreso/inv:0,funnel:{demos},extraKPI};
   }
 
@@ -2010,6 +2140,9 @@ function calcEntry(entry,crMult){
     if(ch.id==='MGM'){const ca=parseFloat(f.base_cli)||0;clients=ca*cr;leads=clients;}
     else if(ch.id==='POS'){const vt=parseFloat(f.vis_tienda)||0;clients=vt*cr;leads=clients;}
     else if(ch.id==='CUPONES'){const nc=parseFloat(f.n_cupones)||0;clients=nc*cr;leads=clients;}
+    else if(ch.id==='WOM'){const bc=parseFloat(f.base_cli)||0;const pr=(parseFloat(f.pct_recomienda)||10)/100;leads=bc*pr;clients=leads*cr;}
+    else if(['EVENTOS_ASIST','NETWORKING'].includes(ch.id)){const ne=parseFloat(f.n_eventos)||0;const ce=parseFloat(f.contactos_evento)||0;leads=ne*ce;clients=leads*cr;}
+    else if(ch.id==='ASO'){const desc=parseFloat(f.descargas_actuales)||0;const ci=(parseFloat(f.cr_incremento)||30)/100;const extra=desc*ci;leads=extra;clients=extra*cr;}
     else{const vl=parseFloat(f.vis_lp)||0;const l0=vl*cr;clients=l0*(1-defl);leads=l0;}
     ingreso=clients*ticket;
     return{leads,clients,ingreso,inversion:inv,roas:inv>0?ingreso/inv:0,funnel:{},extraKPI};
@@ -2018,6 +2151,9 @@ function calcEntry(entry,crMult){
   // CONVERSION — forward
   if(['EMAIL_BBDD','EMAIL_OUT','EMAIL_OWN'].includes(ch.id)){const cnt=parseFloat(f.n_emails)||0;const ct2=(parseFloat(f.ctr)||0)/100;vis=cnt*ct2;}
   else if(ch.id==='SMS_PERF'){const cnt=parseFloat(f.n_sms)||0;const ct2=(parseFloat(f.ctr)||0)/100;vis=cnt*ct2;}
+  else if(ch.id==='NEWSLETTERS_LEAD'){const sus=parseFloat(f.suscriptores)||0;const op=(parseFloat(f.open_rate)||28)/100;const ct2=(parseFloat(f.ctr)||15)/100;vis=sus*op*ct2;}
+  else if(ch.id==='SOCIAL_SELLING'){const cont=parseFloat(f.contactos_mes)||0;const cr_resp=(parseFloat(f.cr_respuesta)||8)/100;vis=cont*cr_resp;}
+  else if(ch.id==='CHATBOT'){const vw=parseFloat(f.visitas_web)||0;const pc=(parseFloat(f.pct_chat)||8)/100;vis=vw*pc;}
   else if(['META_PERF','TIKTOK_PERF'].includes(ch.id)){const cpm=parseFloat(f.cpm)||8;const ct2=(parseFloat(f.ctr)||0)/100;const impr=(inv/cpm)*1000;funnel.impr=impr;vis=impr*ct2;}
   else if(ch.id==='YT_PERF'){const cpv=parseFloat(f.cpv)||0.03;const v2c=(parseFloat(f.v2c)||0)/100;const views=cpv>0?inv/cpv:0;funnel.views=views;vis=views*v2c;}
   else if(ch.id==='INF_PERF'){const ni=parseFloat(f.n_inf)||0;const sg=parseFloat(f.seg)||0;const pi=(parseFloat(f.pct_imp)||10)/100;const ct2=(parseFloat(f.ctr)||0)/100;const imp=ni*sg*pi;funnel.imp=imp;vis=imp*ct2;}
