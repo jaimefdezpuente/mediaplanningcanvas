@@ -671,19 +671,28 @@ function WizardInner() {
               <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:6 }}>Mercado</h1>
               <p style={{ fontSize:15, color:C.steel, marginBottom:24 }}>Edita cada campo. Usa AI para refinarlo.</p>
               <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:14 }}>Situacion del Pais</h2>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, }}>Situacion del Pais</h2>
+                  <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI("entorno");if(r){se("e_res",gn(r,"situacion_pais","resumen"));se("e_mac",gn(r,"situacion_pais","variables_macro"));trackAnalisis()}}} disabled={busy} small />
+                </div>
                 <EditField label="Resumen del entorno" fkey="e_res" value={ed('e_res',gn(plan.entorno,'situacion_pais','resumen'))} onChange={v=>se('e_res',v)} onRefine={p=>refine('e_res',ed('e_res',''),p)} />
                 <EditField label="Variables macroeconomicas" fkey="e_mac" value={ed('e_mac',gn(plan.entorno,'situacion_pais','variables_macro'))} onChange={v=>se('e_mac',v)} onRefine={p=>refine('e_mac',ed('e_mac',''),p)} />
                 <ToolsBlock title="Analisis Macro" tools={TOOLS_DATA.macro} />
               </div>
               <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:14 }}>Tu Mercado</h2>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, }}>Tu Mercado</h2>
+                  <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI("entorno");if(r){se("e_mkt",gn(r,"mercado","descripcion"));se("e_siz",gn(r,"mercado","tamano_estimado"));trackAnalisis()}}} disabled={busy} small />
+                </div>
                 <EditField label="Descripcion del mercado" fkey="e_mkt" value={ed('e_mkt',gn(plan.entorno,'mercado','descripcion'))} onChange={v=>se('e_mkt',v)} onRefine={p=>refine('e_mkt',ed('e_mkt',''),p)} />
                 <EditField label="Tamano estimado y tendencia" fkey="e_siz" value={ed('e_siz',[gn(plan.entorno,'mercado','tamano_estimado'),gn(plan.entorno,'mercado','tendencia')].filter(Boolean).join(' - '))} onChange={v=>se('e_siz',v)} onRefine={p=>refine('e_siz',ed('e_siz',''),p)} />
                 <ToolsBlock title="Analisis de Mercado" tools={TOOLS_DATA.mercado} />
               </div>
               <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:14 }}>Competencia</h2>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, }}>Competencia</h2>
+                  <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI("entorno");if(r){se("e_cmp",gn(r,"competencia","analisis"));trackAnalisis()}}} disabled={busy} small />
+                </div>
                 <EditField label="Analisis de la competencia" fkey="e_cmp" value={ed('e_cmp',gn(plan.entorno,'competencia','analisis'))} onChange={v=>se('e_cmp',v)} onRefine={p=>refine('e_cmp',ed('e_cmp',''),p)} />
                 <ToolsBlock title="Competencia en Medios" tools={TOOLS_DATA.competencia} />
               </div>
