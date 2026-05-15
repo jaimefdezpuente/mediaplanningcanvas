@@ -341,7 +341,7 @@ function WizardInner() {
   }, [])
 
   useEffect(() => { planRef.current = plan }, [plan])
-  useEffect(() => { stepRef.current = step }, [step])
+  useEffect(() => { stepRef.current = step; if(step > 0) autoSaveFromRef() }, [step])
   const limits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free
 
   function canUseMejora(): boolean { if (usedMejoras >= limits.mejoras) { setShowUpgrade(true); return false } return true }
