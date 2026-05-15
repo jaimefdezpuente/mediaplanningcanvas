@@ -8,7 +8,7 @@ const PLAN_LIMITS: Record<string, number> = {
   free: 0, pro: 20, business: 60, enterprise: 999,
 }
 
-function serviceClient() {
+function svcClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -16,49 +16,46 @@ function serviceClient() {
   )
 }
 
-// Build per-channel AI prompt
 function channelPrompt(ch: Record<string, string>, ctx: Record<string, string>): string {
-  return `Eres un media planner senior experto. Rellena los valores óptimos para este canal de marketing.
+  return `Eres un media planner senior. Rellena los valores óptimos para este canal.
 
-CONTEXTO DEL PROYECTO:
-- Sector: ${ctx.sector} | Modelo: ${ctx.mode} | Fase: ${ctx.phase}
-- Presupuesto anual: €${ctx.budget}
-- Objetivo clientes: ${ctx.clients} | Ticket medio: €${ctx.ticket}
-- Objetivos: ${ctx.objetivos}
+PROYECTO: Sector: ${ctx.sector} | Modelo: ${ctx.mode} | Fase: ${ctx.phase}
+Presupuesto total: €${ctx.budget} | Objetivo clientes: ${ctx.clients} | Ticket: €${ctx.ticket}
+Objetivos: ${ctx.objetivos}
 
-CANAL A RELLENAR:
-- Canal: ${ch.name} (fase: ${ch.phase}, tipo: ${ch.kt})
-- Campos a rellenar: ${ch.fields}
-- Presupuesto sugerido para este canal: €${ch.suggestedInv}
+CANAL: ${ch.name} (fase: ${ch.phase}, tipo: ${ch.kt})
+Campos a completar: ${ch.fields}
+Presupuesto sugerido para este canal: €${ch.suggestedInv}
 
-INSTRUCCIONES:
-- Usa benchmarks reales del sector ${ctx.sector} para ${ctx.mode}
-- La inversión (inv) debe ser €${ch.suggestedInv} o cercana
-- Los ratios (CR, CTR, CPM, etc.) deben ser conservadores pero realistas para ${ctx.phase}
-- Para canales B2B incluye lead2mql (20-40%), mql2sql (40-60%), demo2client (15-30%)
-- Para canales B2C incluye carrito2venta (25-45%)
+Usa benchmarks reales del sector. Para B2B incluye lead2mql (20-40%), mql2sql (40-60%), demo2client (15-30%). Para B2C incluye carrito2venta (25-45%). La inversión (inv) debe ser ${ch.suggestedInv} aprox.
 
-Devuelve SOLO JSON con los valores numéricos de cada campo, sin texto extra:
-{ "inv": 0, ${ch.fieldKeys} }`
+Devuelve SOLO un JSON con los valores numéricos. Ejemplo: {"inv":1500,"cpm":8,"ctr":1.5}`
 }
 
 export async function POST(req: NextRequest) {
   try {
-    // Auth via Bearer token
-    const auth = req.headers.get('authorization')
-    const token = auth?.replace('Bearer ', '').trim()
+    const auth = req.headers.get('authorization') || ''
+    const token = auth.replace('Bearer ', '').trim()
     if (!token) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
-    const supabase = serviceClient()
-    const { data: { user }, error: authErr } = await supabase.auth.getUser(token)
-    if (authErr || !user) return NextResponse.json({ error: 'Sesión inválida' }, { status: 401 })
+    const supabase = svcClient()
 
-    const userPlan = (user.user_metadata?.plan || 'free').toLowerCase()
-    const usedAnalisis = Number(user.user_metadata?.used_analisis || 0)
+    // Validate token and get user
+    const { data: userData, error: authErr } = await supabase.auth.getUser(token)
+    if (authErr || !userData?.user) {
+      return NextResponse.json({ error: 'Sesión inválida' }, { status: 401 })
+    }
+    const user = userData.user
+    const meta = user.user_metadata || {}
+    const userPlan = ((meta.plan as string) || 'free').toLowerCase()
+    const usedAnalisis = Number(meta.used_analisis || 0)
     const maxAnalisis = PLAN_LIMITS[userPlan] ?? 0
 
-    const { channels, context } = await req.json()
-    if (!channels?.length) return NextResponse.json({ error: 'Sin canales' }, { status: 400 })
+    const body = await req.json()
+    const channels: Record<string, string>[] = body.channels || []
+    const context: Record<string, string> = body.context || {}
+
+    if (!channels.length) return NextResponse.json({ error: 'Sin canales' }, { status: 400 })
 
     const needed = channels.length
     const remaining = maxAnalisis - usedAnalisis
@@ -72,15 +69,14 @@ export async function POST(req: NextRequest) {
       }, { status: 402 })
     }
 
-    // Process each channel with AI
+    // Process each channel
     const results: Record<string, Record<string, number>> = {}
     for (const ch of channels) {
       try {
-        const prompt = channelPrompt(ch, context)
         const msg = await ai.messages.create({
           model: 'claude-sonnet-4-5',
-          max_tokens: 400,
-          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 300,
+          messages: [{ role: 'user', content: channelPrompt(ch, context) }],
         })
         const text = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
@@ -90,10 +86,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Deduct credits
+    // Update credits using admin API
     const newUsed = usedAnalisis + needed
     await supabase.auth.admin.updateUserById(user.id, {
-      user_metadata: { ...user.user_metadata, used_analisis: newUsed }
+      user_metadata: { ...meta, used_analisis: newUsed }
     })
 
     return NextResponse.json({
