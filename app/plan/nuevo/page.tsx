@@ -165,7 +165,7 @@ function VideoBlock({ vimeoId, title }: { vimeoId: string; title: string }) {
 }
 
 function EditField({ label, fkey, value, onChange, onRefine, multiline=true, small=false }: { label:string; fkey:string; value:string; onChange:(v:string)=>void; onRefine:(p:string)=>void; multiline?:boolean; small?:boolean }) {
-  const [rp,setRp]=useState(''); const [show,setShow]=useState(false)
+  const [rp,setRp]=useState(''); const [show,setShow]=useState(false); const [alert30,setAlert30]=useState(false)
   const ref=useRef<HTMLTextAreaElement>(null)
   useEffect(()=>{ if(ref.current&&multiline){ref.current.style.height='auto'; ref.current.style.height=ref.current.scrollHeight+'px'} },[value])
   return (
@@ -184,6 +184,16 @@ function EditField({ label, fkey, value, onChange, onRefine, multiline=true, sma
           <button onClick={()=>{ if(rp.trim()){onRefine(rp);setRp('');setShow(false)} }} style={{ ...BTN_SM, padding:'10px 14px', background:C.navy, color:C.paper, border:'none' }}>Enviar</button>
         </div>
       )}
+    {alert30&&(
+      <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.45)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+        <div style={{ background:'#fff', borderRadius:12, padding:32, maxWidth:420, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.25)' }}>
+          <div style={{ fontSize:24, marginBottom:12 }}>✏️</div>
+          <h3 style={{ fontSize:18, fontWeight:600, color:'#0F2942', marginBottom:10 }}>Rellena el campo primero</h3>
+          <p style={{ fontSize:14, color:'#4A6B8A', lineHeight:1.6, marginBottom:24 }}>Necesitas al menos 30 caracteres en el campo para poder mejorarlo con IA. Cuanta más información des, mejor será el resultado.</p>
+          <button onClick={()=>setAlert30(false)} style={{ width:'100%', padding:'11px', borderRadius:6, background:'#0F2942', border:'none', color:'#F6F4EF', fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Entendido</button>
+        </div>
+      </div>
+    )}
     </div>
   )
 }
