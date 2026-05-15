@@ -266,6 +266,7 @@ function WizardInner() {
   })
   const supabase = createClient()
   const router = useRouter()
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout>|null>(null)
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -349,7 +350,11 @@ function WizardInner() {
   }
 
   function upd(f: keyof PlanData, v: string) { setPlan(p=>({...p,[f]:v})) }
-  function se(k:string,v:string) { setPlan(p=>({...p,edits:{...p.edits,[k]:v}})) }
+  function se(k:string,v:string) {
+    setPlan(p=>({...p,edits:{...p.edits,[k]:v}}))
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
+    autoSaveTimer.current = setTimeout(() => { autoSave() }, 2000)
+  }
   function ed(k:string,fb:string) { return plan.edits[k]!==undefined?plan.edits[k]:fb }
   function markDone(s:number) { setPlan(p=>({...p,completed:p.completed.includes(s)?p.completed:[...p.completed,s]})) }
 
