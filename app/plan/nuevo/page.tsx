@@ -405,6 +405,7 @@ function WizardInner() {
   async function s1next() {
     if(!ed('d_fo','').trim()){setAlert({title:'Fortalezas obligatorias',body:'Rellena tus Fortalezas.'});return}
     if(!ed('d_de','').trim()){setAlert({title:'Debilidades obligatorias',body:'Rellena tus Debilidades.'});return}
+    if(userPlan==='free'){setPlan(p=>({...p,target:{} as Obj}));markDone(1);setStep(2);return}
     if(!canUseAnalisis()) return
     if(plan.target){markDone(1);setStep(2);return}
     const r = await callAI('target')
@@ -708,7 +709,9 @@ function WizardInner() {
               </div>
               <div style={{ display:'flex', justifyContent:'space-between' }}>
                 <button onClick={()=>setStep(0)} style={BTN_S}>Atras</button>
-                <AiBtn label={`Analizar Target ${plan.target?'(regenerar)':''}`} used={usedAnalisis} max={limits.analisis} onClick={s1next} disabled={busy} />
+                <button onClick={s1next} disabled={busy} style={{ padding:"9px 18px", borderRadius:6, background:"#0F2942", border:"none", color:"#F6F4EF", fontWeight:600, fontSize:14, cursor:busy?"not-allowed":"pointer", fontFamily:"'Geist',sans-serif", opacity:busy?0.7:1 }}>
+                  {userPlan==="free" ? "Continuar →" : `✦ Analizar Target con IA (${Math.max(0,limits.analisis-usedAnalisis)} créditos)`}
+                </button>
               </div>
             </div>
           )}
