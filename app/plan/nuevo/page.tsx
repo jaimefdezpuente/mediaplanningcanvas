@@ -268,6 +268,7 @@ function WizardInner() {
   const router = useRouter()
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout>|null>(null)
   const planRef = useRef<PlanData|null>(null)
+  const stepRef = useRef<number>(0)
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -340,6 +341,7 @@ function WizardInner() {
   }, [])
 
   useEffect(() => { planRef.current = plan }, [plan])
+  useEffect(() => { stepRef.current = step }, [step])
   const limits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free
 
   function canUseMejora(): boolean { if (usedMejoras >= limits.mejoras) { setShowUpgrade(true); return false } return true }
@@ -514,7 +516,7 @@ function WizardInner() {
           estrategia: current.estrategia, edits: current.edits,
           objectives: current.objectives, value_steps: current.valueSteps,
           selected_channels: current.selectedChannels,
-          status: 'in_progress', current_step: step, updated_at: new Date().toISOString(),
+          status: 'in_progress', current_step: stepRef.current, updated_at: new Date().toISOString(),
         }).eq('id', savedPlanId)
       } else {
         const { data } = await supabase.from('plans').insert({
@@ -526,7 +528,7 @@ function WizardInner() {
           estrategia: current.estrategia, edits: current.edits,
           objectives: current.objectives, value_steps: current.valueSteps,
           selected_channels: current.selectedChannels,
-          status: 'in_progress', current_step: step,
+          status: 'in_progress', current_step: stepRef.current,
         }).select('id').single()
         if (data?.id) setSavedPlanId(data.id)
       }
@@ -550,7 +552,7 @@ function WizardInner() {
           estrategia: current.estrategia, edits: current.edits,
           objectives: current.objectives, value_steps: current.valueSteps,
           selected_channels: current.selectedChannels,
-          status: 'in_progress', current_step: step, updated_at: new Date().toISOString(),
+          status: 'in_progress', current_step: stepRef.current, updated_at: new Date().toISOString(),
         }).eq('id', savedPlanId)
       } else {
         const { data } = await supabase.from('plans').insert({
@@ -562,7 +564,7 @@ function WizardInner() {
           estrategia: current.estrategia, edits: current.edits,
           objectives: current.objectives, value_steps: current.valueSteps,
           selected_channels: current.selectedChannels,
-          status: 'in_progress', current_step: step,
+          status: 'in_progress', current_step: stepRef.current,
         }).select('id').single()
         if (data?.id) setSavedPlanId(data.id)
       }
