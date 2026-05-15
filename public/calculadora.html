@@ -39,6 +39,19 @@
 #mpc-root .btn-p:hover{transform:translateY(-1px)!important;box-shadow:0 8px 20px rgba(14,165,233,.2)!important}
 #mpc-root .btn-s{display:inline-flex!important;align-items:center!important;gap:6px!important;padding:10px 16px!important;background:transparent!important;border:1px solid #243449!important;border-radius:9px!important;color:#94a3b8!important;font-weight:500!important;cursor:pointer!important;transition:all .2s!important}
 #mpc-root .btn-s:hover{background:#161f2e!important;color:#e2e8f0!important}
+#mpc-root #modoBudgetBtn, #mpc-root #modoObjetivoBtn {
+  transition: all 0.15s !important;
+  white-space: nowrap !important;
+}
+#mpc-root #tacticoModoBlock button {
+  font-family: 'Geist', sans-serif !important;
+}
+#mpc-root #btnOptimizarIA {
+  background: #C75A3C !important;
+  color: #F6F4EF !important;
+  border: none !important;
+  font-weight: 700 !important;
+}
 #mpc-root .btn-ed{display:inline-flex!important;align-items:center!important;padding:4px 8px!important;background:transparent!important;border:none!important;color:#3d5370!important;cursor:pointer!important;border-radius:5px!important;font-size:13px!important;transition:all .2s!important}
 #mpc-root .btn-ed:hover{color:#38bdf8!important;background:rgba(14,165,233,.08)!important}
 #mpc-root .btn-rm{display:inline-flex!important;align-items:center!important;padding:4px 8px!important;background:transparent!important;border:none!important;color:#3d5370!important;cursor:pointer!important;border-radius:5px!important;font-size:13px!important;transition:all .2s!important}
@@ -2379,10 +2392,11 @@ function addOrUpdate(){
   cancelForm();recalcAll();
 }
 
-function removeChannel(u){S.channels=S.channels.filter(c=>c.uid!==u);recalcAll();showToast('🗑️ Canal eliminado');}
+function removeChannel(u){S.channels=S.channels.filter(c=>String(c.uid)!==String(u));recalcAll();showToast('🗑️ Canal eliminado');}
 
 function editChannel(u){
-  const e=S.channels.find(c=>c.uid===u);if(!e)return;
+  var _u = isNaN(u) ? u : (typeof u === "string" ? u : u);
+  const e=S.channels.find(c=>c.uid===_u||String(c.uid)===String(_u));if(!e)return;
   const ch=getCh(e.channelId);S.selectedCh=e.channelId;S.editUid=u;
   S.phase=ch.ph;setPhaseTab(ch.ph);renderChGrid();
   renderForm(e.channelId,e.fields);
@@ -2417,7 +2431,7 @@ function renderPlan(){
     const btn=ev.target.closest('[data-action]');
     if(!btn)return;
     const uid=parseInt(btn.dataset.uid);
-    if(btn.dataset.action==='edit')editChannel(uid);
+    if(btn.dataset.action==='edit')editChannel(isNaN(uid)?uid:Number(uid)||uid);
     else if(btn.dataset.action==='remove')removeChannel(uid);
   };
   tbody.innerHTML=S.channels.map((e,i)=>{
