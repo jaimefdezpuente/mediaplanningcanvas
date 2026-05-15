@@ -685,8 +685,10 @@ function WizardInner() {
                 <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, }}>Situacion del Pais</h2>
                   <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI("entorno");if(r){se("e_res",gn(r,"situacion_pais","resumen"));se("e_mac",gn(r,"situacion_pais","variables_macro"));trackAnalisis()}}} disabled={busy} small />
                 </div>
-                <EditField label="Resumen del entorno" fkey="e_res" value={ed('e_res',gn(plan.entorno,'situacion_pais','resumen'))} onChange={v=>se('e_res',v)} onRefine={p=>refine('e_res',ed('e_res',''),p)} />
-                <EditField label="Variables macroeconomicas" fkey="e_mac" value={ed('e_mac',gn(plan.entorno,'situacion_pais','variables_macro'))} onChange={v=>se('e_mac',v)} onRefine={p=>refine('e_mac',ed('e_mac',''),p)} />
+                <EditField label="Resumen del entorno" fkey="e_res"
+                  onEmptyAlert={()=>setAlert({title:"Rellena el campo primero",body:"Escribe contenido en el campo antes de mejorarlo. Cuanta más información des, mejor será el resultado."})} value={ed('e_res',gn(plan.entorno,'situacion_pais','resumen'))} onChange={v=>se('e_res',v)} onRefine={p=>refine('e_res',ed('e_res',''),p)} />
+                <EditField label="Variables macroeconomicas" fkey="e_mac"
+                  onEmptyAlert={()=>setAlert({title:"Rellena el campo primero",body:"Escribe contenido en el campo antes de mejorarlo. Cuanta más información des, mejor será el resultado."})} value={ed('e_mac',gn(plan.entorno,'situacion_pais','variables_macro'))} onChange={v=>se('e_mac',v)} onRefine={p=>refine('e_mac',ed('e_mac',''),p)} />
                 <ToolsBlock title="Analisis Macro" tools={TOOLS_DATA.macro} />
               </div>
               <div style={CARD}>
@@ -694,8 +696,10 @@ function WizardInner() {
                 <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, }}>Tu Mercado</h2>
                   <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI("entorno");if(r){se("e_mkt",gn(r,"mercado","descripcion"));se("e_siz",gn(r,"mercado","tamano_estimado"));trackAnalisis()}}} disabled={busy} small />
                 </div>
-                <EditField label="Descripcion del mercado" fkey="e_mkt" value={ed('e_mkt',gn(plan.entorno,'mercado','descripcion'))} onChange={v=>se('e_mkt',v)} onRefine={p=>refine('e_mkt',ed('e_mkt',''),p)} />
-                <EditField label="Tamano estimado y tendencia" fkey="e_siz" value={ed('e_siz',[gn(plan.entorno,'mercado','tamano_estimado'),gn(plan.entorno,'mercado','tendencia')].filter(Boolean).join(' - '))} onChange={v=>se('e_siz',v)} onRefine={p=>refine('e_siz',ed('e_siz',''),p)} />
+                <EditField label="Descripcion del mercado" fkey="e_mkt"
+                  onEmptyAlert={()=>setAlert({title:"Rellena el campo primero",body:"Escribe contenido en el campo antes de mejorarlo. Cuanta más información des, mejor será el resultado."})} value={ed('e_mkt',gn(plan.entorno,'mercado','descripcion'))} onChange={v=>se('e_mkt',v)} onRefine={p=>refine('e_mkt',ed('e_mkt',''),p)} />
+                <EditField label="Tamano estimado y tendencia" fkey="e_siz"
+                  onEmptyAlert={()=>setAlert({title:"Rellena el campo primero",body:"Escribe contenido en el campo antes de mejorarlo. Cuanta más información des, mejor será el resultado."})} value={ed('e_siz',[gn(plan.entorno,'mercado','tamano_estimado'),gn(plan.entorno,'mercado','tendencia')].filter(Boolean).join(' - '))} onChange={v=>se('e_siz',v)} onRefine={p=>refine('e_siz',ed('e_siz',''),p)} />
                 <ToolsBlock title="Analisis de Mercado" tools={TOOLS_DATA.mercado} />
               </div>
               <div style={CARD}>
@@ -703,7 +707,8 @@ function WizardInner() {
                 <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, }}>Competencia</h2>
                   <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI("entorno");if(r){se("e_cmp",gn(r,"competencia","analisis"));trackAnalisis()}}} disabled={busy} small />
                 </div>
-                <EditField label="Analisis de la competencia" fkey="e_cmp" value={ed('e_cmp',gn(plan.entorno,'competencia','analisis'))} onChange={v=>se('e_cmp',v)} onRefine={p=>refine('e_cmp',ed('e_cmp',''),p)} />
+                <EditField label="Analisis de la competencia" fkey="e_cmp"
+                  onEmptyAlert={()=>setAlert({title:"Rellena el campo primero",body:"Escribe contenido en el campo antes de mejorarlo. Cuanta más información des, mejor será el resultado."})} value={ed('e_cmp',gn(plan.entorno,'competencia','analisis'))} onChange={v=>se('e_cmp',v)} onRefine={p=>refine('e_cmp',ed('e_cmp',''),p)} />
                 <ToolsBlock title="Competencia en Medios" tools={TOOLS_DATA.competencia} />
               </div>
               <div style={CARD}>
@@ -798,7 +803,8 @@ function WizardInner() {
                   }} disabled={busy} small />
                 </div>
                 <VideoBlock vimeoId="1103392013" title="Como construir el Buyer Persona" />
-                <EditField label="Descripcion narrativa" fkey="bp_nar" value={ed('bp_nar',gn(plan.target,'buyer_persona','descripcion_narrativa'))} onChange={v=>se('bp_nar',v)} onRefine={p=>refine('bp_nar',ed('bp_nar',''),p)} />
+                <EditField label="Descripcion narrativa"
+                onEmptyAlert={()=>setAlert({title:"Rellena el campo primero",body:"Escribe contenido en el campo antes de mejorarlo. Cuanta más información des, mejor será el resultado."})} fkey="bp_nar" value={ed('bp_nar',gn(plan.target,'buyer_persona','descripcion_narrativa'))} onChange={v=>se('bp_nar',v)} onRefine={p=>refine('bp_nar',ed('bp_nar',''),p)} />
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
                   {[
                     {k:'bp_mom',lb:'Momentos en que piensa en el producto',src:gn(plan.target,'buyer_persona','momentos_pensamiento')},
@@ -813,7 +819,8 @@ function WizardInner() {
                     <EditField key={f.k} label={f.lb} fkey={f.k} value={ed(f.k,f.src)} onChange={v=>se(f.k,v)} onRefine={p=>refine(f.k,ed(f.k,f.src),p)} small />
                   ))}
                 </div>
-                <EditField label="Consumer Insight" fkey="bp_ins" value={ed('bp_ins',gn(plan.target,'buyer_persona','consumer_insight'))} onChange={v=>se('bp_ins',v)} onRefine={p=>refine('bp_ins',ed('bp_ins',''),p)} />
+                <EditField label="Consumer Insight"
+                onEmptyAlert={()=>setAlert({title:"Rellena el campo primero",body:"Escribe contenido en el campo antes de mejorarlo. Cuanta más información des, mejor será el resultado."})} fkey="bp_ins" value={ed('bp_ins',gn(plan.target,'buyer_persona','consumer_insight'))} onChange={v=>se('bp_ins',v)} onRefine={p=>refine('bp_ins',ed('bp_ins',''),p)} />
               </div>
               <div style={CARD}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
