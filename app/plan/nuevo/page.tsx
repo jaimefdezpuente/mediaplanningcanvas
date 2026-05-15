@@ -442,8 +442,7 @@ function WizardInner() {
   function s2next() {
     if(!ed('usp',plan.usp).trim()) { setAlert({title:'USP obligatoria',body:'Define tu Propuesta Unica de Valor antes de continuar.'}); return }
     if(!ed('t_cor',gn(plan.target,'core_target','descripcion')).trim()) { setAlert({title:'Core Target obligatorio',body:'Rellena la descripcion del Core Target antes de continuar.'}); return }
-    const filledSteps = plan.valueSteps.filter(s=>s.accion.trim())
-    if(filledSteps.length < 3) { setAlert({title:'Escalera de Valor incompleta',body:'Necesitas al menos 3 pasos de la Escalera de Valor con una accion definida.'}); return }
+
     ensureMandatoryObjectives()
     markDone(2);setStep(3);setShowStrategy(false)
     autoSave({usp:ed('usp',plan.usp)||plan.usp})
@@ -984,17 +983,16 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                     if(!canUseAnalisis()) return
                     createStrategy(); trackAnalisis()
                   }} disabled={busy} style={{ padding:'14px 40px', borderRadius:8, background:C.accent, border:'none', color:C.paper, fontWeight:700, fontSize:15, cursor:busy?'not-allowed':'pointer', fontFamily:"'Geist',sans-serif", opacity:busy?0.7:1, boxShadow:'0 4px 14px rgba(199,90,60,0.4)' }}>
-                    {busy ? 'Analizando canales...' : '✦ Crear Estrategia'}
+                    {busy ? 'Analizando canales...' : <><div>✦ Crear Estrategia</div><div style={{fontSize:11,fontWeight:400,opacity:0.6,marginTop:4,fontFamily:"'Geist Mono',monospace"}}>{Math.max(0,limits.analisis-usedAnalisis)}/{limits.analisis} Análisis IA</div></>}
                   </button>
-                  <span style={{ fontSize:11, color:'rgba(246,244,239,0.5)', fontFamily:"'Geist Mono',monospace" }}>
-                    {Math.max(0,limits.analisis-usedAnalisis)}/{limits.analisis} Análisis IA
-                  </span>
                 </div>
               </div>
               <div style={{ position:'sticky', bottom:0, background:C.paper, borderTop:`1px solid ${C.steel1}`, padding:'12px 0', display:'flex', justifyContent:'space-between', zIndex:10 }}>
                 <button onClick={()=>setStep(2)} style={BTN_S}>← Atras</button>
                 <button onClick={()=>{
                   if(plan.selectedChannels.length < 5){setAlert({title:'Selecciona al menos 5 canales',body:'Elige un mínimo de 5 canales para continuar al Plan Táctico.'});return}
+                  const missingData2 = plan.objectives.filter(o=>o.mandatory&&!o.dato.trim())
+                  if(missingData2.length>0){setAlert({title:'Datos obligatorios',body:`Rellena el dato anual de: ${missingData2.map(o=>o.kpi).join(', ')}`});return}
                   markDone(3);setStep(4);autoSave()
                 }} style={{ ...BTN_P, padding:'12px 32px' }}>Plan Táctico →</button>
               </div>
