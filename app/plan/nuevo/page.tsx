@@ -474,8 +474,20 @@ function WizardInner() {
 
   async function createStrategy() {
     setAiModal(`Analizando ${plan.sector} · ${plan.tipo_negocio} · Presupuesto ${plan.presupuesto} para crear tu estrategia personalizada...`)
-    const objText = plan.objectives.map(o=>`${o.tipo}: ${o.kpi} = ${o.dato} / ${o.tiempo}`).join(' | ')
-    const r = await callAI('estrategia',{objetivos:objText,canales_seleccionados:plan.selectedChannels.join(', ')||'Sin selección',fortalezas:ed('d_fo','')})
+    const objText = plan.objectives.map(o=>`${o.tipo}: ${o.kpi} = ${o.dato} al año`).join(' | ')
+    const escaleraText = plan.valueSteps.map((s,i)=>`Paso ${i+1} (${s.tipo}): ${s.accion} → ${s.objetivo}`).join(' | ')
+    const targetDesc = [ed('t_cor',gn(plan.target,'core_target','descripcion')), ed('t_vol',gn(plan.target,'core_target','volumen_estimado')), ed('t_soc',gn(plan.target,'core_target','sociodemografico','edad'))].filter(Boolean).join(' · ')
+    const bpDesc = ed('bp_nar',gn(plan.target,'buyer_persona','descripcion_narrativa'))
+    const r = await callAI('estrategia',{
+      objetivos:objText,
+      canales_seleccionados:plan.selectedChannels.join(', ')||'Sin selección',
+      fortalezas:ed('d_fo',''),
+      target_desc:targetDesc,
+      buyer_persona:bpDesc.slice(0,300),
+      escalera_valor:escaleraText,
+      presupuesto:plan.presupuesto,
+      competidores:plan.competidores,
+    })
     if(r){
       // Extract recommended channels from strategy and mark them selected
       const phases = ['notoriedad','interaccion','lead_venta','fidelizacion']
@@ -1260,7 +1272,10 @@ function WizardInner() {
                     <div>
                       <button onClick={()=>setStep(2)} style={BTN_S}>← Atrás</button>
                     </div>
-                    <button onClick={()=>{markDone(3);setStep(4);autoSave()}} style={BTN_P}>Táctico & Presupuesto →</button>
+                    <button onClick={()=>{
+                      setAiModal('Preparando tu Plan Táctico... La IA está distribuyendo los canales seleccionados para alcanzar tus objetivos.')
+                      setTimeout(()=>{setAiModal('');markDone(3);setStep(4);autoSave();},1800)
+                    }} style={{...BTN_P, padding:'12px 32px'}}>Táctico & Presupuesto →</button>
                   </div>
                 </div>
               )}

@@ -121,9 +121,9 @@
 #mpc-root .hi.wa .hi-dot{background:#f59e0b!important}
 #mpc-root .hi.er .hi-dot{background:#ef4444!important}
 #mpc-root .hi.gr .hi-dot{background:#3d5370!important}
-#mpc-root .hi-lbl{font-size:10px!important;font-weight:600!important;color:#94a3b8!important}
-#mpc-root .hi-val{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;font-weight:700!important;color:#e2e8f0!important;margin-top:2px!important}
-#mpc-root .hi-note{font-size:10px!important;color:#3d5370!important;margin-top:2px!important;line-height:1.4!important}
+#mpc-root .hi-lbl{font-size:10px!important;font-weight:600!important;color:#cbd5e1!important}
+#mpc-root .hi-val{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;font-weight:700!important;color:#ffffff!important;margin-top:2px!important}
+#mpc-root .hi-note{font-size:10px!important;color:#94a3b8!important;margin-top:2px!important;line-height:1.4!important}
 #mpc-root .tw{overflow-x:auto!important;margin-top:12px!important}
 #mpc-root .ptbl{width:100%!important}
 #mpc-root .ptbl th{text-align:left!important;padding:9px 11px!important;color:#3d5370!important;font-size:10px!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.5px!important;border-bottom:1px solid #1e2d45!important;white-space:nowrap!important;background:#0d1117!important}
@@ -139,10 +139,10 @@
 #mpc-root .sbar{height:4px!important;background:#1e2d45!important;border-radius:2px!important;margin-top:3px!important;min-width:50px!important}
 #mpc-root .sfill{height:100%!important;border-radius:2px!important;transition:width .5s!important}
 #mpc-root .ph-badge{display:inline-block!important;padding:1px 6px!important;border-radius:4px!important;font-size:9px!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:.4px!important;margin-top:2px!important}
-#mpc-root .ph-badge.notoriedad{background:rgba(245,158,11,.15)!important;color:#f59e0b!important}
-#mpc-root .ph-badge.interaccion{background:rgba(59,130,246,.15)!important;color:#3b82f6!important}
-#mpc-root .ph-badge.lead_venta{background:rgba(16,185,129,.15)!important;color:#10b981!important}
-#mpc-root .ph-badge.fidelizacion{background:rgba(139,92,246,.15)!important;color:#8b5cf6!important}
+#mpc-root .ph-badge.notoriedad{background:rgba(245,158,11,.20)!important;color:#fbbf24!important}
+#mpc-root .ph-badge.interaccion{background:rgba(59,130,246,.20)!important;color:#60a5fa!important}
+#mpc-root .ph-badge.lead_venta{background:rgba(16,185,129,.20)!important;color:#34d399!important}
+#mpc-root .ph-badge.fidelizacion{background:rgba(139,92,246,.20)!important;color:#a78bfa!important}
 #mpc-root .ph-sum{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important;gap:10px!important;margin:14px 0!important}
 #mpc-root .ph-sc{border-radius:12px!important;padding:14px!important;border:1px solid transparent!important}
 #mpc-root .ph-sc.notoriedad{background:rgba(245,158,11,.07)!important;border-color:rgba(245,158,11,.2)!important}
@@ -1552,7 +1552,7 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
       <div class="bb-n"><span class="l">% Asignado</span><span class="v" id="bb-pct">0%</span></div>
     </div>
     <span id="bb-alrt" style="font-size:12px;color:#ef4444;display:none">⚠️ Presupuesto superado</span>
-    <span id="bb-mode-badge" style="margin-left:auto;background:#0F2942;color:#F6F4EF;border-radius:100px;padding:4px 16px;font-size:12px;font-weight:700;font-family:'Geist',sans-serif;letter-spacing:-0.01em">B2C</span>
+    <span id="bb-mode-badge" style="margin-left:auto;background:#0F2942;color:#ffffff;border-radius:100px;padding:4px 16px;font-size:12px;font-weight:700;font-family:'Geist',sans-serif;letter-spacing:-0.01em">B2C</span>
   </div>
   <div class="bb-track"><div class="bb-fill" id="bb-fill" style="width:0%;background:#10b981"></div></div>
 </div>
@@ -1627,25 +1627,31 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 </div>
 <div id="mixBox" style="display:none"></div>
 
-<!-- STEP 01: EJEMPLOS -->
+<!-- STEP 01: CÓMO EMPEZAR -->
 <div class="slbl np"><div class="snum">01</div><div class="stit">¿Cómo quieres empezar?</div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px" class="np">
-  <div class="start-opt" onclick="startFromScratch()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;text-align:center">
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px" class="np">
+  <!-- A) Tu Selección (IA optimised) -->
+  <div id="btnMySelection" onclick="loadMySelection()" style="background:linear-gradient(135deg,#0F2942,#163659);border:1.5px solid #0F2942;border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;text-align:center;position:relative">
+    <div style="font-size:22px;margin-bottom:6px">◈</div>
+    <div style="font-weight:700;font-size:13px;color:#F6F4EF;margin-bottom:4px">Tu Selección</div>
+    <div style="font-size:11px;color:#8AA0B5;line-height:1.5">Canales del paso Estrategia optimizados por IA para alcanzar tus objetivos</div>
+    <div id="selectionUpdateBadge" style="display:none;position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#C75A3C;color:#fff;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700;white-space:nowrap">⚠ Actualizar objetivos</div>
+  </div>
+  <!-- B) Empezar de Cero -->
+  <div onclick="startFromScratch()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;text-align:center">
     <div style="font-size:22px;margin-bottom:6px">✦</div>
-    <div style="font-weight:700;font-size:13px;color:var(--mpc-navy);margin-bottom:4px">Desde Cero</div>
+    <div style="font-weight:700;font-size:13px;color:var(--mpc-navy);margin-bottom:4px">Empezar de Cero</div>
     <div style="font-size:11px;color:var(--mpc-steel);line-height:1.5">Borra el plan y empieza con el lienzo vacío</div>
   </div>
-  <div class="start-opt" id="btnMySelection" onclick="loadMySelection()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;opacity:0.45;text-align:center" title="Completa la selección de canales en el paso anterior">
-    <div style="font-size:22px;margin-bottom:6px">◈</div>
-    <div style="font-weight:700;font-size:13px;color:var(--mpc-navy);margin-bottom:4px">Tu Selección</div>
-    <div style="font-size:11px;color:var(--mpc-steel);line-height:1.5">Distribuye y trabaja los medios elegidos en Estrategia</div>
-  </div>
-  <div class="start-opt" onclick="proposeDistribution()" style="background:linear-gradient(135deg,#F0F9FF,#F0FDF4);border:1.5px dashed #0F2942;border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;text-align:center">
-    <div style="font-size:22px;margin-bottom:6px">💡</div>
-    <div style="font-weight:700;font-size:13px;color:var(--mpc-navy);margin-bottom:4px">Recomendación IA</div>
-    <div style="font-size:11px;color:var(--mpc-steel);line-height:1.5">La IA propone la distribución óptima según tus objetivos</div>
+  <!-- C) Otros Ejemplos (toggleable) -->
+  <div onclick="toggleExamples()" style="background:#fff;border:1.5px dashed var(--mpc-steel1);border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;text-align:center">
+    <div style="font-size:22px;margin-bottom:6px">📂</div>
+    <div style="font-weight:700;font-size:13px;color:var(--mpc-navy);margin-bottom:4px">Otros Ejemplos</div>
+    <div style="font-size:11px;color:var(--mpc-steel);line-height:1.5">Ver ejemplos por sector e industria</div>
   </div>
 </div>
+<!-- Examples panel — hidden by default -->
+<div id="examplesPanel" style="display:none">
 <div class="ex-mode-group" data-ex-mode="B2C">
 <div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--mpc-steel3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace" class="np">Ejemplos B2C</div>
 <div class="ex-g np" style="margin-bottom:16px">
@@ -1656,7 +1662,6 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
   <div class="ex-c" onclick="loadExample('travel_b2c')"><span class="ex-tt">✈️ Viajes y Turismo</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">SEM + Meta Perf + Display Retargeting + Email BBDD + Reviews.</div><span class="ex-bg">€ 5.000 · 100 reservas</span></div>
   <div class="ex-c" onclick="loadExample('beauty_b2c')"><span class="ex-tt">💄 Belleza y Cosmética</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">Influencer Gifting + TikTok Ads + Instagram Meta Perf + Email Own.</div><span class="ex-bg">€ 2.800 · 120 clientes</span></div>
 </div>
-
 </div>
 <div class="ex-mode-group" data-ex-mode="B2B">
 <div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--mpc-steel3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace" class="np">Ejemplos B2B</div>
@@ -1668,9 +1673,8 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
   <div class="ex-c" onclick="loadExample('agency_b2b')"><span class="ex-tt">🎯 Agencia Digital</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">LinkedIn + Branded Content + Cold Outreach + Referidos + Reviews Google.</div><span class="ex-bg">€ 2.500 · 6 clientes</span></div>
   <div class="ex-c" onclick="loadExample('fintech_b2b')"><span class="ex-tt">💳 Fintech B2B</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">SEM + LinkedIn Perf + Eventos Propios + Sales Force + Customer Success.</div><span class="ex-bg">€ 10.000 · 25 clientes</span></div>
 </div>
-
-
-</div><!-- STEP 02: CANALES -->
+</div>
+</div><!-- /examplesPanel -->
 <div class="slbl"><div class="snum">02</div><div class="stit">Añade Canales por Fase del Embudo</div></div>
 <div class="ssub">Selecciona la fase → elige el canal → rellena sus variables. Un mismo canal puede usarse en diferentes fases con KPIs distintos (ej: Meta Ads en Notoriedad = impresiones; en Lead/Venta = conversiones).</div>
 <div class="card np">
@@ -2381,7 +2385,7 @@ function renderPlan(){
   S.channels.forEach(c=>{const ch=getCh(c.channelId);const r=c.results;const g=phG[ch.ph];if(!g)return;g.inv+=(r?.inversion||0);if(ch.ph==='notoriedad'){g.impr+=(r?.extraKPI?.impresiones||0);g.alc+=(r?.extraKPI?.alcance||0);}else if(ch.ph==='interaccion'){g.vis+=(r?.extraKPI?.visits||0);}else if(ch.ph==='lead_venta'){g.leads+=(r?.leads||0);g.cli+=(r?.clients||0);g.rev+=(r?.ingreso||0);}else if(ch.ph==='fidelizacion'){g.ret+=(r?.extraKPI?.retained||r?.clients||0);g.rev+=(r?.ingreso||0);}});
   document.getElementById('phSum').innerHTML=[{ph:'notoriedad',label:'📣 Notoriedad',cl:'notoriedad',rows:[`Inversión: <b>${fE(phG.notoriedad.inv)}</b>`,`Impresiones: <b>${fN(phG.notoriedad.impr)}</b>`,`Alcance: <b>${fN(phG.notoriedad.alc)}</b>`]},{ph:'interaccion',label:'🔄 Interacción',cl:'interaccion',rows:[`Inversión: <b>${fE(phG.interaccion.inv)}</b>`,`KPI Tráfico: <b>${fN(phG.interaccion.vis)}</b>`]},{ph:'lead_venta',label:'💰 Lead|Venta',cl:'lead_venta',rows:[`Inversión: <b>${fE(phG.lead_venta.inv)}</b>`,`Leads: <b>${fN(phG.lead_venta.leads)}</b>`,`Clientes: <b>${fN(phG.lead_venta.cli)}</b>`,`Ingreso: <b>${fE(phG.lead_venta.rev)}</b>`]},{ph:'fidelizacion',label:'❤️ Fidelización',cl:'fidelizacion',rows:[`Inversión: <b>${fE(phG.fidelizacion.inv)}</b>`,`Retenidos: <b>${fN(phG.fidelizacion.ret)}</b>`,`Ingreso: <b>${fE(phG.fidelizacion.rev)}</b>`]}].filter(p=>S.channels.some(c=>getCh(c.channelId)?.ph===p.ph)).map(p=>`<div class="ph-sc ${p.cl}"><div class="ph-sc-lbl">${p.label}</div><div class="ph-sc-rows">${p.rows.map(r=>`<span>${r}</span>`).join('')}</div></div>`).join('');
   const budget=parseFloat(document.getElementById('obj_budget').value)||0;const objCl=parseFloat(document.getElementById('obj_clients').value)||0;const cacMax=parseFloat(document.getElementById('obj_cac').value)||0;const cac=totCl>0?totInv/totCl:0;const pB=budget>0?totInv/budget*100:0;const pC=objCl>0?totCl/objCl*100:0;const hasAw=S.channels.some(c=>getCh(c.channelId)?.ph==='notoriedad');const hasLV=S.channels.some(c=>getCh(c.channelId)?.ph==='lead_venta');const hasFid=S.channels.some(c=>getCh(c.channelId)?.ph==='fidelizacion');const maxSh=totInv>0?Math.max(...S.channels.map(c=>(c.results?.inversion||0)/totInv))*100:0;
-  const H=[{s:pB<=100?'ok':'er',l:'Presupuesto',v:fP(pB),n:pB>100?'Presupuesto superado':pB<50?'Tienes margen':'Bien asignado'},{s:objCl>0?(pC>=100?'ok':pC>=70?'wa':'er'):'gr',l:'Objetivo Clientes',v:fN(totCl)+'/'+fN(objCl),n:objCl>0?(pC>=100?'✅ Conseguido':pC>=70?'Cerca':'Por debajo'):'Define un objetivo'},{s:cacMax>0?(cac<=cacMax?'ok':cac<=cacMax*1.5?'wa':'er'):'gr',l:'CAC vs Objetivo',v:fE(cac),n:cacMax>0?(cac<=cacMax?'Dentro del objetivo':'CAC alto'):'Define el CAC máx.'},{s:totROAS>=3?'ok':totROAS>=1?'wa':totROAS>0?'er':'gr',l:'ROAS',v:fR(totROAS),n:totROAS>=3?'Excelente':totROAS>=1?'Positivo':totROAS>0?'Bajo':'Sin datos'},{s:hasAw&&hasLV&&hasFid?'ok':hasAw&&hasLV?'wa':'er',l:'Cobertura Funnel',v:[hasAw?'✅':'❌','Not',hasLV?'✅':'❌','Venta',hasFid?'✅':'❌','Fid'].join(' '),n:!hasLV?'Sin canales de venta':!hasFid?'Sin fidelización':'Full funnel'},{s:maxSh<60?'ok':maxSh<80?'wa':'er',l:'Concentración',v:fP(maxSh)+' max',n:maxSh>80?'Un canal domina':maxSh>60?'Diversifica más':'OK'}];
+  const H=[{s:pB<=100?'ok':'er',l:'Presupuesto',v:fP(pB),n:pB>100?'Presupuesto superado':pB<50?'Tienes margen':'Bien asignado'},{s:objCl>0?(pC>=100?'ok':pC>=70?'wa':'er'):'gr',l:'Objetivo Clientes',v:fN(totCl)+'/'+fN(objCl),n:objCl>0?(pC>=100?'✅ Conseguido':pC>=70?'Cerca':'Por debajo'):'Define un objetivo'},{s:cacMax>0?(cac<=cacMax?'ok':cac<=cacMax*1.5?'wa':'er'):'gr',l:'CAC vs Objetivo',v:fE(cac),n:cacMax>0?(cac<=cacMax?'Dentro del objetivo':'CAC alto'):'Define el CAC máx.'},{s:totROAS>=3?'ok':totROAS>=1?'wa':totROAS>0?'er':'gr',l:'ROAS',v:fR(totROAS),n:totROAS>=3?'Excelente':totROAS>=1?'Positivo':totROAS>0?'Bajo':'Sin datos'}];
   document.getElementById('healthG').innerHTML=H.map(h=>`<div class="hi ${h.s}"><div class="hi-dot"></div><div><div class="hi-lbl">${h.l}</div><div class="hi-val">${h.v}</div><div class="hi-note">${h.n}</div></div></div>`).join('');
   document.getElementById('smRow').innerHTML=`<div class="sm"><span class="l">Inversión total</span><span class="v">${fE(totInv)}</span><span class="s">${S.channels.length} canales</span></div><div class="sm"><span class="l">${S.mode==='B2B'?'Leads':'Carritos'}</span><span class="v">${fN(totL)}</span></div><div class="sm"><span class="l">Clientes Est.</span><span class="v">${fN(totCl)}</span></div><div class="sm"><span class="l">Ingreso Est.</span><span class="v">${fE(totRev)}</span></div><div class="sm"><span class="l">ROAS</span><span class="v" style="color:${totROAS>=3?'#10b981':totROAS>=1?'#f59e0b':'#ef4444'}">${fR(totROAS)}</span></div><div class="sm"><span class="l">CAC</span><span class="v">${fE(cac)}</span></div>`;
   const phL={notoriedad:'📣',interaccion:'🔄',lead_venta:'💰',fidelizacion:'❤️'};
@@ -2506,7 +2510,89 @@ window.onFI=onFI;window.addOrUpdate=addOrUpdate;window.removeChannel=removeChann
 window.editChannel=editChannel;window.toggleM=toggleM;window.renderSens=renderSens;
 window.loadExample=loadExample;window.recalcAll=recalcAll;window.saveToStorage=saveToStorage;window.loadFromStorage=loadFromStorage;
 window.showStorageInfo=showStorageInfo;window.closeModal=closeModal;
-window.proposeDistribution=proposeDistribution;window.setPlanTitle=setPlanTitle;window.updateCharts=updateCharts;window.showLockedFieldModal=showLockedFieldModal;
+function showLockedFieldModal(field){showToast('\u26a0\ufe0f '+field+' configurado en el proyecto. C\u00e1mbialo en Datos del Proyecto.');}
+
+// ── Media type classification ─────────────────────────────────────────────
+var MEDIA_BUCKETS={
+  paid:['META_PERF','META_BRAND','SEM','LINKEDIN_PERF','LI_BRAND','TIKTOK_PERF','TIKTOK_BRAND','DISPLAY_P','DISPLAY_R','YT_BRAND','TV','RADIO','TV_RADIO','OOH','PRENSA_PRINT','CINE','LLM_ADS'],
+  earned:['SEO','ASO','REVIEWS','WOM','SEEDING_N','PONENCIAS','GOOGLE_BIZ','GOOGLE_MY_B'],
+  own:['EMAIL_OWN','EMAIL_AUTO','EMAIL_BBDD','EMAIL_OUT','NEWSLETTERS_LEAD','PUSH_NOT','SMS_FID','SMS_PERF','PODCAST','BLOG','RRSS_ORG','RRSS_ORG_NOT','LI_EMPRESA','LI_PERFILES','LIVESTREAM','CHATBOT','LOYALTY','NPS','CONT_EXCL','CUST_SUCCESS','WEBINAR','DEMO_WORK','EVENTOS_ONLINE_LEAD','BRANDED_C'],
+  shared:['INF_PROD','INF_PERF','SPONSORSHIP','MGM','AFILIADOS','NETWORKING','EVENTOS_ASIST','EVENTOS_PRES','SOCIAL_SELLING']
+};
+function getMediaBucket(chId){
+  for(var t in MEDIA_BUCKETS){if(MEDIA_BUCKETS[t].indexOf(chId)>-1)return t;}
+  var ch=getCh(chId);if(!ch)return 'paid';
+  return ch.ph==='fidelizacion'?'own':ch.ph==='notoriedad'?'paid':'paid';
+}
+
+function updateCharts(){
+  var totInv=0;
+  for(var i=0;i<S.channels.length;i++){totInv+=(S.channels[i].results&&S.channels[i].results.inversion)||0;}
+  function el(id){return document.getElementById(id);}
+  if(totInv===0){
+    ['aw','pf'].forEach(function(k){if(el('chart_'+k+'_bar'))el('chart_'+k+'_bar').style.width='0%';if(el('chart_'+k+'_pct'))el('chart_'+k+'_pct').textContent='0%';if(el('chart_'+k+'_eur'))el('chart_'+k+'_eur').textContent='\u20ac0';});
+    ['own','earn','paid','shar'].forEach(function(k){if(el('chart_'+k+'_bar'))el('chart_'+k+'_bar').style.width='0%';if(el('chart_'+k+'_pct'))el('chart_'+k+'_pct').textContent='0%';});
+    return;
+  }
+  // Awareness (notoriedad+interaccion) vs Performance (lead_venta+fidelizacion)
+  var awInv=0,pfInv=0;
+  for(var j=0;j<S.channels.length;j++){
+    var ch=getCh(S.channels[j].channelId);
+    var inv=(S.channels[j].results&&S.channels[j].results.inversion)||0;
+    if(ch&&(ch.ph==='notoriedad'||ch.ph==='interaccion'))awInv+=inv; else pfInv+=inv;
+  }
+  var awPct=Math.round(awInv/totInv*100);var pfPct=100-awPct;
+  if(el('chart_aw_bar'))el('chart_aw_bar').style.width=awPct+'%';
+  if(el('chart_pf_bar'))el('chart_pf_bar').style.width=pfPct+'%';
+  if(el('chart_aw_pct'))el('chart_aw_pct').textContent=awPct+'%';
+  if(el('chart_pf_pct'))el('chart_pf_pct').textContent=pfPct+'%';
+  if(el('chart_aw_eur'))el('chart_aw_eur').textContent='\u20ac'+Math.round(awInv).toLocaleString('es-ES');
+  if(el('chart_pf_eur'))el('chart_pf_eur').textContent='\u20ac'+Math.round(pfInv).toLocaleString('es-ES');
+  // Own / Earned / Paid / Shared
+  var bk={own:0,earned:0,paid:0,shared:0};
+  for(var k=0;k<S.channels.length;k++){
+    var t=getMediaBucket(S.channels[k].channelId);
+    bk[t]=(bk[t]||0)+((S.channels[k].results&&S.channels[k].results.inversion)||0);
+  }
+  var kmap={own:'own',earn:'earned',paid:'paid',shar:'shared'};
+  for(var km in kmap){
+    var pct=Math.round((bk[kmap[km]]||0)/totInv*100);
+    if(el('chart_'+km+'_bar'))el('chart_'+km+'_bar').style.width=pct+'%';
+    if(el('chart_'+km+'_pct'))el('chart_'+km+'_pct').textContent=pct+'%';
+  }
+}
+
+function setMode(m){
+  S.mode=m;
+  document.getElementById('btnB2C').className='mode-btn'+(m==='B2C'?' b2c':'');
+  document.getElementById('btnB2B').className='mode-btn'+(m==='B2B'?' b2b':'');
+  var badge=document.getElementById('bb-mode-badge');if(badge)badge.textContent=m;
+  onSectorChange();onPhaseChange();recalcAll();if(S.selectedCh)renderForm(S.selectedCh);
+  showToast(m==='B2B'?'\uD83D\uDCCA Modo B2B':'\uD83D\uDED2 Modo B2C');
+}
+
+function toggleExamples(){
+  var p=document.getElementById('examplesPanel');
+  if(p){p.style.display=p.style.display==='none'?'block':'none';}
+}
+
+// Track when objectives change after plan loaded — show update badge on Tu Selección
+(function(){
+  var objFields=['obj_budget','obj_clients','obj_cac','globalTicket'];
+  var _planLoaded=false;
+  document.addEventListener('input',function(e){
+    if(!_planLoaded)return;
+    if(objFields.indexOf(e.target&&e.target.id)>-1){
+      var badge=document.getElementById('selectionUpdateBadge');
+      if(badge)badge.style.display='block';
+    }
+  });
+  // Mark plan as loaded after first channel is added or loadMySelection called
+  window._markPlanLoaded=function(){_planLoaded=true;};
+})();
+
+window.toggleExamples=toggleExamples;
+window.showLockedFieldModal=showLockedFieldModal;window.updateCharts=updateCharts;window.setMode=setMode;
 function init(){renderChGrid();onSectorChange();onPhaseChange();updateBB();renderSens();calcLTV();renderSummary();renderMonthly();}
 document.addEventListener('DOMContentLoaded',init);
 </script>

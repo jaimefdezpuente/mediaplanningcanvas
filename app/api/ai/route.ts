@@ -33,13 +33,30 @@ Target: ${d.target_desc||'No definido'} | USP: ${d.usp||'No definida'}
 Devuelve SOLO JSON sin markdown:
 {"objetivos_marketing":[{"tipo":"Marketing","kpi":"nombre KPI","dato_estimado":"número estimado","tiempo":"mes/trimestre/año","razon":"por qué este objetivo"},{"tipo":"Marketing","kpi":"...","dato_estimado":"...","tiempo":"...","razon":"..."},{"tipo":"Marketing","kpi":"...","dato_estimado":"...","tiempo":"...","razon":"..."}],"objetivos_comunicacion":[{"tipo":"Comunicación","kpi":"nombre KPI","dato_estimado":"número estimado","tiempo":"mes/trimestre/año","razon":"por qué este objetivo"},{"tipo":"Comunicación","kpi":"...","dato_estimado":"...","tiempo":"...","razon":"..."},{"tipo":"Comunicación","kpi":"...","dato_estimado":"...","tiempo":"...","razon":"..."}]}`,
 
-  estrategia: (d) => `Eres experto en marketing. Crea estrategia basada en objetivos y canales del usuario.
-Negocio: País: ${d.pais} | Sector: ${d.sector} | Producto: ${d.producto} | Tipo: ${d.tipo_negocio} | Fase: ${d.fase_negocio}
-USP: ${d.usp||'No definida'} | Fortalezas: ${d.fortalezas||'No definidas'}
-Objetivos: ${d.objetivos||'No definidos'}
-Canales seleccionados: ${d.canales_seleccionados||'Ninguno'}
+  estrategia: (d) => `Eres experto en marketing digital senior con 15 años de experiencia. Crea un plan estratégico de canales completo y accionable basado en TODOS los datos del proyecto.
+
+DATOS DEL PROYECTO:
+- País: ${d.pais} | Sector: ${d.sector} | Producto: ${d.producto}
+- Tipo negocio: ${d.tipo_negocio} | Fase: ${d.fase_negocio}
+- Presupuesto anual: ${d.presupuesto}
+- USP: ${d.usp||'No definida'} | Competidores: ${d.competidores||'No especificados'}
+- Fortalezas: ${d.fortalezas||'No definidas'}
+
+OBJETIVOS DEL PLAN (anuales):
+${d.objetivos||'No definidos'}
+
+CANALES SELECCIONADOS:
+${d.canales_seleccionados||'Ninguno — recomienda los mejores'}
+
+TARGET Y BUYER PERSONA:
+${d.target_desc||'No definido'} | ${d.buyer_persona||''}
+
+ESCALERA DE VALOR:
+${d.escalera_valor||'No definida'}
+
+Para cada canal: acciones concretas, KPIs numéricos, % presupuesto alineado con objetivos. Los % deben sumar 100%.
 Devuelve SOLO JSON sin markdown:
-{"estrategia_resumen":"3-4 frases","canales_por_fase":{"notoriedad":[{"canal":"nombre","accion":"acción","kpi":"KPI","presupuesto_pct":20,"razon":"razón","score_ia":4}],"interaccion":[{"canal":"nombre","accion":"acción","kpi":"KPI","presupuesto_pct":15,"razon":"razón","score_ia":3}],"lead_venta":[{"canal":"nombre","accion":"acción","kpi":"KPI","presupuesto_pct":40,"razon":"razón","score_ia":5}],"fidelizacion":[{"canal":"nombre","accion":"acción","kpi":"KPI","presupuesto_pct":25,"razon":"razón","score_ia":4}]},"quick_wins":["acción1","acción2","acción3"]}`,
+{"estrategia_resumen":"3-4 frases con lógica estratégica","canales_por_fase":{"notoriedad":[{"canal":"nombre","accion":"acción concreta","kpi":"KPI con número","presupuesto_pct":20,"razon":"razón basada en target","score_ia":4}],"interaccion":[{"canal":"nombre","accion":"acción","kpi":"KPI","presupuesto_pct":15,"razon":"razón","score_ia":3}],"lead_venta":[{"canal":"nombre","accion":"acción","kpi":"KPI","presupuesto_pct":40,"razon":"razón","score_ia":5}],"fidelizacion":[{"canal":"nombre","accion":"acción","kpi":"KPI","presupuesto_pct":25,"razon":"razón","score_ia":4}]},"quick_wins":["acción 1","acción 2","acción 3"]}`,
 
   canal_score: (d) => `Eres experto en marketing digital. Puntúa del 1 al 5 cada canal seleccionado según su idoneidad para alcanzar los objetivos definidos.
 
