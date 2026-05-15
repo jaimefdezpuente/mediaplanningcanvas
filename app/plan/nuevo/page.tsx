@@ -403,7 +403,9 @@ function WizardInner() {
   }
 
   async function s1next() {
-    if(!ed('d_fo','')) { setAlert({title:'Fortalezas obligatorias',body:'Las fortalezas son necesarias para que la IA cree una estrategia personalizada.'}); return }
+    if(!ed('d_fo','').trim()){setAlert({title:'Fortalezas obligatorias',body:'Rellena tus Fortalezas antes de continuar.'});return}
+    if(!ed('d_de','').trim()){setAlert({title:'Debilidades obligatorias',body:'Rellena tus Debilidades antes de continuar.'});return}
+    if(userPlan==='free'){setPlan(p=>({...p,target:{} as Obj}));markDone(1);setStep(2);return}
     if(!canUseAnalisis()) return
     if(plan.target){markDone(1);setStep(2);return}
     const r = await callAI('target')
@@ -713,7 +715,12 @@ function WizardInner() {
                     <div key={item.k} style={{ background:item.bg, borderRadius:8, padding:14 }}>
                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                         <div style={{ fontSize:11, fontWeight:600, color:item.col, fontFamily:"'Geist Mono',monospace", textTransform:'uppercase' }}>{item.lb}</div>
-                        {item.ia&&<AiBtn label="Mejorar" used={usedMejoras} max={limits.mejoras} onClick={()=>refine(item.k,ed(item.k,item.src),'Mejora este analisis')} disabled={busy} small />}
+                        <button onClick={()=>{
+                          const val=ed(item.k,item.src)
+                          if(val.trim().length<30){alert("Debes rellenar el campo con al menos 30 caracteres para poder mejorarlo con IA");return}
+                          if(!canUseMejora())return
+                          refine(item.k,val,"Mejora este texto")
+                        }} style={{ fontSize:11, color:"#C75A3C", background:"none", border:"none", cursor:"pointer", fontWeight:500, fontFamily:"'Geist',sans-serif", display:"flex", alignItems:"center", gap:4 }}><span style={{fontSize:13}}>✨</span> Mejorar con IA</button>
                       </div>
                       <textarea style={{ ...INP, minHeight:80, background:C.white, fontSize:13, resize:'none' }} value={ed(item.k,item.src)} onChange={e=>se(item.k,e.target.value)} />
                     </div>
