@@ -557,7 +557,8 @@ select option { background: var(--mpc-white) !important; color: var(--mpc-navy) 
 .ph-sc.interaccion .ph-sc-lbl { color: #1E40AF !important; }
 .ph-sc.lead_venta .ph-sc-lbl { color: var(--mpc-success) !important; }
 .ph-sc.fidelizacion .ph-sc-lbl { color: #7C3AED !important; }
-.ph-sc-rows span { color: var(--mpc-navy) !important; font-size: 13px !important; }
+.ph-sc-rows span { color: var(--mpc-steel) !important; font-size: 12px !important; }
+.ph-sc-rows b { font-family: 'Geist Mono', monospace !important; color: var(--mpc-navy) !important; font-size: 13px !important; font-weight: 700 !important; }
 
 /* Summary / Resumen — was dark bg */
 #resumen, .resumen, [id*="sum"], [class*="summary"] {
@@ -1552,7 +1553,7 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
       <div class="bb-n"><span class="l">% Asignado</span><span class="v" id="bb-pct">0%</span></div>
     </div>
     <span id="bb-alrt" style="font-size:12px;color:#ef4444;display:none">⚠️ Presupuesto superado</span>
-    <span id="bb-mode-badge" style="margin-left:auto;background:#0F2942;color:#ffffff;border-radius:100px;padding:4px 16px;font-size:12px;font-weight:700;font-family:'Geist',sans-serif;letter-spacing:-0.01em">B2C</span>
+
   </div>
   <div class="bb-track"><div class="bb-fill" id="bb-fill" style="width:0%;background:#10b981"></div></div>
 </div>
@@ -1631,23 +1632,23 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 <div class="slbl np"><div class="snum">01</div><div class="stit">¿Cómo quieres empezar?</div></div>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px" class="np">
   <!-- A) Tu Selección (IA optimised) -->
-  <div id="btnMySelection" onclick="loadMySelection()" style="background:linear-gradient(135deg,#0F2942,#163659);border:1.5px solid #0F2942;border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;text-align:center;position:relative">
-    <div style="font-size:22px;margin-bottom:6px">◈</div>
-    <div style="font-weight:700;font-size:13px;color:#F6F4EF;margin-bottom:4px">Tu Selección</div>
-    <div style="font-size:11px;color:#8AA0B5;line-height:1.5">Canales del paso Estrategia optimizados por IA para alcanzar tus objetivos</div>
-    <div id="selectionUpdateBadge" style="display:none;position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#C75A3C;color:#fff;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700;white-space:nowrap">⚠ Actualizar objetivos</div>
+  <div id="btnMySelection" onclick="handleMySelection()" style="background:linear-gradient(135deg,#0F2942,#163659);border:1.5px solid #0F2942;border-radius:10px;padding:20px 16px;cursor:pointer;transition:all 0.15s;text-align:center;position:relative;box-shadow:0 2px 8px rgba(15,41,66,0.18)">
+    <div style="font-size:28px;margin-bottom:10px">🎯</div>
+    <div style="font-weight:700;font-size:14px;color:#F6F4EF;margin-bottom:6px">Tu Selección</div>
+    <div style="font-size:12px;color:#8AA0B5;line-height:1.6">Canales de Estrategia optimizados por IA para alcanzar tus objetivos</div>
+    <div id="selectionUpdateBadge" style="display:none;position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#C75A3C;color:#fff;border-radius:100px;padding:3px 12px;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(199,90,60,0.4)">⚠ Objetivos cambiados — actualizar</div>
   </div>
   <!-- B) Empezar de Cero -->
-  <div onclick="startFromScratch()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;text-align:center">
-    <div style="font-size:22px;margin-bottom:6px">✦</div>
-    <div style="font-weight:700;font-size:13px;color:var(--mpc-navy);margin-bottom:4px">Empezar de Cero</div>
-    <div style="font-size:11px;color:var(--mpc-steel);line-height:1.5">Borra el plan y empieza con el lienzo vacío</div>
+  <div onclick="startFromScratch()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:10px;padding:20px 16px;cursor:pointer;transition:all 0.15s;text-align:center;box-shadow:0 1px 4px rgba(15,41,66,0.06)">
+    <div style="font-size:28px;margin-bottom:10px">✦</div>
+    <div style="font-weight:700;font-size:14px;color:var(--mpc-navy);margin-bottom:6px">Empezar de Cero</div>
+    <div style="font-size:12px;color:var(--mpc-steel);line-height:1.6">Borra el plan y empieza con el lienzo vacío</div>
   </div>
   <!-- C) Otros Ejemplos (toggleable) -->
-  <div onclick="toggleExamples()" style="background:#fff;border:1.5px dashed var(--mpc-steel1);border-radius:8px;padding:14px 12px;cursor:pointer;transition:all 0.15s;text-align:center">
-    <div style="font-size:22px;margin-bottom:6px">📂</div>
-    <div style="font-weight:700;font-size:13px;color:var(--mpc-navy);margin-bottom:4px">Otros Ejemplos</div>
-    <div style="font-size:11px;color:var(--mpc-steel);line-height:1.5">Ver ejemplos por sector e industria</div>
+  <div onclick="toggleExamples()" style="background:#fff;border:1.5px dashed var(--mpc-steel1);border-radius:10px;padding:20px 16px;cursor:pointer;transition:all 0.15s;text-align:center;box-shadow:0 1px 4px rgba(15,41,66,0.06)">
+    <div style="font-size:28px;margin-bottom:10px">📂</div>
+    <div style="font-weight:700;font-size:14px;color:var(--mpc-navy);margin-bottom:6px">Otros Ejemplos</div>
+    <div style="font-size:12px;color:var(--mpc-steel);line-height:1.6">Ver ejemplos por sector e industria para inspirarte</div>
   </div>
 </div>
 <!-- Examples panel — hidden by default -->
@@ -2472,7 +2473,7 @@ function loadFromStorage(){try{const raw=localStorage.getItem('mpc_v3');if(!raw)
 function applyData(d){S.mode=d.mode||'B2C';S.sector=d.sector||null;S.uidCtr=d.uidCtr||0;S.planMode=d.planMode||'budget';S.channels=(d.channels||[]).map(c=>({...c,results:null}));if(d.budget)document.getElementById('obj_budget').value=d.budget;if(d.clients)document.getElementById('obj_clients').value=d.clients;if(d.cac)document.getElementById('obj_cac').value=d.cac;if(d.ticket)document.getElementById('globalTicket').value=d.ticket;if(d.ticketType)document.getElementById('ticketType').value=d.ticketType;if(d.phase)document.getElementById('obj_phase').value=d.phase;if(d.sectorVal)document.getElementById('sectorSelect').value=d.sectorVal;if(d.ltv)Object.entries(d.ltv).forEach(([k,v])=>{const el=document.getElementById(k);if(el)el.value=v;});
   document.getElementById('btnB2C').className='mode-btn'+(S.mode==='B2C'?' b2c':'');
   document.getElementById('btnB2B').className='mode-btn'+(S.mode==='B2B'?' b2b':'');
-  var badge=document.getElementById('bb-mode-badge');if(badge)badge.textContent=S.mode;
+
   onSectorChange();onPhaseChange();recalcAll();}
 
 const EX={
@@ -2493,6 +2494,10 @@ function loadExample(k){
   applyData(d);
   var name=EX_NAMES[k]||k;
   setPlanTitle(name);
+  // Close examples panel and update charts
+  var panel=document.getElementById('examplesPanel');
+  if(panel) panel.style.display='none';
+  if(typeof updateCharts==='function') setTimeout(updateCharts, 100);
   showToast('📦 Ejemplo cargado: '+name);
 }
 
@@ -2566,7 +2571,7 @@ function setMode(m){
   S.mode=m;
   document.getElementById('btnB2C').className='mode-btn'+(m==='B2C'?' b2c':'');
   document.getElementById('btnB2B').className='mode-btn'+(m==='B2B'?' b2b':'');
-  var badge=document.getElementById('bb-mode-badge');if(badge)badge.textContent=m;
+
   onSectorChange();onPhaseChange();recalcAll();if(S.selectedCh)renderForm(S.selectedCh);
   showToast(m==='B2B'?'\uD83D\uDCCA Modo B2B':'\uD83D\uDED2 Modo B2C');
 }
@@ -2576,21 +2581,48 @@ function toggleExamples(){
   if(p){p.style.display=p.style.display==='none'?'block':'none';}
 }
 
-// Track when objectives change after plan loaded — show update badge on Tu Selección
-(function(){
-  var objFields=['obj_budget','obj_clients','obj_cac','globalTicket'];
-  var _planLoaded=false;
-  document.addEventListener('input',function(e){
-    if(!_planLoaded)return;
-    if(objFields.indexOf(e.target&&e.target.id)>-1){
-      var badge=document.getElementById('selectionUpdateBadge');
-      if(badge)badge.style.display='block';
-    }
-  });
-  // Mark plan as loaded after first channel is added or loadMySelection called
-  window._markPlanLoaded=function(){_planLoaded=true;};
-})();
+// ── Objective tracking: show badge when objectives change after loading plan ─
+var _selectionLoaded = false;
+var _lastObjHash = '';
 
+function _getObjHash(){
+  var ids=['obj_budget','obj_clients','obj_cac','globalTicket','ticketType'];
+  return ids.map(function(id){ var el=document.getElementById(id); return el?el.value:''; }).join('|');
+}
+
+function _checkObjChanged(){
+  if(!_selectionLoaded) return;
+  var h = _getObjHash();
+  var badge = document.getElementById('selectionUpdateBadge');
+  if(badge) badge.style.display = (h !== _lastObjHash) ? 'block' : 'none';
+}
+
+['obj_budget','obj_clients','obj_cac','globalTicket','ticketType'].forEach(function(id){
+  document.addEventListener('DOMContentLoaded', function(){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('input', _checkObjChanged);
+    if(el) el.addEventListener('change', _checkObjChanged);
+  });
+});
+
+function _markSelectionLoaded(){
+  _selectionLoaded = true;
+  _lastObjHash = _getObjHash();
+  var badge = document.getElementById('selectionUpdateBadge');
+  if(badge) badge.style.display = 'none';
+}
+
+// handleMySelection: show thinking modal then load
+function handleMySelection(){
+  var badge = document.getElementById('selectionUpdateBadge');
+  var hasChanges = badge && badge.style.display !== 'none';
+  if(hasChanges){
+    showToast('🤔 Actualizando plan con nuevos objetivos...');
+  }
+  window.loadMySelection();
+}
+
+window.handleMySelection = handleMySelection;
 window.toggleExamples=toggleExamples;
 window.showLockedFieldModal=showLockedFieldModal;window.updateCharts=updateCharts;window.setMode=setMode;
 function init(){renderChGrid();onSectorChange();onPhaseChange();updateBB();renderSens();calcLTV();renderSummary();renderMonthly();}
@@ -2711,6 +2743,8 @@ const EXTRA_EXAMPLES = {
       });
       recalcAll();
       updateBB();
+      if(typeof updateCharts==='function')setTimeout(updateCharts,100);
+      var panel=document.getElementById('examplesPanel');if(panel)panel.style.display='none';
       showToast('📦 Ejemplo cargado: '+id);
       return;
     }
@@ -2767,7 +2801,8 @@ window.loadMySelection = function() {
     const e = {uid:UID(),channelId:id,fields,results:null,months:Array(12).fill(true)};
     e.results = calcEntry(e); S.channels.push(e);
   });
-  recalcAll(); updateBB();
+  recalcAll(); updateBB(); updateCharts();
+  if(typeof _markSelectionLoaded === 'function') _markSelectionLoaded();
   showToast('✓ '+mapped.length+' canales cargados desde tu estrategia');
 };
 
