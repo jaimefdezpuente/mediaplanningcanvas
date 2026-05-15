@@ -1705,10 +1705,25 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
     <div class="snum">03</div>
     <div class="stit" id="planTit">Plan de Medios</div>
   </div>
-  <button id="btnTacticoIA" onclick="runTacticoIA()" style="display:flex;align-items:center;gap:7px;padding:7px 14px;background:#F6F4EF;border:1px solid #DDE2E8;border-radius:6px;color:#4A6B8A;font-family:'Geist',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:opacity 0.15s">
-    <span style="font-size:15px">✨</span> Plan Táctico con IA
-    <span id="tacticoIAcredits" style="font-size:10px;background:rgba(255,255,255,0.15);padding:2px 7px;border-radius:100px;font-family:'Geist Mono',monospace">—</span>
-  </button>
+  <div id="btnTacticoIA" style="display:none"></div>
+</div>
+<div id="tacticoModoBlock" style="margin:20px 0;background:linear-gradient(135deg,#0F2942,#1a4a7a);border-radius:14px;padding:28px 24px;text-align:center">
+  <div style="font-size:11px;color:rgba(246,244,239,0.5);font-family:'Geist Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Optimizacion con IA</div>
+  <div style="font-size:18px;font-weight:700;color:#F6F4EF;margin-bottom:8px;letter-spacing:-0.01em">Plan Tactico con IA</div>
+  <p style="font-size:13px;color:rgba(246,244,239,0.7);margin:0 auto 20px;max-width:440px;line-height:1.6">La IA rellena los campos de cada canal. Elige como quieres optimizar:</p>
+  <div style="display:inline-flex;background:rgba(255,255,255,0.1);border-radius:8px;padding:3px;margin-bottom:16px;gap:3px">
+    <button id="modoBudgetBtn" onclick="setTacticoModo('budget')" style="padding:8px 20px;border-radius:6px;border:none;background:#F6F4EF;color:#0F2942;font-size:12px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif">Por Presupuesto</button>
+    <button id="modoObjetivoBtn" onclick="setTacticoModo('objetivo')" style="padding:8px 20px;border-radius:6px;border:none;background:transparent;color:rgba(246,244,239,0.55);font-size:12px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif">Por Objetivo de Ventas</button>
+  </div>
+  <div id="tacticoModoDesc" style="font-size:12px;color:rgba(246,244,239,0.55);margin-bottom:20px;font-style:italic">Distribuye tu presupuesto disponible entre los canales para maximizar resultados.</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
+    <button onclick="runTacticoIA()" style="padding:12px 32px;border-radius:8px;background:#C75A3C;border:none;color:#F6F4EF;font-weight:700;font-size:14px;cursor:pointer;font-family:'Geist',sans-serif;box-shadow:0 4px 14px rgba(199,90,60,0.35)">Optimizar con IA</button>
+    <span id="tacticoIAcredits" style="font-size:11px;color:rgba(246,244,239,0.45);font-family:'Geist Mono',monospace"></span>
+  </div>
+  <div id="reoptBanner" style="display:none;margin-top:14px;background:rgba(194,136,64,0.2);border:1px solid rgba(194,136,64,0.35);border-radius:8px;padding:10px 16px;font-size:12px;color:#F6D99A;align-items:center;justify-content:center;gap:10px">
+    <span>Has cambiado los objetivos &mdash;</span>
+    <button onclick="runTacticoIA()" style="background:rgba(255,255,255,0.12);border:none;color:#F6D99A;font-size:12px;cursor:pointer;font-family:'Geist',sans-serif;padding:4px 10px;border-radius:4px;font-weight:600;margin-left:4px">Re-optimizar</button>
+  </div>
 </div>
 <div id="planSection">
   <div class="empty" id="planEmpty"><span class="empty-ic">📋</span><div>Sin canales todavía.</div><div style="font-size:12px;margin-top:4px">Selecciona canales arriba o carga un ejemplo.</div></div>
@@ -2218,6 +2233,7 @@ function calcEntry(entry,crMult){
 function recalcAll(){S.channels.forEach(c=>{c.results=calcEntry(c);});updateBB();renderPlan();renderMonthly();renderSens();calcLTV();renderSummary();updateCharts();}
 
 function updateBB(){
+  if(_tacticoOptimizado){_showReoptBanner();}
   const tot=parseFloat(document.getElementById('obj_budget').value)||0;
   const used=S.channels.reduce((s,c)=>s+(c.results?.inversion||0),0);
   const left=tot-used;const pct=tot>0?Math.min(used/tot*100,100):0;
@@ -2607,6 +2623,29 @@ function _showIAModal(msg) {
 }
 function _hideIAModal(){ var m=document.getElementById('iaModal'); if(m) m.style.display='none'; }
 
+var _tacticoModo = 'budget';
+var _tacticoOptimizado = false;
+
+function setTacticoModo(modo) {
+  _tacticoModo = modo;
+  var btnB = document.getElementById('modoBudgetBtn');
+  var btnO = document.getElementById('modoObjetivoBtn');
+  var desc = document.getElementById('tacticoModoDesc');
+  if (!btnB || !btnO) return;
+  if (modo === 'budget') {
+    btnB.style.background='#F6F4EF';btnB.style.color='#0F2942';btnB.style.fontWeight='600';
+    btnO.style.background='transparent';btnO.style.color='rgba(246,244,239,0.55)';btnO.style.fontWeight='500';
+    if(desc) desc.textContent='Distribuye tu presupuesto disponible entre los canales para maximizar resultados.';
+  } else {
+    btnO.style.background='#F6F4EF';btnO.style.color='#0F2942';btnO.style.fontWeight='600';
+    btnB.style.background='transparent';btnB.style.color='rgba(246,244,239,0.55)';btnB.style.fontWeight='500';
+    if(desc) desc.textContent='La IA calcula cuanto invertir en cada canal para alcanzar tu objetivo de ventas con el ticket medio.';
+  }
+}
+
+function _showReoptBanner(){var b=document.getElementById('reoptBanner');if(b&&_tacticoOptimizado)b.style.display='flex';}
+function _hideReoptBanner(){var b=document.getElementById('reoptBanner');if(b)b.style.display='none';}
+
 async function runTacticoIA(){
   if(!S.channels.length){ showToast('⚠️ Añade canales al plan primero'); return; }
   // Uses session cookie automatically (same domain as Next.js app)
@@ -2622,7 +2661,11 @@ async function runTacticoIA(){
     budget: (document.getElementById('obj_budget')||{}).value || '5000',
     clients: (document.getElementById('obj_clients')||{}).value || '100',
     ticket: (document.getElementById('globalTicket')||{}).value || '150',
-    objetivos: 'Ventas: '+(document.getElementById('obj_clients')||{}).value+' clientes · Ticket: €'+(document.getElementById('globalTicket')||{}).value+' · CAC máx: €'+(document.getElementById('obj_cac')||{}).value,
+    tactico_mode: _tacticoModo,
+    objetivos: _tacticoModo==='objetivo'
+      ? 'MODO OBJETIVO: Alcanzar '+(document.getElementById('obj_clients')||{}).value+' clientes, ticket EUR '+(document.getElementById('globalTicket')||{}).value+'. Calcula la inversion optima por canal.'
+      : 'MODO PRESUPUESTO: Presupuesto EUR '+(document.getElementById('obj_budget')||{}).value+'. Optimizar para '+(document.getElementById('obj_clients')||{}).value+' clientes, CAC max EUR '+(document.getElementById('obj_cac')||{}).value,
+    _old_objetivos: 'Ventas: '+(document.getElementById('obj_clients')||{}).value+' clientes · Ticket: €'+(document.getElementById('globalTicket')||{}).value+' · CAC máx: €'+(document.getElementById('obj_cac')||{}).value,
   };
 
   var totalBudget = parseFloat(ctx.budget) || 5000;
@@ -2651,7 +2694,7 @@ async function runTacticoIA(){
       body: JSON.stringify({ channels: channelPayload, context: ctx }),
     });
     var data = await res.json();
-    _hideIAModal();
+    _hideIAModal(); _hideReoptBanner(); _tacticoOptimizado=true;
 
     if(res.status === 402){
       // Insufficient credits
