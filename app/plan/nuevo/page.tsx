@@ -39,7 +39,7 @@ const KPI_MKT = ['Ventas (ingresos EUR)','Ventas (unidades)','Ticket Medio','Lea
 const KPI_COM = ['Notoriedad de marca','Cobertura','Alcance','Seguidores RRSS','Conocimiento de funcionalidad','Afinidad de marca','Frecuencia de impacto','Compartir experiencia','Visualizaciones','Reposicionamiento','Otro...']
 
 const PLAN_LIMITS: Record<string, { plans: number; mejoras: number; analisis: number }> = {
-  free:       { plans: 1,   mejoras: 10,  analisis: 0 },
+  free:       { plans: 1,   mejoras: 10,  analisis: 3 },
   pro:        { plans: 10,  mejoras: 70,  analisis: 20 },
   business:   { plans: 30,  mejoras: 150, analisis: 60 },
   enterprise: { plans: 999, mejoras: 999, analisis: 999 },
@@ -128,7 +128,7 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
 }
 
 function AiBtn({ label, used, max, onClick, disabled, small=false }: { label:string; used:number; max:number; onClick:()=>void; disabled?:boolean; small?:boolean }) {
-  const remaining = max - used
+  const remaining = Math.max(0, max - used)
   const isOut = remaining <= 0
   return (
     <button onClick={onClick} disabled={disabled||isOut} style={{ padding: small?'7px 12px':'9px 16px', borderRadius:6, border:`1px solid ${isOut?'#FECACA':C.steel1}`, background: isOut?'#FEF2F2':C.paper, color: isOut?'#B33A2E':C.steel, fontWeight:500, fontSize: small?11:12, cursor: isOut?'not-allowed':'pointer', fontFamily:"'Geist',sans-serif", display:'flex', alignItems:'center', gap:6, opacity:disabled&&!isOut?0.6:1 }}>
@@ -394,7 +394,9 @@ function WizardInner() {
 
   async function s0next() {
     if(!plan.sector||!plan.producto) { setErr('Rellena sector y descripcion del producto'); return }
+    if(!plan.presupuesto) { setErr('El presupuesto es obligatorio'); return }
     if(plan.entorno){markDone(0);setStep(1);return}
+    if(userPlan==='free'){setPlan(p=>({...p,entorno:{} as Obj}));markDone(0);setStep(1);return}
     if(!canUseAnalisis()) return
     const r = await callAI('entorno')
     if(r){setPlan(p=>({...p,entorno:r}));markDone(0);setStep(1);trackAnalisis();autoSave({entorno:r as Obj})}
@@ -553,7 +555,7 @@ function WizardInner() {
             })}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
-            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>{limits.analisis-usedAnalisis}/{limits.analisis} creditos</span>
+            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>{Math.max(0,limits.analisis-usedAnalisis)}/{limits.analisis} creditos</span>
             <button onClick={()=>setSaveModal(true)} style={{ ...BTN_SM, background:C.navy, color:C.paper, border:'none' }}>Guardar</button>
           </div>
         </div>
@@ -651,7 +653,7 @@ function WizardInner() {
                 )}
                 <label style={LBL}>Presupuesto mensual estimado</label>
                 <select style={{ ...INP, cursor:'pointer' }} value={plan.presupuesto} onChange={e=>upd('presupuesto',e.target.value)}>
-                  <option value="">No especificado</option>
+                  <option value="" disabled>Selecciona presupuesto *</option>
                   <option value="menos_1000">Menos de 1.000 EUR/mes</option>
                   <option value="1000_3000">1.000 - 3.000 EUR/mes</option>
                   <option value="3000_10000">3.000 - 10.000 EUR/mes</option>
@@ -661,7 +663,7 @@ function WizardInner() {
                 </select>
               </div>
               <div style={{ display:'flex', justifyContent:'flex-end' }}>
-                <AiBtn label={`Analizar Mercado con IA`} used={usedAnalisis} max={limits.analisis} onClick={s0next} disabled={busy} />
+                <button onClick={s0next} disabled={busy} style={{ padding:"9px 18px", borderRadius:6, background:C.navy, border:"none", color:C.paper, fontWeight:600, fontSize:14, cursor:busy?"not-allowed":"pointer", fontFamily:"'Geist',sans-serif", opacity:busy?0.7:1 }}>{userPlan==="free" ? "Continuar →" : `✦ Analizar Mercado con IA (${Math.max(0,limits.analisis-usedAnalisis)} créditos)`}</button>
               </div>
             </div>
           )}
