@@ -489,7 +489,6 @@ function WizardInner() {
   }
 
   async function autoSave(extra?: Partial<PlanData>) {
-    if (userPlan === 'free') return
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     const current = { ...plan, ...extra }
