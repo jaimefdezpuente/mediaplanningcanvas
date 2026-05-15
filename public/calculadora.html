@@ -121,8 +121,8 @@
 #mpc-root .hi.wa .hi-dot{background:#f59e0b!important}
 #mpc-root .hi.er .hi-dot{background:#ef4444!important}
 #mpc-root .hi.gr .hi-dot{background:#3d5370!important}
-#mpc-root .hi-lbl{font-size:10px!important;font-weight:600!important;color:#cbd5e1!important}
-#mpc-root .hi-val{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;font-weight:700!important;color:#ffffff!important;margin-top:2px!important}
+#mpc-root .hi-lbl{font-size:10px!important;font-weight:600!important;color:#333333!important}
+#mpc-root .hi-val{font-family:'JetBrains Mono',monospace!important;font-size:13px!important;font-weight:700!important;color:#333333!important;margin-top:2px!important}
 #mpc-root .hi-note{font-size:10px!important;color:#94a3b8!important;margin-top:2px!important;line-height:1.4!important}
 #mpc-root .tw{overflow-x:auto!important;margin-top:12px!important}
 #mpc-root .ptbl{width:100%!important}
@@ -155,7 +155,7 @@
 #mpc-root .ph-sc.lead_venta .ph-sc-lbl{color:#10b981!important}
 #mpc-root .ph-sc.fidelizacion .ph-sc-lbl{color:#8b5cf6!important}
 #mpc-root .ph-sc-rows span{display:block!important;font-size:12px!important;color:#94a3b8!important;margin-bottom:3px!important}
-#mpc-root .ph-sc-rows b{font-family:'JetBrains Mono',monospace!important;color:#e2e8f0!important}
+#mpc-root .ph-sc-rows b{font-family:'JetBrains Mono',monospace!important;color:#333333!important}
 #mpc-root .sm-row{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important;gap:9px!important;margin-bottom:12px!important}
 #mpc-root .sm{background:#161f2e!important;border:1px solid #1e2d45!important;border-radius:10px!important;padding:11px 13px!important}
 #mpc-root .sm .l{font-size:10px!important;color:#3d5370!important;text-transform:uppercase!important;letter-spacing:.5px!important;margin-bottom:3px!important;display:block!important}
@@ -558,7 +558,7 @@ select option { background: var(--mpc-white) !important; color: var(--mpc-navy) 
 .ph-sc.lead_venta .ph-sc-lbl { color: var(--mpc-success) !important; }
 .ph-sc.fidelizacion .ph-sc-lbl { color: #7C3AED !important; }
 .ph-sc-rows span { color: var(--mpc-steel) !important; font-size: 12px !important; }
-.ph-sc-rows b { font-family: 'Geist Mono', monospace !important; color: var(--mpc-navy) !important; font-size: 13px !important; font-weight: 700 !important; }
+.ph-sc-rows b { font-family: 'Geist Mono', monospace !important; color: #333333 !important; font-size: 13px !important; font-weight: 700 !important; }
 
 /* Summary / Resumen — was dark bg */
 #resumen, .resumen, [id*="sum"], [class*="summary"] {
@@ -1574,13 +1574,10 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
       <span class="fs">¿Cuántos clientes quieres conseguir este año?</span>
     </div>
     <div class="fr">
-      <label class="fl">Ticket Medio por Producto (€)</label>
+      <label class="fl">Ticket Medio por Cliente (€)</label>
       <input class="fi mono" type="number" id="globalTicket" value="150" min="0" oninput="recalcAll()">
-      <select class="fi" id="ticketType" onchange="recalcAll()" style="margin-top:6px!important">
-        <option value="por_venta">Por Venta (precio unitario)</option>
-        <option value="mensual">Mensual × 12 (suscripción)</option>
-        <option value="anual">Anual por cliente</option>
-      </select>
+      <input type="hidden" id="ticketType" value="por_venta">
+      <span class="fs">Ingreso promedio por cliente al año</span>
     </div>
     <div class="fr">
       <label class="fl">CAC Máximo (€)</label>
@@ -1629,7 +1626,7 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 <div id="mixBox" style="display:none"></div>
 
 <!-- STEP 01: CÓMO EMPEZAR -->
-<div class="slbl np"><div class="snum">01</div><div class="stit">¿Cómo quieres empezar?</div></div>
+<div class="slbl np"><div class="snum">01</div><div class="stit">Tu plan de marketing</div></div>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px" class="np">
   <!-- A) Tu Selección (IA optimised) -->
   <div id="btnMySelection" onclick="handleMySelection()" style="background:linear-gradient(135deg,#0F2942,#163659);border:1.5px solid #0F2942;border-radius:10px;padding:20px 16px;cursor:pointer;transition:all 0.15s;text-align:center;position:relative;box-shadow:0 2px 8px rgba(15,41,66,0.18)">
@@ -1703,7 +1700,16 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 </div>
 
 <!-- STEP 03: PLAN -->
-<div class="slbl"><div class="snum">03</div><div class="stit" id="planTit">Plan de Medios</div></div>
+<div class="slbl" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="snum">03</div>
+    <div class="stit" id="planTit">Plan de Medios</div>
+  </div>
+  <button id="btnTacticoIA" onclick="runTacticoIA()" style="display:flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,#0F2942,#163659);border:none;border-radius:8px;color:#F6F4EF;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(15,41,66,0.2);transition:opacity 0.15s">
+    <span style="font-size:15px">✨</span> Plan Táctico con IA
+    <span id="tacticoIAcredits" style="font-size:10px;background:rgba(255,255,255,0.15);padding:2px 7px;border-radius:100px;font-family:'Geist Mono',monospace">—</span>
+  </button>
+</div>
 <div id="planSection">
   <div class="empty" id="planEmpty"><span class="empty-ic">📋</span><div>Sin canales todavía.</div><div style="font-size:12px;margin-top:4px">Selecciona canales arriba o carga un ejemplo.</div></div>
   <div id="planContent" style="display:none">
@@ -2089,7 +2095,7 @@ const fN=n=>(n==null||isNaN(n))?'—':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e
 const fR=n=>(n==null||isNaN(n)||n<=0)?'—':n.toFixed(2)+'x';
 const fP=n=>(n==null||isNaN(n))?'—':n.toFixed(1)+'%';
 function bch(sec,mode){if(!sec||!SECTORS[sec])return mode==='B2B'?2.5:1.2;const s=SECTORS[sec];return mode==='B2B'?(s.crB2B||2.5):(s.crB2C||1.2);}
-function annTk(){const t=parseFloat(document.getElementById('globalTicket').value)||150;const tp=document.getElementById('ticketType').value;return tp==='mensual'?t*12:t;}
+function annTk(){return parseFloat(document.getElementById('globalTicket').value)||150;}
 
 function calcEntry(entry,crMult){
   crMult=crMult||1;
@@ -2581,7 +2587,114 @@ function toggleExamples(){
   if(p){p.style.display=p.style.display==='none'?'block':'none';}
 }
 
-// ── Objective tracking: show badge when objectives change after loading plan ─
+// ── Plan Táctico con IA ────────────────────────────────────────────────────
+function _showIAModal(msg) {
+  var m = document.getElementById('iaModal');
+  if(!m){
+    m = document.createElement('div');
+    m.id = 'iaModal';
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(15,41,66,0.55);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+    m.innerHTML = '<div style="background:#fff;border-radius:14px;padding:36px 44px;text-align:center;max-width:360px;width:90%;box-shadow:0 24px 48px rgba(15,41,66,0.3)">'
+      +'<div id="iaModalSpinner" style="width:48px;height:48px;border:3px solid #0F2942;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px"></div>'
+      +'<div id="iaModalMsg" style="font-size:15px;font-weight:500;color:#0F2942;line-height:1.6"></div>'
+      +'<div style="font-size:11px;color:#8AA0B5;margin-top:8px;font-family:\'Geist Mono\',monospace">Esto puede tardar unos segundos...</div>'
+      +'</div></div>';
+    document.body.appendChild(m);
+  }
+  document.getElementById('iaModalMsg').textContent = msg;
+  m.style.display = 'flex';
+}
+function _hideIAModal(){ var m=document.getElementById('iaModal'); if(m) m.style.display='none'; }
+
+async function runTacticoIA(){
+  if(!S.channels.length){ showToast('⚠️ Añade canales al plan primero'); return; }
+  var token = window._authToken || '';
+  if(!token){ showToast('⚠️ Sesión no disponible. Accede desde el wizard.'); return; }
+
+  var needed = S.channels.length;
+  _showIAModal('Analizando '+needed+' canales y calculando la distribución óptima para tus objetivos...');
+
+  // Build context from current form values
+  var ctx = {
+    sector: (document.getElementById('sectorSelect')||{}).value || '',
+    mode: S.mode || 'B2C',
+    phase: (document.getElementById('obj_phase')||{}).value || 'growth',
+    budget: (document.getElementById('obj_budget')||{}).value || '5000',
+    clients: (document.getElementById('obj_clients')||{}).value || '100',
+    ticket: (document.getElementById('globalTicket')||{}).value || '150',
+    objetivos: 'Ventas: '+(document.getElementById('obj_clients')||{}).value+' clientes · Ticket: €'+(document.getElementById('globalTicket')||{}).value+' · CAC máx: €'+(document.getElementById('obj_cac')||{}).value,
+  };
+
+  var totalBudget = parseFloat(ctx.budget) || 5000;
+  var invPerCh = Math.round(totalBudget / needed / 100) * 100;
+
+  // Build channel list for API
+  var channelPayload = S.channels.map(function(e){
+    var ch = getCh(e.channelId);
+    if(!ch) return null;
+    var fieldKeys = ch.fields.filter(function(f){ return f.id!=='inv'; })
+      .map(function(f){ return '"'+f.id+'": 0'; }).join(', ');
+    var fieldDesc = ch.fields.map(function(f){
+      return f.id+(f.lb?' ('+f.lb+')':'')+(f.def!=null?' [def:'+f.def+']':'');
+    }).join(', ');
+    return {
+      channelId: ch.id, name: ch.name, phase: ch.ph, kt: ch.kt,
+      fields: fieldDesc, fieldKeys: fieldKeys,
+      suggestedInv: String(invPerCh),
+    };
+  }).filter(Boolean);
+
+  try {
+    var res = await fetch('/api/ai-tactical', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token },
+      body: JSON.stringify({ channels: channelPayload, context: ctx }),
+    });
+    var data = await res.json();
+    _hideIAModal();
+
+    if(res.status === 402){
+      // Insufficient credits
+      var isFreePlan = data.plan === 'free';
+      showToast('⚠️ '+( isFreePlan ? 'Necesitas un plan de pago para usar Plan Táctico con IA' : 'Créditos insuficientes. Necesitas '+data.needed+', tienes '+data.remaining));
+      if(isFreePlan){
+        setTimeout(function(){
+          if(confirm('Esta función requiere un plan Pro o superior.\n\n¿Quieres ver los planes disponibles?')){
+            window.parent.postMessage({type:'mpc-upgrade'}, '*');
+          }
+        }, 300);
+      }
+      return;
+    }
+
+    if(!data.success){ showToast('❌ Error al generar el plan: '+(data.error||'desconocido')); return; }
+
+    // Apply AI-filled fields to each channel
+    var changed = 0;
+    S.channels.forEach(function(e){
+      var filled = data.results[e.channelId];
+      if(!filled) return;
+      Object.keys(filled).forEach(function(k){
+        var v = parseFloat(filled[k]);
+        if(!isNaN(v)) { e.fields[k] = v; changed++; }
+      });
+      e.results = calcEntry(e);
+    });
+
+    recalcAll(); updateCharts();
+
+    // Update credits display
+    if(typeof _updateCreditsDisplay === 'function') _updateCreditsDisplay(data.remaining, data.plan);
+
+    showToast('✅ Plan Táctico generado — '+needed+' canales rellenados con IA ('+data.remaining+' créditos restantes)');
+  } catch(err) {
+    _hideIAModal();
+    showToast('❌ Error de conexión. Inténtalo de nuevo.');
+    console.error('runTacticoIA error:', err);
+  }
+}
+
+window.runTacticoIA = runTacticoIA;
 var _selectionLoaded = false;
 var _lastObjHash = '';
 
@@ -2793,34 +2906,46 @@ window.loadMySelection = function() {
   if(!mapped.length){ showToast('⚠️ No se pudieron mapear los canales. Prueba otro método.'); return; }
   if(budget > 0){ document.getElementById('obj_budget').value = budget; updateBB(); }
   S.channels = [];
-  const perCh = budget > 0 ? Math.max(100, Math.round(budget/mapped.length/100)*100) : 500;
   mapped.forEach(id=>{
     const ch = CHANNELS.find(c=>c.id===id); if(!ch) return;
-    const fields = {inv: perCh};
-    ch.fields.forEach(f=>{ if(f.def !== undefined) fields[f.id] = f.def; });
+    // Load channels with empty/default fields — user or AI fills them
+    const fields = {inv: 0};
+    ch.fields.forEach(f=>{ if(f.def !== undefined && f.id !== 'inv') fields[f.id] = f.def; });
     const e = {uid:UID(),channelId:id,fields,results:null,months:Array(12).fill(true)};
     e.results = calcEntry(e); S.channels.push(e);
   });
   recalcAll(); updateBB(); updateCharts();
   if(typeof _markSelectionLoaded === 'function') _markSelectionLoaded();
-  showToast('✓ '+mapped.length+' canales cargados desde tu estrategia');
+  showToast('✓ '+mapped.length+' canales cargados — usa ✨ Plan Táctico con IA para rellenar las variables');
 };
 
 // Init
 window.addEventListener('DOMContentLoaded', function(){
-  const params = new URLSearchParams(window.location.search);
-  const chParam = params.get('channels');
-  const budget = params.get('budget');
+  var params = new URLSearchParams(window.location.search);
+  var chParam = params.get('channels');
+  var budget = params.get('budget');
   if(budget){ document.getElementById('obj_budget').value = budget; updateBB(); }
-  if(chParam){
-    const btn = document.getElementById('btnMySelection');
-    if(btn){
-      btn.style.opacity = '1';
-      btn.style.borderColor = '#0F2942';
-      btn.style.borderWidth = '2px';
-      const title = btn.querySelector('div:nth-child(2)');
-      if(title) title.style.color = '#0F2942';
-    }
+  // Store authToken for AI calls
+  var at = params.get('authToken');
+  if(at) window._authToken = at;
+  // Update credits display
+  window._updateCreditsDisplay = function(remaining, plan){
+    var el = document.getElementById('tacticoIAcredits');
+    if(!el) return;
+    if(plan==='free'){ el.textContent = 'Plan Free — sin créditos'; el.style.background='rgba(239,68,68,0.25)'; }
+    else{ el.textContent = remaining+' créditos'; el.style.background='rgba(255,255,255,0.15)'; }
+    var btn = document.getElementById('btnTacticoIA');
+    if(btn && plan==='free'){ btn.style.opacity='0.5'; btn.title='Actualiza tu plan para usar esta función'; }
+  };
+  // Auto-load channels from wizard if present
+  if(chParam && chParam.trim()){
+    setTimeout(function(){
+      if(typeof loadMySelection === 'function') loadMySelection();
+      // After loading, mark as loaded and set hash
+      setTimeout(function(){
+        if(typeof _markSelectionLoaded === 'function') _markSelectionLoaded();
+      }, 300);
+    }, 200);
   }
 });
 </script>

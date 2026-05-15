@@ -254,6 +254,7 @@ function WizardInner() {
   const [err, setErr] = useState('')
   const [showStrategy, setShowStrategy] = useState(false)
   const [channelsChanged, setChannelsChanged] = useState(false)
+  const [authToken, setAuthToken] = useState('')
   const [competidorLoading, setCompetidorLoading] = useState(false)
   const [suggestedComps, setSuggestedComps] = useState<{nombre:string;descripcion:string;url:string}[]>([])
   const [showUpgrade, setShowUpgrade] = useState(false)
@@ -284,6 +285,9 @@ function WizardInner() {
       setUsedMejoras(Number(user.user_metadata?.used_mejoras || 0))
       setUsedAnalisis(Number(user.user_metadata?.used_analisis || 0))
       if (user.user_metadata?.avatar_url) setUserAvatar(user.user_metadata.avatar_url)
+      // Get session token for iframe AI calls
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.access_token) setAuthToken(session.access_token)
 
       // Load existing plan if plan_id in URL
       const planId = searchParams.get('plan_id')
@@ -329,6 +333,9 @@ function WizardInner() {
       if (e.data?.type === 'mpc-height' && typeof e.data.height === 'number' && e.data.height > 200) {
         const iframe = document.getElementById('tactico-iframe') as HTMLIFrameElement
         if (iframe) iframe.style.height = e.data.height + 'px'
+      }
+      if (e.data?.type === 'mpc-upgrade') {
+        setShowUpgrade(true)
       }
     }
     window.addEventListener('message', handleMsg)
@@ -755,7 +762,7 @@ function WizardInner() {
                 const sectorMap:Record<string,string>={'Moda y Accesorios':'moda','Alimentación':'alimentacion','Salud y Belleza':'salud','Tecnología':'tecnologia','Servicios B2B':'servicios','Formación y Educación':'cursos','Viajes y Turismo':'viajes','Inmobiliario':'servicios','Deporte y Fitness':'deporte','Hogar y Decoración':'hogar','Automoción':'automovil','Seguros y Finanzas':'seguros','Hostelería y Restauración':'alimentacion','Farmacia y Salud':'salud','Otros':'otros'}
                 const sector    = sectorMap[plan.sector]||''
                 const phase     = plan.fase_negocio||'launch'
-                return `/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${bud}&mode=${plan.tipo_negocio==='B2B'?'B2B':'B2C'}&readonly=${userPlan==='free'?'1':'0'}&noheader=1&sector=${sector}&phase=${phase}${clients?`&clients=${clients}`:''}${ticket?`&ticket=${ticket}`:''}`
+                return `/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${bud}&mode=${plan.tipo_negocio==='B2B'?'B2B':'B2C'}&readonly=${userPlan==='free'?'1':'0'}&noheader=1&sector=${sector}&phase=${phase}${clients?`&clients=${clients}`:''}${ticket?`&ticket=${ticket}`:''}${authToken?`&authToken=${authToken}`:''}`
               })()} 
               style={{ width:'100%', height:600, border:'none', display:'block', minHeight:600 }}
               scrolling="no"
