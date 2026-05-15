@@ -2609,8 +2609,7 @@ function _hideIAModal(){ var m=document.getElementById('iaModal'); if(m) m.style
 
 async function runTacticoIA(){
   if(!S.channels.length){ showToast('⚠️ Añade canales al plan primero'); return; }
-  var token = window._authToken || '';
-  if(!token){ showToast('⚠️ Sesión no disponible. Accede desde el wizard.'); return; }
+  // Uses session cookie automatically (same domain as Next.js app)
 
   var needed = S.channels.length;
   _showIAModal('Analizando '+needed+' canales y calculando la distribución óptima para tus objetivos...');
@@ -2648,7 +2647,7 @@ async function runTacticoIA(){
   try {
     var res = await fetch('/api/ai-tactical', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ channels: channelPayload, context: ctx }),
     });
     var data = await res.json();
@@ -2990,9 +2989,6 @@ window.addEventListener('DOMContentLoaded', function(){
   var chParam = params.get('channels');
   var budget = params.get('budget');
   if(budget){ document.getElementById('obj_budget').value = budget; updateBB(); }
-  // Store authToken for AI calls
-  var at = params.get('authToken');
-  if(at) window._authToken = at;
   // Update credits display
   window._updateCreditsDisplay = function(remaining, plan){
     var el = document.getElementById('tacticoIAcredits');
