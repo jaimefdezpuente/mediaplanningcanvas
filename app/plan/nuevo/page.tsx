@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { useState, useRef, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import { MpcMark, MpcLockup } from '@/lib/MpcLogo'
+import { AppHeader } from '@/lib/AppHeader'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 type Jv = string | number | boolean | null | Jv[] | { [k: string]: Jv }
@@ -247,6 +248,9 @@ function WizardInner() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [userPlan, setUserPlan] = useState('free')
   const [userAvatar, setUserAvatar] = useState('')
+  const [userName, setUserName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [usedPlans, setUsedPlans] = useState(0)
   const [usedMejoras, setUsedMejoras] = useState(0)
   const [usedAnalisis, setUsedAnalisis] = useState(0)
   const [savedPlanId, setSavedPlanId] = useState<string|null>(null)
@@ -271,6 +275,9 @@ function WizardInner() {
         if (!user) { router.push('/login'); return }
         const planKey = (user.user_metadata?.plan || 'free').toLowerCase()
         setUserPlan(planKey)
+        setUserName(user.user_metadata?.full_name || '')
+        setUserEmail(user.email || '')
+        setUsedPlans(user.user_metadata?.used_plans || 0)
         setUsedMejoras(Number(user.user_metadata?.used_mejoras || 0))
         setUsedAnalisis(Number(user.user_metadata?.used_analisis || 0))
         if (user.user_metadata?.avatar_url) setUserAvatar(user.user_metadata.avatar_url)
@@ -549,31 +556,29 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
       {saveModal&&<SaveModal onSave={handleSave} onClose={()=>setSaveModal(false)} busy={busy} defaultName={plan.projectName||`Plan ${plan.sector||'nuevo'}`}/>}
       {showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)}/>}
 
-      <header style={{ background:C.white, borderBottom:`1px solid ${C.steel1}`, position:'sticky', top:0, zIndex:20, boxShadow:'0 1px 2px rgba(15,41,66,0.05)' }}>
-        <div style={{ maxWidth:'100%', margin:'0 auto', padding:'0 24px', height:56, display:'flex', alignItems:'center', gap:16 }}>
-          <a href="/dashboard" style={{ display:'flex', alignItems:'center', gap:6, textDecoration:'none' }}>
-            <MpcLockup size={22} />
-          </a>
-          <div style={{ fontSize:12, color:C.steel2 }}>|</div>
-          {plan.projectName&&<div style={{ fontSize:13, color:C.navy, fontWeight:500 }}>{plan.projectName}</div>}
-          {autoSaving&&<span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>Guardando...</span>}
-          <div style={{ flex:1, display:'flex', gap:0, overflowX:'auto' }}>
-            {PHASES.map((ph,i)=>{
-              const done=plan.completed.includes(i); const cur=step===i; const acc=canNav(i)
-              return(
-                <button key={i} onClick={()=>acc&&setStep(i)} style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'6px 14px', background:'transparent', border:'none', cursor:acc?'pointer':'not-allowed', opacity:acc?1:0.4, borderBottom:cur?`2px solid ${C.navy}`:'2px solid transparent' }}>
-                  <div style={{ width:20, height:20, borderRadius:4, background:done?C.navy:cur?C.navy:C.steel1, display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, color:done||cur?C.paper:C.steel3, fontWeight:600 }}>{done?'ok':i}</div>
-                  <span style={{ fontSize:10, fontWeight:cur?600:400, color:cur?C.navy:C.steel3, whiteSpace:'nowrap', marginTop:2 }}>{ph.label}</span>
-                </button>
-              )
-            })}
-          </div>
-          <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
-            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace" }}>{Math.max(0,limits.analisis-usedAnalisis)}/{limits.analisis} creditos</span>
-            <button onClick={()=>setSaveModal(true)} style={{ ...BTN_SM, background:C.navy, color:C.paper, border:'none' }}>Guardar</button>
-          </div>
-        </div>
-      </header>
+      <AppHeader
+        userEmail={userEmail}
+        userName={userName}
+        userAvatar={userAvatar}
+        planKey={userPlan}
+        usedPlans={usedPlans}
+        usedAnalisis={usedAnalisis}
+        usedMejoras={usedMejoras}
+        projectName={plan.projectName || undefined}
+        autoSaving={autoSaving}
+        onSave={() => setSaveModal(true)}
+        onLogout={async () => { await supabase.auth.signOut(); router.push('/login') }}
+      >
+        {PHASES.map((ph,i) => {
+          const done=plan.completed.includes(i); const cur=step===i; const acc=canNav(i)
+          return (
+            <button key={i} onClick={()=>acc&&setStep(i)} style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'6px 14px', background:'transparent', border:'none', cursor:acc?'pointer':'not-allowed', opacity:acc?1:0.4, borderBottom:cur?`2px solid ${C.navy}`:'2px solid transparent' }}>
+              <div style={{ width:20, height:20, borderRadius:4, background:done?C.navy:cur?C.navy:C.steel1, display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, color:done||cur?C.paper:C.steel3, fontWeight:600 }}>{done?'✓':i}</div>
+              <span style={{ fontSize:10, fontWeight:cur?600:400, color:cur?C.navy:C.steel3, whiteSpace:'nowrap', marginTop:2 }}>{ph.label}</span>
+            </button>
+          )
+        })}
+      </AppHeader>
 
       {step===4&&(
         <div style={{ maxWidth:1040, margin:'0 auto', padding:'40px 24px 0' }}>
