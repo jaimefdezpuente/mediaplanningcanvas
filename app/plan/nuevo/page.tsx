@@ -303,7 +303,7 @@ function WizardInner() {
               estrategia: savedPlan.estrategia || null,
               completed: [
                 ...(savedPlan.entorno ? [0] : []),
-                ...(savedPlan.target ? [1] : []),
+                1,
                 ...(savedPlan.estrategia ? [2, 3] : []),
               ],
             }))
@@ -697,9 +697,9 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                   <h2 style={{ fontSize:18, fontWeight:600, color:C.navy }}>Tu Mercado</h2>
                   <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI('entorno');if(r){se('e_mkt',gn(r,'mercado','descripcion'));se('e_siz',gn(r,'mercado','tamano_estimado'));trackAnalisis()}}} disabled={busy} small />
                 </div>
+                <VideoBlock vimeoId="1103392013" title="Análisis de Mercado" />
                 <EditField label="Descripcion del mercado" fkey="e_mkt" value={ed('e_mkt',gn(plan.entorno,'mercado','descripcion'))} onChange={v=>se('e_mkt',v)} onRefine={p=>refine('e_mkt',ed('e_mkt',''),p)} />
                 <EditField label="Tamano estimado y tendencia" fkey="e_siz" value={ed('e_siz',[gn(plan.entorno,'mercado','tamano_estimado'),gn(plan.entorno,'mercado','tendencia')].filter(Boolean).join(' - '))} onChange={v=>se('e_siz',v)} onRefine={p=>refine('e_siz',ed('e_siz',''),p)} />
-                <VideoBlock vimeoId="1103392013" title="Análisis de Mercado" />
                 <ToolsBlock title="Analisis de Mercado" tools={TOOLS_DATA.mercado} />
               </div>
               <div style={CARD}>
@@ -707,16 +707,16 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
                   <h2 style={{ fontSize:18, fontWeight:600, color:C.navy }}>Competencia</h2>
                   <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI('entorno');if(r){se('e_cmp',gn(r,'competencia','analisis'));trackAnalisis()}}} disabled={busy} small />
                 </div>
-                <EditField label="Analisis de la competencia" fkey="e_cmp" value={ed('e_cmp',gn(plan.entorno,'competencia','analisis'))} onChange={v=>se('e_cmp',v)} onRefine={p=>refine('e_cmp',ed('e_cmp',''),p)} />
                 <VideoBlock vimeoId="1103392013" title="Análisis de Competencia" />
+                <EditField label="Analisis de la competencia" fkey="e_cmp" value={ed('e_cmp',gn(plan.entorno,'competencia','analisis'))} onChange={v=>se('e_cmp',v)} onRefine={p=>refine('e_cmp',ed('e_cmp',''),p)} />
                 <ToolsBlock title="Competencia en Medios" tools={TOOLS_DATA.competencia} />
               </div>
               <div style={CARD}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
                   <h2 style={{ fontSize:18, fontWeight:600, color:C.navy }}>DAFO</h2>
                   <AiBtn label="Analizar con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{if(!canUseAnalisis())return;const r=await callAI('entorno');if(r){se('d_op',gn(r,'dafo','oportunidades'));se('d_am',gn(r,'dafo','amenazas'));trackAnalisis()}}} disabled={busy} small />
-                <VideoBlock vimeoId="1103392013" title="DAFO Estratégico" />
                 </div>
+                <VideoBlock vimeoId="1103392013" title="DAFO Estratégico" />
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
                   {[
                     {k:'d_op',lb:'Oportunidades (IA)',src:gn(plan.entorno,'dafo','oportunidades'),bg:'#F0FDF4',col:C.success,ia:true},
@@ -747,7 +747,7 @@ web: current.web, presupuesto: current.presupuesto, competidores: current.compet
             </div>
           )}
 
-          {step===2&&plan.target&&(
+          {step===2&&(
             <div>
               <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:6 }}>Target & Buyer Persona</h1>
               <div style={CARD}>
