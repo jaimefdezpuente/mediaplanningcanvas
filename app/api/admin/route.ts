@@ -11,7 +11,8 @@ function adminClient() {
   )
 }
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'mpc-admin-2025'
+const ADMIN_SECRET = process.env.ADMIN_SECRET
+if (!ADMIN_SECRET) throw new Error('ADMIN_SECRET no configurado en variables de entorno')
 
 function checkAuth(req: NextRequest) {
   const auth = req.headers.get('x-admin-secret')

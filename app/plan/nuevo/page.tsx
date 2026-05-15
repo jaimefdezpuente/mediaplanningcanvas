@@ -172,7 +172,7 @@ function EditField({ label, fkey, value, onChange, onRefine, multiline=true, sma
     <div style={{ marginBottom:16 }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
         {label&&<label style={{ fontSize:small?11:12, fontWeight:500, color:C.steel3, letterSpacing:'0.1em', textTransform:'uppercase', fontFamily:"'Geist Mono',monospace" }}>{label}</label>}
-        <button onClick={()=>setShow(!show)} style={{ fontSize:11, color:C.accent, background:'none', border:'none', cursor:'pointer', fontWeight:500, marginLeft:'auto', fontFamily:"'Geist',sans-serif" }}>AI Mejorar</button>
+        <button onClick={()=>{ if(value.length < 30){ setAlert30(true) } else { setShow(!show) } }} style={{ fontSize:11, color:value.length < 30 ? C.steel2 : C.accent, background:'none', border:'none', cursor: value.length < 30 ? 'not-allowed' : 'pointer', fontWeight:500, marginLeft:'auto', fontFamily:"'Geist',sans-serif" }}>AI Mejorar</button>
       </div>
       {multiline
         ? <textarea ref={ref} style={{ ...INP, minHeight:72, resize:'none', overflow:'hidden', fontSize:small?13:15 }} value={value} onChange={e=>{ onChange(e.target.value); if(ref.current){ref.current.style.height='auto'; ref.current.style.height=ref.current.scrollHeight+'px'} }} />
@@ -487,6 +487,7 @@ function WizardInner() {
           name: current.projectName || `Plan ${current.sector}`,
           pais: current.pais, sector: current.sector, producto: current.producto,
           tipo_negocio: current.tipo_negocio, fase_negocio: current.fase_negocio,
+web: current.web, presupuesto: current.presupuesto, competidores: current.competidores,
           usp: current.usp, entorno: current.entorno, target: current.target,
           estrategia: current.estrategia, status: 'in_progress', updated_at: new Date().toISOString(),
         }).eq('id', savedPlanId)
@@ -495,6 +496,7 @@ function WizardInner() {
           user_id: user.id, name: current.projectName || `Plan ${current.sector || 'nuevo'}`,
           pais: current.pais, sector: current.sector, producto: current.producto,
           tipo_negocio: current.tipo_negocio, fase_negocio: current.fase_negocio,
+web: current.web, presupuesto: current.presupuesto, competidores: current.competidores,
           usp: current.usp, entorno: current.entorno, target: current.target,
           estrategia: current.estrategia, status: 'in_progress',
         }).select('id').single()
