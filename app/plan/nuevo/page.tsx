@@ -128,7 +128,7 @@ function UpgradeModal({ onClose }: { onClose: () => void }) {
 }
 
 function AiBtn({ label, used, max, onClick, disabled, small=false }: { label:string; used:number; max:number; onClick:()=>void; disabled?:boolean; small?:boolean }) {
-  const remaining = max - used
+  const remaining = Math.max(0, max - used)
   const isOut = remaining <= 0
   return (
     <button onClick={onClick} disabled={disabled||isOut} style={{ padding: small?'7px 12px':'9px 16px', borderRadius:6, border:`1px solid ${isOut?'#FECACA':C.steel1}`, background: isOut?'#FEF2F2':C.paper, color: isOut?'#B33A2E':C.steel, fontWeight:500, fontSize: small?11:12, cursor: isOut?'not-allowed':'pointer', fontFamily:"'Geist',sans-serif", display:'flex', alignItems:'center', gap:6, opacity:disabled&&!isOut?0.6:1 }}>
@@ -557,7 +557,7 @@ function WizardInner() {
             })}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
-            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2 }}>📋 {limits.plans} plan{limits.plans!==1?"es":""}</span><span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2 }}>🔬 {limits.analisis-usedAnalisis}/{limits.analisis} análisis</span><span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2, color:C.steel3 }}>✨ {limits.mejoras-usedMejoras}/{limits.mejoras} mejoras</span><span style={{ fontSize:10, padding:'3px 8px', borderRadius:4, background:C.navy, color:C.paper, fontWeight:600, fontFamily:"'Geist Mono',monospace" }}>{userPlan.toUpperCase()}</span>
+            <span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2 }}>📋 {limits.plans} plan{limits.plans!==1?"es":""}</span><span style={{ fontSize:10, color:C.steel3, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2 }}>🔬 {Math.max(0,limits.analisis-usedAnalisis)}/{limits.analisis} análisis</span><span style={{ fontSize:10, fontFamily:"'Geist Mono',monospace", padding:'3px 8px', borderRadius:4, background:C.paper2, color:C.steel3 }}>✨ {Math.max(0,limits.mejoras-usedMejoras)}/{limits.mejoras} mejoras</span><span style={{ fontSize:10, padding:'3px 8px', borderRadius:4, background:C.navy, color:C.paper, fontWeight:600, fontFamily:"'Geist Mono',monospace" }}>{userPlan.toUpperCase()}</span>
             <button onClick={()=>setSaveModal(true)} style={{ ...BTN_SM, background:C.navy, color:C.paper, border:'none' }}>Guardar</button>
           </div>
         </div>
@@ -660,7 +660,7 @@ function WizardInner() {
                 </select>
               </div>
               <div style={{ display:'flex', justifyContent:'flex-end' }}>
-                <AiBtn label={`Analizar Mercado con IA`} used={usedAnalisis} max={limits.analisis} onClick={s0next} disabled={busy} />
+                <button onClick={s0next} disabled={busy} style={{ padding:"9px 18px", borderRadius:6, background:"#0F2942", border:"none", color:"#F6F4EF", fontWeight:600, fontSize:14, cursor:busy?"not-allowed":"pointer", fontFamily:"'Geist',sans-serif", opacity:busy?0.7:1 }}>{userPlan==="free" ? "Continuar →" : `Analizar Mercado con IA (${Math.max(0,limits.analisis-usedAnalisis)} créditos)`}</button>
               </div>
             </div>
           )}
