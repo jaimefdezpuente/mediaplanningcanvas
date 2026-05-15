@@ -267,6 +267,7 @@ function WizardInner() {
   const supabase = createClient()
   const router = useRouter()
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout>|null>(null)
+  const planRef = useRef<PlanData|null>(null)
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -311,7 +312,9 @@ function WizardInner() {
                 ...(savedPlan.estrategia ? [2, 3] : []),
               ],
             }))
-            if (savedPlan.estrategia) setStep(4)
+            const savedStep = savedPlan.current_step || 0
+            if (savedStep > 0) setStep(savedStep)
+            else if (savedPlan.estrategia) setStep(4)
             else if (savedPlan.entorno) setStep(2)
             else setStep(1)
           }
@@ -336,6 +339,7 @@ function WizardInner() {
     return () => window.removeEventListener('message', handleMsg)
   }, [])
 
+  useEffect(() => { planRef.current = plan }, [plan])
   const limits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free
 
   function canUseMejora(): boolean { if (usedMejoras >= limits.mejoras) { setShowUpgrade(true); return false } return true }
@@ -353,9 +357,13 @@ function WizardInner() {
 
   function upd(f: keyof PlanData, v: string) { setPlan(p=>({...p,[f]:v})) }
   function se(k:string,v:string) {
-    setPlan(p=>({...p,edits:{...p.edits,[k]:v}}))
+    setPlan(p=>{
+      const next = {...p,edits:{...p.edits,[k]:v}}
+      planRef.current = next
+      return next
+    })
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
-    autoSaveTimer.current = setTimeout(() => { autoSave() }, 2000)
+    autoSaveTimer.current = setTimeout(() => { autoSaveFromRef() }, 2000)
   }
   function ed(k:string,fb:string) { return plan.edits[k]!==undefined?plan.edits[k]:fb }
   function markDone(s:number) { setPlan(p=>({...p,completed:p.completed.includes(s)?p.completed:[...p.completed,s]})) }
@@ -488,6 +496,43 @@ function WizardInner() {
     }
   }
 
+  async function autoSaveFromRef() {
+    const current = planRef.current
+    if (!current) return
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    setAutoSaving(true)
+    try {
+      if (savedPlanId) {
+        await supabase.from('plans').update({
+          name: current.projectName || `Plan ${current.sector}`,
+          pais: current.pais, sector: current.sector, producto: current.producto,
+          web: current.web, presupuesto: current.presupuesto, competidores: current.competidores,
+          tipo_negocio: current.tipo_negocio, fase_negocio: current.fase_negocio,
+          usp: current.usp, entorno: current.entorno, target: current.target,
+          estrategia: current.estrategia, edits: current.edits,
+          objectives: current.objectives, value_steps: current.valueSteps,
+          selected_channels: current.selectedChannels,
+          status: 'in_progress', current_step: step, updated_at: new Date().toISOString(),
+        }).eq('id', savedPlanId)
+      } else {
+        const { data } = await supabase.from('plans').insert({
+          user_id: user.id, name: current.projectName || `Plan ${current.sector || 'nuevo'}`,
+          pais: current.pais, sector: current.sector, producto: current.producto,
+          web: current.web, presupuesto: current.presupuesto, competidores: current.competidores,
+          tipo_negocio: current.tipo_negocio, fase_negocio: current.fase_negocio,
+          usp: current.usp, entorno: current.entorno, target: current.target,
+          estrategia: current.estrategia, edits: current.edits,
+          objectives: current.objectives, value_steps: current.valueSteps,
+          selected_channels: current.selectedChannels,
+          status: 'in_progress', current_step: step,
+        }).select('id').single()
+        if (data?.id) setSavedPlanId(data.id)
+      }
+    } catch(e) { console.error('autoSave error:', e) }
+    setAutoSaving(false)
+  }
+
   async function autoSave(extra?: Partial<PlanData>) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
@@ -504,7 +549,7 @@ function WizardInner() {
           estrategia: current.estrategia, edits: current.edits,
           objectives: current.objectives, value_steps: current.valueSteps,
           selected_channels: current.selectedChannels,
-          status: 'in_progress', updated_at: new Date().toISOString(),
+          status: 'in_progress', current_step: step, updated_at: new Date().toISOString(),
         }).eq('id', savedPlanId)
       } else {
         const { data } = await supabase.from('plans').insert({
@@ -516,7 +561,7 @@ function WizardInner() {
           estrategia: current.estrategia, edits: current.edits,
           objectives: current.objectives, value_steps: current.valueSteps,
           selected_channels: current.selectedChannels,
-          status: 'in_progress',
+          status: 'in_progress', current_step: step,
         }).select('id').single()
         if (data?.id) setSavedPlanId(data.id)
       }
