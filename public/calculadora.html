@@ -1705,7 +1705,173 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
     <div class="snum">03</div>
     <div class="stit" id="planTit">Plan de Medios</div>
   </div>
-  <div id="btnTacticoIA" style="display:none"></div>
+  <button id="btnTacticoIA" onclick="runTacticoIA()" style="display:flex;align-items:center;gap:7px;padding:7px 14px;background:#F6F4EF;border:1px solid #DDE2E8;border-radius:6px;color:#4A6B8A;font-family:'Geist',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:opacity 0.15s">
+    <span style="font-size:15px">✨</span> Plan Táctico con IA
+    <span id="tacticoIAcredits" style="font-size:10px;background:rgba(255,255,255,0.15);padding:2px 7px;border-radius:100px;font-family:'Geist Mono',monospace">—</span>
+  </button>
+</div>
+<div id="planSection">
+  <div class="empty" id="planEmpty"><span class="empty-ic">📋</span><div>Sin canales todavía.</div><div style="font-size:12px;margin-top:4px">Selecciona canales arriba o carga un ejemplo.</div></div>
+  <div id="planContent" style="display:none">
+    <div class="health-g" id="healthG"></div>
+    <div class="ph-sum" id="phSum"></div>
+    <div class="sm-row" id="smRow"></div>
+    <div class="tw"><table class="ptbl"><thead><tr>
+      <th>Canal</th><th>Inversión</th><th>% Presup.</th>
+      <th id="th_kpi1">KPI Fase</th><th id="th_kpi2">Clientes</th>
+      <th>Ingreso Est.</th><th>ROAS</th><th class="np"></th>
+    </tr></thead><tbody id="planBody"></tbody><tfoot id="planFoot"></tfoot></table></div>
+  </div>
+</div>
+
+<!-- STEP 04: MENSUAL -->
+<div class="slbl"><div class="snum">04</div><div class="stit">Distribución Mensual</div></div>
+<div class="card">
+  <div class="mon-help">
+    <strong>🗓️ ¿Cómo funciona?</strong> Cada <strong>●</strong> activa el canal ese mes. La inversión total del canal se <strong>divide entre los meses activos</strong>. Ejemplo: un canal con <strong>€1.200 activado en 6 meses = €200/mes</strong> esos meses. Al desactivar un mes pausas la inversión ese período — el canal sigue en el plan. Útil para gestionar <strong>estacionalidad, lanzamientos o presupuestos trimestrales</strong>.
+  </div>
+  <div class="tw"><table class="mtbl"><thead><tr id="mHdr">
+    <th class="cch">Canal</th>
+    <th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th>
+    <th>Jul</th><th>Ago</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dic</th>
+    <th>Meses</th><th>€/Mes</th>
+  </tr></thead><tbody id="mBody"></tbody></table></div>
+</div>
+
+<!-- STEP 05: SENSIBILIDAD -->
+<div class="slbl"><div class="snum">05</div><div class="stit">Análisis de Sensibilidad</div></div>
+<div class="ssub">¿Qué pasa si los ratios de conversión cambian? Testa la solidez del plan.</div>
+<div class="card">
+  <label class="fl" style="margin-bottom:8px">Variación del CR (Ratio de Conversión)</label>
+  <div class="sens-sl">
+    <span style="font-size:12px;color:#3d5370">-50%</span>
+    <input type="range" id="sensSlider" min="-50" max="50" value="0" step="5" oninput="renderSens()">
+    <span style="font-size:12px;color:#3d5370">+50%</span>
+    <span class="sens-v" id="sensV">Base</span>
+  </div>
+  <div class="sg" id="sensG"></div>
+</div>
+
+<!-- STEP 06: LTV -->
+<div class="slbl"><div class="snum">06</div><div class="stit">Life Time Value</div></div>
+<div class="ssub">Porcentajes deben sumar 100%. El LTV se calcula sobre los clientes del plan.</div>
+<div class="card">
+    <div id="pct_warn" class="pct-warn">⚠️ Los porcentajes no suman 100%</div>
+  <div style="overflow-x:auto">
+    <table class="ltbl">
+      <thead><tr>
+        <th style="min-width:150px">Segmento</th>
+        <th>% Clientes</th><th>Compras/Año</th><th>Años</th><th>Ticket (€)</th>
+        <th style="text-align:right">LTV/Cliente</th><th style="text-align:right">Nº Clientes</th><th style="text-align:right">Ingreso Total</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="seg-lbl"><span class="seg-dot" style="background:#10b981"></span>Heavy Users</div></td>
+          <td><input id="lh_p" value="40" type="number" min="0" max="100" oninput="calcLTV()">%</td>
+          <td><input id="lh_f" value="2.5" type="number" min="0" step=".5" oninput="calcLTV()"></td>
+          <td><input id="lh_y" value="3" type="number" min="1" oninput="calcLTV()"></td>
+          <td><input id="lh_t" value="299" type="number" min="0" oninput="calcLTV()"></td>
+          <td class="lres" id="lh_per">—</td><td class="lres" id="lh_cnt">—</td><td class="lres" id="lh_tot">—</td>
+        </tr>
+        <tr>
+          <td><div class="seg-lbl"><span class="seg-dot" style="background:#38bdf8"></span>Mid Users</div></td>
+          <td><input id="lm_p" value="20" type="number" min="0" max="100" oninput="calcLTV()">%</td>
+          <td><input id="lm_f" value="1.5" type="number" min="0" step=".5" oninput="calcLTV()"></td>
+          <td><input id="lm_y" value="2" type="number" min="1" oninput="calcLTV()"></td>
+          <td><input id="lm_t" value="199" type="number" min="0" oninput="calcLTV()"></td>
+          <td class="lres" id="lm_per">—</td><td class="lres" id="lm_cnt">—</td><td class="lres" id="lm_tot">—</td>
+        </tr>
+        <tr>
+          <td><div class="seg-lbl"><span class="seg-dot" style="background:#f59e0b"></span>Basic Users</div></td>
+          <td><input id="lb_p" value="20" type="number" min="0" max="100" oninput="calcLTV()">%</td>
+          <td><input id="lb_f" value="1" type="number" min="0" step=".5" oninput="calcLTV()"></td>
+          <td><input id="lb_y" value="1" type="number" min="1" oninput="calcLTV()"></td>
+          <td><input id="lb_t" value="99" type="number" min="0" oninput="calcLTV()"></td>
+          <td class="lres" id="lb_per">—</td><td class="lres" id="lb_cnt">—</td><td class="lres" id="lb_tot">—</td>
+        </tr>
+        <tr>
+          <td><div class="seg-lbl"><span class="seg-dot" style="background:#ef4444"></span>No Repiten</div></td>
+          <td><input id="ln_p" value="20" type="number" min="0" max="100" oninput="calcLTV()">%</td>
+          <td colspan="3" style="color:#3d5370;font-size:12px;padding:8px 10px">— Una sola compra —</td>
+          <td class="lres">€ 0</td><td class="lres" id="ln_cnt">—</td><td class="lres">€ 0</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" style="font-weight:700;padding:11px 8px;font-size:14px;color:#f0f6ff">TOTAL LTV</td>
+          <td colspan="3"></td>
+          <td class="lres" id="ltv_avg" style="color:#38bdf8;font-size:15px"></td>
+          <td class="lres" id="ltv_ctot" style="font-weight:700;color:#f0f6ff"></td>
+          <td class="lres" id="ltv_rtot" style="color:#10b981;font-size:15px;font-weight:700"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- STEP 07: RESUMEN -->
+<div class="slbl"><div class="snum">07</div><div class="stit">Resumen del Plan</div></div>
+<div class="sumg">
+  <div class="scard sca"><span class="sc-ic">💰</span><span class="sc-lbl">Inversión Total</span><span class="sc-val" id="s_inv">€ 0</span><span class="sc-sub" id="s_inv_s">—</span></div>
+  <div class="scard scb" id="s_leads_card" style="display:none"><span class="sc-ic">🎯</span><span class="sc-lbl">Leads Generados</span><span class="sc-val" id="s_leads">0</span><span class="sc-sub" id="s_leads_s">—</span></div>
+  <div class="scard scb"><span class="sc-ic">👥</span><span class="sc-lbl" id="s_cli_lbl">Clientes Estimados</span><span class="sc-val" id="s_cli">0</span><span class="sc-sub" id="s_cli_s">—</span></div>
+  <div class="scard scc"><span class="sc-ic">🏷️</span><span class="sc-lbl">Ticket Medio</span><span class="sc-val" id="s_tck">€ 0</span><span class="sc-sub" id="s_tck_s">—</span></div>
+  <div class="scard scd"><span class="sc-ic">📈</span><span class="sc-lbl">Ingreso Neto Año 1</span><span class="sc-val" id="s_rev">€ 0</span><span class="sc-sub" id="s_rev_s">ROAS: —</span></div>
+  <div class="scard sce"><span class="sc-ic">🎯</span><span class="sc-lbl">CAC</span><span class="sc-val" id="s_cac">€ 0</span><span class="sc-sub" id="s_cac_s">—</span></div>
+  <div class="scard scf"><span class="sc-ic">♾️</span><span class="sc-lbl">Life Time Value</span><span class="sc-val" id="s_ltv">€ 0</span><span class="sc-sub" id="s_ltv_s">LTV/CAC: —</span></div>
+</div>
+
+<!-- CHARTS SECTION -->
+<div class="np" style="margin-top:24px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <!-- Chart 1: Awareness vs Performance -->
+    <div class="card" style="padding:20px">
+      <div style="font-size:12px;font-weight:700;color:#8AA0B5;text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace;margin-bottom:12px">Distribución Inversión</div>
+      <div style="font-size:15px;font-weight:600;color:#F0F6FF;margin-bottom:16px">Awareness vs Performance</div>
+      <div style="position:relative;height:32px;border-radius:8px;overflow:hidden;background:#1a2a3a;margin-bottom:10px">
+        <div id="chart_aw_bar" style="position:absolute;left:0;top:0;height:100%;background:#C75A3C;border-radius:8px 0 0 8px;transition:width 0.5s;width:0%"></div>
+        <div id="chart_pf_bar" style="position:absolute;right:0;top:0;height:100%;background:#0F2942;border-radius:0 8px 8px 0;transition:width 0.5s;width:0%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:#F0F6FF"><span style="width:10px;height:10px;border-radius:2px;background:#C75A3C;display:inline-block"></span>Awareness <span id="chart_aw_pct" style="font-weight:700;font-family:'Geist Mono',monospace">0%</span> · <span id="chart_aw_eur" style="color:#8AA0B5">€0</span></span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:#F0F6FF"><span id="chart_pf_eur" style="color:#8AA0B5">€0</span> <span id="chart_pf_pct" style="font-weight:700;font-family:'Geist Mono',monospace">0%</span> Performance<span style="width:10px;height:10px;border-radius:2px;background:#0F2942;border:1px solid #3d5370;display:inline-block"></span></span>
+      </div>
+    </div>
+    <!-- Chart 2: Own/Earned/Paid/Shared -->
+    <div class="card" style="padding:20px">
+      <div style="font-size:12px;font-weight:700;color:#8AA0B5;text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace;margin-bottom:12px">Distribución por Tipo</div>
+      <div style="font-size:15px;font-weight:600;color:#F0F6FF;margin-bottom:16px">Own · Earned · Paid · Shared</div>
+      <div style="position:relative;height:32px;border-radius:8px;overflow:hidden;background:#1a2a3a;margin-bottom:10px;display:flex">
+        <div id="chart_own_bar" style="height:100%;background:#2F7D5C;transition:width 0.5s;width:0%;flex-shrink:0"></div>
+        <div id="chart_earn_bar" style="height:100%;background:#C28840;transition:width 0.5s;width:0%;flex-shrink:0"></div>
+        <div id="chart_paid_bar" style="height:100%;background:#C75A3C;transition:width 0.5s;width:0%;flex-shrink:0"></div>
+        <div id="chart_shar_bar" style="height:100%;background:#4A6B8A;transition:width 0.5s;width:0%;flex-shrink:0"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#F0F6FF"><span style="width:8px;height:8px;border-radius:2px;background:#2F7D5C;display:inline-block"></span>Own <span id="chart_own_pct" style="font-weight:700;font-family:'Geist Mono',monospace;color:#2F7D5C">0%</span></span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#F0F6FF"><span style="width:8px;height:8px;border-radius:2px;background:#C28840;display:inline-block"></span>Earned <span id="chart_earn_pct" style="font-weight:700;font-family:'Geist Mono',monospace;color:#C28840">0%</span></span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#F0F6FF"><span style="width:8px;height:8px;border-radius:2px;background:#C75A3C;display:inline-block"></span>Paid <span id="chart_paid_pct" style="font-weight:700;font-family:'Geist Mono',monospace;color:#C75A3C">0%</span></span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#F0F6FF"><span style="width:8px;height:8px;border-radius:2px;background:#4A6B8A;display:inline-block"></span>Shared <span id="chart_shar_pct" style="font-weight:700;font-family:'Geist Mono',monospace;color:#4A6B8A">0%</span></span>
+      </div>
+    </div>
+  </div>
+  <!-- Glossary -->
+  <div class="card" style="padding:16px 20px">
+    <div style="font-size:11px;font-weight:700;color:#8AA0B5;text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace;margin-bottom:12px">Glosario de tipos de medios</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:10px;height:10px;border-radius:2px;background:#2F7D5C;flex-shrink:0;margin-top:2px;display:inline-block"></span><div><strong style="color:#2F7D5C;font-size:12px">Paid Media</strong><div style="font-size:11px;color:#8AA0B5;line-height:1.5">Inversión en publicidad pagada: SEM, Meta Ads, LinkedIn, Display, TV, Radio, Exterior. Tú pagas para aparecer.</div></div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:10px;height:10px;border-radius:2px;background:#C28840;flex-shrink:0;margin-top:2px;display:inline-block"></span><div><strong style="color:#C28840;font-size:12px">Earned Media</strong><div style="font-size:11px;color:#8AA0B5;line-height:1.5">Visibilidad ganada de forma orgánica: SEO, PR, Reviews, Boca a Oreja, cobertura espontánea en medios. No se paga directamente.</div></div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:10px;height:10px;border-radius:2px;background:#C75A3C;flex-shrink:0;margin-top:2px;display:inline-block"></span><div><strong style="color:#C75A3C;font-size:12px">Own Media</strong><div style="font-size:11px;color:#8AA0B5;line-height:1.5">Canales propios: web, blog, email, app, podcast propio, RRSS orgánico. Inversión en producción y gestión, sin coste de distribución.</div></div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:10px;height:10px;border-radius:2px;background:#4A6B8A;flex-shrink:0;margin-top:2px;display:inline-block"></span><div><strong style="color:#4A6B8A;font-size:12px">Shared Media</strong><div style="font-size:11px;color:#8AA0B5;line-height:1.5">Medios compartidos: influencers, colaboraciones, contenido co-creado, comunidades. El alcance se comparte con otro propietario.</div></div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /inn -->
+<div class="toast" id="toast"></div>
+<div class="overlay" id="storageModal">
+  <div class="mbox">
+    <button class="mclose" onclick="closeModal('storageModal')">✕</button>
     <div id="storageModal" class="modal-bg" style="display:none;position:fixed;inset:0;background:rgba(15,41,66,0.4);z-index:9999;align-items:center;justify-content:center;padding:24px">
   <div style="background:#FFFFFF;border-radius:14px;padding:32px;max-width:380px;width:100%;box-shadow:0 24px 48px rgba(15,41,66,0.25)">
     <div style="font-size:18px;font-weight:600;color:#0F2942;margin-bottom:8px;font-family:'Geist',sans-serif">Guardar plan táctico</div>
@@ -2052,7 +2218,6 @@ function calcEntry(entry,crMult){
 function recalcAll(){S.channels.forEach(c=>{c.results=calcEntry(c);});updateBB();renderPlan();renderMonthly();renderSens();calcLTV();renderSummary();updateCharts();}
 
 function updateBB(){
-  if(_tacticoOptimized){_showReoptimizarBanner();}
   const tot=parseFloat(document.getElementById('obj_budget').value)||0;
   const used=S.channels.reduce((s,c)=>s+(c.results?.inversion||0),0);
   const left=tot-used;const pct=tot>0?Math.min(used/tot*100,100):0;
@@ -2442,28 +2607,6 @@ function _showIAModal(msg) {
 }
 function _hideIAModal(){ var m=document.getElementById('iaModal'); if(m) m.style.display='none'; }
 
-var _tacticoMode = 'budget';
-var _tacticoOptimized = false;
-
-function setTacticoMode(mode) {
-  _tacticoMode = mode;
-  var btnB = document.getElementById('modoBudget');
-  var btnO = document.getElementById('modoObjetivo');
-  var desc = document.getElementById('modoDesc');
-  if(mode === 'budget') {
-    btnB.style.background='#F6F4EF';btnB.style.color='#0F2942';btnB.style.fontWeight='600';
-    btnO.style.background='transparent';btnO.style.color='rgba(246,244,239,0.6)';btnO.style.fontWeight='500';
-    desc.textContent='Distribuye tu presupuesto disponible entre los canales para maximizar resultados.';
-  } else {
-    btnO.style.background='#F6F4EF';btnO.style.color='#0F2942';btnO.style.fontWeight='600';
-    btnB.style.background='transparent';btnB.style.color='rgba(246,244,239,0.6)';btnB.style.fontWeight='500';
-    desc.textContent='La IA calcula cuanto invertir en cada canal para alcanzar tu objetivo de ventas con el ticket medio definido.';
-  }
-}
-
-function _showReoptimizarBanner(){var b=document.getElementById('reoptimizarBanner');if(b&&_tacticoOptimized){b.style.display='flex';}}
-function _hideReoptimizarBanner(){var b=document.getElementById('reoptimizarBanner');if(b)b.style.display='none';}
-
 async function runTacticoIA(){
   if(!S.channels.length){ showToast('⚠️ Añade canales al plan primero'); return; }
   // Uses session cookie automatically (same domain as Next.js app)
@@ -2472,7 +2615,6 @@ async function runTacticoIA(){
   _showIAModal('Analizando '+needed+' canales y calculando la distribución óptima para tus objetivos...');
 
   // Build context from current form values
-  var isModoObjetivo = _tacticoMode === 'objetivo';
   var ctx = {
     sector: (document.getElementById('sectorSelect')||{}).value || '',
     mode: S.mode || 'B2C',
@@ -2480,10 +2622,7 @@ async function runTacticoIA(){
     budget: (document.getElementById('obj_budget')||{}).value || '5000',
     clients: (document.getElementById('obj_clients')||{}).value || '100',
     ticket: (document.getElementById('globalTicket')||{}).value || '150',
-    tactico_mode: _tacticoMode,
-    objetivos: (isModoObjetivo
-      ? 'MODO OBJETIVO: Alcanzar '+(document.getElementById('obj_clients')||{}).value+' clientes, Ticket: EUR '+(document.getElementById('globalTicket')||{}).value+'. Calcula inversion por canal.'
-      : 'MODO PRESUPUESTO: EUR '+(document.getElementById('obj_budget')||{}).value+'. Optimizar para '+(document.getElementById('obj_clients')||{}).value+' clientes, CAC max: EUR '+(document.getElementById('obj_cac')||{}).value),
+    objetivos: 'Ventas: '+(document.getElementById('obj_clients')||{}).value+' clientes · Ticket: €'+(document.getElementById('globalTicket')||{}).value+' · CAC máx: €'+(document.getElementById('obj_cac')||{}).value,
   };
 
   var totalBudget = parseFloat(ctx.budget) || 5000;
@@ -2512,7 +2651,7 @@ async function runTacticoIA(){
       body: JSON.stringify({ channels: channelPayload, context: ctx }),
     });
     var data = await res.json();
-    _hideIAModal(); _hideReoptimizarBanner(); _tacticoOptimized=true;
+    _hideIAModal();
 
     if(res.status === 402){
       // Insufficient credits
