@@ -1840,20 +1840,20 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 <div class="slbl np"><div class="snum">01</div><div class="stit">Tu plan de marketing</div></div>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px" class="np">
   <!-- A) Tu Selección (IA optimised) -->
-  <div id="btnMySelection" onclick="handleMySelection()" style="background:#0d1b2a;border:2px solid #0d1b2a;border-radius:12px;padding:18px;cursor:pointer;transition:all 0.15s;text-align:left;position:relative;display:flex;flex-direction:column;gap:8px;min-height:130px">
+  <div id="btnMySelection" onclick="handleMySelection()" style="background:linear-gradient(135deg,#0F2942,#163659);border:1.5px solid #0F2942;border-radius:12px;padding:18px 16px;cursor:pointer;transition:all 0.15s;text-align:left;position:relative;box-shadow:0 2px 8px rgba(15,41,66,0.18)">
     <div style="font-size:28px;margin-bottom:10px">🎯</div>
     <div style="font-weight:700;font-size:14px;color:#F6F4EF;margin-bottom:8px;letter-spacing:-0.01em">Tu Selección</div>
     <div style="font-size:12px;color:rgba(246,244,239,0.75);line-height:1.7;padding:0 4px">Canales de tu Estrategia, listos para rellenar el detalle táctico</div>
     <div id="selectionUpdateBadge" style="display:none;position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#C75A3C;color:#fff;border-radius:100px;padding:3px 12px;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(199,90,60,0.4)">⚠ Objetivos cambiados — actualizar</div>
   </div>
   <!-- B) Empezar de Cero -->
-  <div id="btnScratch" onclick="startFromScratch()" style="background:#fafaf7;border:1.5px solid #e7e2d8;border-radius:12px;padding:18px;cursor:pointer;transition:all 0.15s;text-align:left;display:flex;flex-direction:column;gap:8px;min-height:130px">
+  <div id="btnScratch" onclick="startFromScratch()" style="background:#fafaf7;border:1.5px solid #e7e2d8;border-radius:12px;padding:18px 16px;cursor:pointer;transition:all 0.15s;text-align:left;box-shadow:0 1px 4px rgba(15,41,66,0.04)">
     <div style="font-size:28px;margin-bottom:10px">✦</div>
     <div style="font-weight:700;font-size:14px;color:var(--mpc-navy);margin-bottom:6px">Empezar de Cero</div>
     <div style="font-size:12px;color:var(--mpc-steel);line-height:1.6">Borra el plan y empieza con el lienzo vacío</div>
   </div>
   <!-- C) Otros Ejemplos (toggleable) -->
-  <div id="btnExamples" onclick="toggleExamples()" style="background:#fafaf7;border:1.5px dashed #e7e2d8;border-radius:12px;padding:18px;cursor:pointer;transition:all 0.15s;text-align:left;display:flex;flex-direction:column;gap:8px;min-height:130px">
+  <div id="btnExamples" onclick="toggleExamples()" style="background:#fafaf7;border:1.5px dashed #e7e2d8;border-radius:12px;padding:18px 16px;cursor:pointer;transition:all 0.15s;text-align:left;box-shadow:0 1px 4px rgba(15,41,66,0.04)">
     <div style="font-size:28px;margin-bottom:10px">📂</div>
     <div style="font-weight:700;font-size:14px;color:var(--mpc-navy);margin-bottom:6px">Otros Ejemplos</div>
     <div style="font-size:12px;color:var(--mpc-steel);line-height:1.6">Ver ejemplos por sector e industria para inspirarte</div>
@@ -3467,5 +3467,64 @@ window.addEventListener('load', function() {
   filterExamplesByMode(mode);
 });
 </script>
+
+<style id="tactico-override">
+/* Plan marketing buttons */
+#btnMySelection, #btnScratch, #btnExamples {
+  min-height: 130px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 18px 16px !important;
+  border-radius: 12px !important;
+  text-align: left !important;
+}
+#btnMySelection > div:first-child,
+#btnScratch > div:first-child,
+#btnExamples > div:first-child {
+  font-size: 24px !important;
+  margin-bottom: 4px !important;
+}
+#btnMySelection > div:nth-child(2) {
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  color: #F6F4EF !important;
+  margin: 0 !important;
+}
+#btnMySelection > div:nth-child(3) {
+  font-size: 12px !important;
+  color: rgba(246,244,239,0.7) !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+}
+#btnScratch > div:nth-child(2),
+#btnExamples > div:nth-child(2) {
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  color: #0d1b2a !important;
+  margin: 0 !important;
+}
+#btnScratch > div:nth-child(3),
+#btnExamples > div:nth-child(3) {
+  font-size: 12px !important;
+  color: #4a5666 !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+}
+#btnScratch:hover, #btnExamples:hover {
+  border-color: #0d1b2a !important;
+  background: white !important;
+}
+/* Section headers */
+#mpc-root .slbl .stit {
+  font-size: 20px !important;
+  font-family: 'Instrument Serif', Georgia, serif !important;
+}
+/* Cards */
+#mpc-root .card {
+  border-radius: 14px !important;
+  box-shadow: 0 1px 0 rgba(13,27,42,0.04), 0 8px 28px -16px rgba(13,27,42,0.18) !important;
+}
+</style>
 </body>
 </html>
