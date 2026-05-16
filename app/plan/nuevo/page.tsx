@@ -700,44 +700,53 @@ function WizardInner() {
 
           <div style={{ background:C.white, border:`1px solid ${C.steel1}`, borderRadius:12, padding:'20px 24px', marginBottom:20 }}>
             <div style={{ fontSize:11, fontWeight:600, color:C.steel3, fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:12 }}>00 — Datos Clave</div>
-            <div style={{ display:'flex', gap:8, marginBottom:16 }}>
-              <button onClick={()=>{setTacticoMode('presupuesto');const ifr=document.getElementById('tactico-iframe') as HTMLIFrameElement;ifr?.contentWindow?.postMessage({type:'mpc-set-mode',mode:'budget'},'*')}} style={{ flex:1, padding:'10px 14px', borderRadius:8, border:`2px solid ${tacticoMode==='presupuesto'?C.navy:C.steel1}`, background:tacticoMode==='presupuesto'?C.navy:C.white, color:tacticoMode==='presupuesto'?C.paper:C.steel, fontWeight:600, fontSize:13, cursor:'pointer', fontFamily:"'Geist',sans-serif", textAlign:'left' as 'left' }}>
-                <div style={{ fontSize:15, marginBottom:2 }}>Por Presupuesto</div>
-                <div style={{ fontSize:11, fontWeight:400, opacity:0.7 }}>Tengo un presupuesto fijo y quiero el maximo retorno</div>
+            <p style={{ fontSize:12, color:C.steel3, margin:'0 0 16px', lineHeight:1.5 }}>Elige cómo quieres optimizar tu plan. El resto del plan se calculará en base a esta decisión.</p>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:0, background:'#f0ebde', padding:4, borderRadius:12, marginBottom:16 }}>
+              <button onClick={()=>{setTacticoMode('presupuesto');const ifr=document.getElementById('tactico-iframe') as HTMLIFrameElement;ifr?.contentWindow?.postMessage({type:'mpc-set-mode',mode:'budget'},'*')}} style={{ padding:'12px 14px', borderRadius:9, border:'none', background:tacticoMode==='presupuesto'?C.navy:'transparent', color:tacticoMode==='presupuesto'?C.paper:C.steel3, fontWeight:500, fontSize:13, cursor:'pointer', fontFamily:"'Geist',sans-serif", textAlign:'left' as 'left', display:'flex', alignItems:'center', gap:10, boxShadow:tacticoMode==='presupuesto'?'0 2px 8px -2px rgba(13,27,42,0.3)':'none', transition:'all 0.2s' }}>
+                <span style={{ width:24, height:24, borderRadius:7, background:tacticoMode==='presupuesto'?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.06)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, flexShrink:0 }}>€</span>
+                <span style={{ display:'flex', flexDirection:'column', gap:1 }}>
+                  <span>Optimizar por Presupuesto</span>
+                  <span style={{ fontSize:10, opacity:0.7, fontWeight:400 }}>Tengo un presupuesto fijo y quiero el máximo retorno</span>
+                </span>
               </button>
-              <button onClick={()=>{setTacticoMode('ventas');const ifr=document.getElementById('tactico-iframe') as HTMLIFrameElement;ifr?.contentWindow?.postMessage({type:'mpc-set-mode',mode:'objetivo'},'*')}} style={{ flex:1, padding:'10px 14px', borderRadius:8, border:`2px solid ${tacticoMode==='ventas'?C.navy:C.steel1}`, background:tacticoMode==='ventas'?C.navy:C.white, color:tacticoMode==='ventas'?C.paper:C.steel, fontWeight:600, fontSize:13, cursor:'pointer', fontFamily:"'Geist',sans-serif", textAlign:'left' as 'left' }}>
-                <div style={{ fontSize:15, marginBottom:2 }}>Por Objetivo de Ventas</div>
-                <div style={{ fontSize:11, fontWeight:400, opacity:0.7 }}>Se cuantas unidades quiero vender y calculo la inversion</div>
+              <button onClick={()=>{setTacticoMode('ventas');const ifr=document.getElementById('tactico-iframe') as HTMLIFrameElement;ifr?.contentWindow?.postMessage({type:'mpc-set-mode',mode:'objetivo'},'*')}} style={{ padding:'12px 14px', borderRadius:9, border:'none', background:tacticoMode==='ventas'?C.navy:'transparent', color:tacticoMode==='ventas'?C.paper:C.steel3, fontWeight:500, fontSize:13, cursor:'pointer', fontFamily:"'Geist',sans-serif", textAlign:'left' as 'left', display:'flex', alignItems:'center', gap:10, boxShadow:tacticoMode==='ventas'?'0 2px 8px -2px rgba(13,27,42,0.3)':'none', transition:'all 0.2s' }}>
+                <span style={{ width:24, height:24, borderRadius:7, background:tacticoMode==='ventas'?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.06)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, flexShrink:0 }}>%</span>
+                <span style={{ display:'flex', flexDirection:'column', gap:1 }}>
+                  <span>Optimizar por Ventas</span>
+                  <span style={{ fontSize:10, opacity:0.7, fontWeight:400 }}>Sé cuántas unidades quiero vender</span>
+                </span>
               </button>
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
               {tacticoMode==='ventas' && (
                 <div>
-                  <label style={{ fontSize:12, color:C.steel, display:'block', marginBottom:4 }}>Ventas en unidades (anual)</label>
-                  <input type="number" value={tacticoUnidades} onChange={e=>setTacticoUnidades(Number(e.target.value))} style={{ width:'100%', padding:'8px 10px', borderRadius:6, border:`1px solid ${C.steel1}`, fontSize:14, fontFamily:"'Geist Mono',monospace", boxSizing:'border-box' as 'border-box' }} />
+                  <label style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.1em', color:C.steel3, fontWeight:500, display:'block', marginBottom:6 }}>Ventas en unidades (anual)</label>
+                  <input type="number" value={tacticoUnidades} onChange={e=>setTacticoUnidades(Number(e.target.value))} style={{ background:'#fafaf7', border:`1px solid ${C.steel1}`, borderRadius:10, padding:'11px 13px', fontSize:14, fontWeight:500, color:C.navy, width:'100%', boxSizing:'border-box' as 'border-box' }} />
                 </div>
               )}
               <div>
-                <label style={{ fontSize:12, color:C.steel, display:'block', marginBottom:4 }}>Ticket medio (EUR)</label>
-                <input type="number" value={tacticoTicket} onChange={e=>setTacticoTicket(Number(e.target.value))} style={{ width:'100%', padding:'8px 10px', borderRadius:6, border:`1px solid ${C.steel1}`, fontSize:14, fontFamily:"'Geist Mono',monospace", boxSizing:'border-box' as 'border-box' }} />
+                <label style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.1em', color:C.steel3, fontWeight:500, display:'block', marginBottom:6 }}>Ticket medio (EUR)</label>
+                <input type="number" value={tacticoTicket} onChange={e=>setTacticoTicket(Number(e.target.value))} style={{ background:'#fafaf7', border:`1px solid ${C.steel1}`, borderRadius:10, padding:'11px 13px', fontSize:14, fontWeight:500, color:C.navy, width:'100%', boxSizing:'border-box' as 'border-box' }} />
               </div>
               {tacticoMode==='presupuesto' && (
                 <div>
-                  <label style={{ fontSize:12, color:C.steel, display:'block', marginBottom:4 }}>Presupuesto total (EUR)</label>
-                  <input type="number" value={tacticoPresupuesto} onChange={e=>setTacticoPresupuesto(Number(e.target.value))} style={{ width:'100%', padding:'8px 10px', borderRadius:6, border:`1px solid ${C.steel1}`, fontSize:14, fontFamily:"'Geist Mono',monospace", boxSizing:'border-box' as 'border-box' }} />
+                  <label style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.1em', color:C.steel3, fontWeight:500, display:'block', marginBottom:6 }}>Presupuesto total (EUR)</label>
+                  <input type="number" value={tacticoPresupuesto} onChange={e=>setTacticoPresupuesto(Number(e.target.value))} style={{ background:'#fafaf7', border:`1px solid ${C.steel1}`, borderRadius:10, padding:'11px 13px', fontSize:14, fontWeight:500, color:C.navy, width:'100%', boxSizing:'border-box' as 'border-box' }} />
                 </div>
               )}
-              <div style={{ background:C.paper, borderRadius:8, padding:'10px 14px' }}>
-                <div style={{ fontSize:11, color:C.steel3, marginBottom:2 }}>{tacticoMode==='presupuesto'?'Ventas alcanzables estimadas':'Ingresos objetivo'}</div>
-                <div style={{ fontSize:18, fontWeight:700, color:C.navy, fontFamily:"'Geist Mono',monospace" }}>
+              <div style={{ background:'linear-gradient(180deg,#fafaf6 0%,#f4efe4 100%)', border:'1px dashed #d8d2c2', borderRadius:12, padding:'16px 18px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                <div>
+                  <div style={{ fontSize:10, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:500 }}>{tacticoMode==='presupuesto'?'Ventas alcanzables':'Ingresos objetivo'}</div>
+                  <div style={{ fontSize:11, color:C.steel3, marginTop:2 }}>{tacticoMode==='presupuesto'?'Resultado estimado':'Unidades × ticket medio'}</div>
+                </div>
+                <div style={{ fontSize:26, fontWeight:400, color:C.navy, fontFamily:"'Georgia',serif" }}>
                   {tacticoMode==='presupuesto'
                     ? `~${tacticoTicket>0?Math.round(tacticoPresupuesto/tacticoTicket*4):0} clientes`
-                    : `EUR ${(tacticoUnidades*tacticoTicket).toLocaleString('es-ES')}`
+                    : `€ ${(tacticoUnidades*tacticoTicket).toLocaleString('es-ES')}`
                   }
                 </div>
               </div>
-            </div>
-          </div>
+            </div>          </div>
 
           <div style={{ position:'relative', marginBottom:32, width:'100%', overflow:'hidden' }}>
             <iframe id="tactico-iframe" key={`${plan.tipo_negocio}-${iframeKey}`} src={buildIframeSrc()} style={{ width:'100%', height:600, border:'none', display:'block', minHeight:600 }} scrolling="no" title="Calculadora" />
