@@ -270,6 +270,8 @@ function WizardInner() {
   const planRef = useRef<PlanData|null>(null)
   const stepRef = useRef<number>(0)
   const searchParams = useSearchParams()
+  const planId = searchParams.get('plan_id')
+  const stepParam = searchParams.get('step')
 
   useEffect(() => {
     async function init() {
@@ -284,7 +286,6 @@ function WizardInner() {
         setUsedMejoras(Number(user.user_metadata?.used_mejoras || 0))
         setUsedAnalisis(Number(user.user_metadata?.used_analisis || 0))
         if (user.user_metadata?.avatar_url) setUserAvatar(user.user_metadata.avatar_url)
-        const planId = searchParams.get('plan_id')
         if (planId) {
           const { data: savedPlan } = await supabase.from('plans').select('*').eq('id', planId).eq('user_id', user.id).single()
           if (savedPlan) {
