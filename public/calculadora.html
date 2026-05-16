@@ -1546,6 +1546,202 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
   }
 })();
 </script>
+<style>
+/* === NUEVO DISEÑO TACTICO === */
+:root {
+  --bg: #f5f1ea;
+  --paper: #ffffff;
+  --ink: #0d1b2a;
+  --ink-2: #1f2d3d;
+  --ink-3: #4a5666;
+  --muted: #8a93a0;
+  --line: #e7e2d8;
+  --line-2: #eee9de;
+  --coral: #ff6b5b;
+  --coral-soft: #ffe8e3;
+  --green: #1f8a5b;
+  --green-soft: #e3f3ea;
+  --blue: #2a6fdb;
+  --blue-soft: #e6efff;
+  --amber: #d4a017;
+  --amber-soft: #fbf3d9;
+  --pink: #d94f7f;
+  --pink-soft: #fbe5ec;
+  --shadow: 0 1px 0 rgba(13,27,42,0.04), 0 8px 28px -16px rgba(13,27,42,0.18);
+}
+.serif { font-family: 'Instrument Serif', 'Georgia', serif; font-weight: 400; letter-spacing: -0.01em; }
+
+#mpc-root {
+  font-family: 'Inter', 'Geist', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* Cards */
+#mpc-root .card, #mpc-root .slbl+.card {
+  background: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  padding: 22px !important;
+  margin-bottom: 18px !important;
+  box-shadow: var(--shadow) !important;
+}
+
+/* Section headers */
+#mpc-root .slbl {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 0 8px 0 !important;
+  margin-bottom: 0 !important;
+}
+#mpc-root .snum {
+  font-size: 11px !important;
+  color: var(--muted) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.08em !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+}
+#mpc-root .stit {
+  font-size: 22px !important;
+  font-family: 'Instrument Serif', 'Georgia', serif !important;
+  font-weight: 400 !important;
+  color: var(--ink) !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Form inputs */
+#mpc-root .fi, #mpc-root input.fi {
+  background: #fafaf7 !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
+  padding: 11px 13px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--ink) !important;
+  width: 100% !important;
+}
+#mpc-root .fi:focus {
+  border-color: var(--ink) !important;
+  background: white !important;
+  outline: none !important;
+}
+#mpc-root .fl {
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: var(--muted) !important;
+  font-weight: 500 !important;
+}
+#mpc-root .fs {
+  font-size: 11px !important;
+  color: var(--muted) !important;
+}
+
+/* Plan table */
+#mpc-root .ptbl th {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  color: var(--muted) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  padding: 10px 8px !important;
+  border-bottom: 1px solid var(--line) !important;
+  background: transparent !important;
+}
+#mpc-root .ptbl td {
+  padding: 14px 8px !important;
+  border-bottom: 1px solid var(--line-2) !important;
+  font-size: 13px !important;
+}
+#mpc-root .ptbl tr:hover td { background: #fafaf7 !important; }
+
+/* KPI summary cards */
+#mpc-root .sm {
+  background: #fafaf7 !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+}
+
+/* Phase tabs */
+#mpc-root .ph-tab {
+  flex: 1 !important;
+  padding: 10px 12px !important;
+  border-radius: 9px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--ink-3) !important;
+}
+#mpc-root .ph-tab.act {
+  background: white !important;
+  color: var(--ink) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+}
+
+/* Channel cards */
+#mpc-root .ch-card {
+  background: #fafaf7 !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 11px !important;
+  padding: 12px !important;
+  transition: all 0.15s !important;
+}
+#mpc-root .ch-card:hover {
+  border-color: var(--ink-3) !important;
+  background: white !important;
+}
+#mpc-root .ch-card.sel {
+  background: var(--ink) !important;
+  color: white !important;
+  border-color: var(--ink) !important;
+}
+
+/* Buttons */
+#mpc-root .btn-p {
+  background: var(--ink) !important;
+  color: white !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 10px 20px !important;
+  border: none !important;
+}
+#mpc-root .btn-p:hover { background: var(--ink-2) !important; }
+#mpc-root .btn-s {
+  background: transparent !important;
+  color: var(--ink-3) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
+  padding: 10px 18px !important;
+}
+
+/* Monthly table */
+#mpc-root .m-cell {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 6px !important;
+  background: var(--ink) !important;
+  color: white !important;
+  display: inline-grid !important;
+  place-items: center !important;
+}
+#mpc-root .m-cell.off { background: var(--line-2) !important; color: transparent !important; }
+
+/* AI banner in tactico */
+#mpc-root #tacticoModoBlock {
+  border-radius: 14px !important;
+  margin-bottom: 18px !important;
+}
+
+/* Summary health indicators */
+#mpc-root .health-g { gap: 12px !important; margin-bottom: 14px !important; }
+#mpc-root .ph-sum { display: grid !important; grid-template-columns: repeat(4,1fr) !important; gap: 12px !important; margin-bottom: 14px !important; }
+</style>
 </head>
 <body>
 <div id="mpc-root" style="background-color:#07090f;color:#e2e8f0;min-height:100vh;display:block;font-family:'DM Sans',sans-serif;font-size:14px;position:relative">
