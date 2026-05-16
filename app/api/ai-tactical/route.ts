@@ -11,9 +11,10 @@ const PLAN_LIMITS: Record<string, number> = {
 
 function channelPrompt(ch: Record<string, string>, ctx: Record<string, string>): string {
   const isModoObjetivo = ctx.tactico_mode === 'objetivo'
+
   const modoInstruccion = isModoObjetivo
-    ? `MODO OBJETIVO DE VENTAS: El cliente quiere conseguir ${ctx.clients} clientes con ticket medio EUR ${ctx.ticket}. Calcula la inversion NECESARIA en este canal para contribuir a ese objetivo. No te limites al presupuesto sugerido si necesitas mas para alcanzar el objetivo.`
-    : `MODO PRESUPUESTO: El cliente tiene EUR ${ctx.budget} en total. La inversion sugerida para este canal es EUR ${ctx.suggestedInv}. Optimiza los ratios para maximizar clientes dentro de ese presupuesto.`
+    ? 'MODO OBJETIVO DE VENTAS: El cliente quiere conseguir ' + ctx.clients + ' clientes con ticket medio EUR ' + ctx.ticket + '. Calcula la inversion NECESARIA en este canal para contribuir a ese objetivo. No te limites al presupuesto sugerido si necesitas mas para alcanzar el objetivo.'
+    : 'MODO PRESUPUESTO: El cliente tiene EUR ' + ctx.budget + ' en total. La inversion sugerida para este canal es EUR ' + ch.suggestedInv + '. Optimiza los ratios para maximizar clientes dentro de ese presupuesto.'
 
   const benchmarks = ctx.mode === 'B2B'
     ? 'B2B benchmarks: lead2mql 20-40%, mql2sql 40-60%, demo2client 15-30%, CPL LinkedIn EUR 40-120, CPL Google EUR 20-80.'
@@ -26,7 +27,7 @@ function channelPrompt(ch: Record<string, string>, ctx: Record<string, string>):
     fidelizacion: 'Canal de retencion: optimiza frecuencia de compra y LTV. Coste bajo, alto retorno.',
   }
 
-  return [
+  const lines = [
     'Eres media planner senior con 15 anos de experiencia en ' + ctx.sector + '.',
     '',
     'CONTEXTO DEL PROYECTO:',
@@ -51,13 +52,14 @@ function channelPrompt(ch: Record<string, string>, ctx: Record<string, string>):
     '',
     'INSTRUCCIONES:',
     '- Devuelve SOLO JSON con numeros reales y realistas para el sector.',
-    '- Usa el campo "inv" para la inversion en EUR.',
-    '- Si el modo es objetivo de ventas, calcula "inv" segun lo necesario para alcanzar el objetivo.',
-    '- Si el modo es presupuesto, usa aproximadamente EUR ' + ch.suggestedInv + ' para "inv".',
+    '- Usa el campo inv para la inversion en EUR.',
+    '- Si el modo es objetivo de ventas, calcula inv segun lo necesario para alcanzar el objetivo.',
+    '- Si el modo es presupuesto, usa aproximadamente EUR ' + ch.suggestedInv + ' para inv.',
     '- Todos los ratios deben ser coherentes entre si.',
-    '- Ejemplo formato: {"inv":1500,"cpm":8,"ctr":1.5,"carrito2venta":35}',
-  ].join('
-')
+    '- Devuelve solo el JSON sin markdown. Ejemplo: {"inv":1500,"cpm":8,"ctr":1.5}',
+  ]
+
+  return lines.join('\n')
 }
 
 export async function POST(req: NextRequest) {
@@ -68,7 +70,6 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       { cookies: { get: (name: string) => cookieStore.get(name)?.value } }
     )
-
     const { data: { user }, error } = await supabase.auth.getUser()
     if (error || !user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
@@ -81,6 +82,7 @@ export async function POST(req: NextRequest) {
       channels: Record<string, string>[],
       context: Record<string, string>
     }
+
     if (!channels?.length) return NextResponse.json({ error: 'Sin canales' }, { status: 400 })
 
     const needed = channels.length
@@ -104,7 +106,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Update credits
     await supabase.auth.updateUser({ data: { used_analisis: usedAnalisis + needed } })
 
     return NextResponse.json({
