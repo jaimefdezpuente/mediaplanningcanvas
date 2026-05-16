@@ -3235,5 +3235,95 @@ window.startFromScratch=function(){
 #mpc-root .gauto{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:10px!important}
 #mpc-root .ph-note{background:#fff9ef!important;border-left:3px solid #d4a017!important;border-top:none!important;border-right:none!important;border-bottom:none!important;padding:11px 14px!important;border-radius:8px!important;font-size:12px!important;color:#1f2d3d!important;margin-bottom:16px!important;line-height:1.5!important}
 </style>
+<style id="step03-override">
+/* KPI strip */
+#mpc-root .sm-row {
+  display: grid !important;
+  grid-template-columns: repeat(5,1fr) !important;
+  border: 1px solid #DDE2E8 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  margin-bottom: 16px !important;
+  gap: 0 !important;
+  background: transparent !important;
+}
+#mpc-root .sm {
+  padding: 14px 16px !important;
+  background: #fafaf7 !important;
+  border-right: 1px solid #DDE2E8 !important;
+  border-radius: 0 !important;
+}
+#mpc-root .sm:last-child { border-right: none !important; }
+#mpc-root .sm .l {
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: .1em !important;
+  color: #8a93a0 !important;
+  font-weight: 500 !important;
+  margin-bottom: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+#mpc-root .sm .v {
+  font-size: 20px !important;
+  color: #0F2942 !important;
+  font-weight: 600 !important;
+  font-family: 'Geist Mono', monospace !important;
+}
+#mpc-root .sm .s {
+  font-size: 10px !important;
+  color: #8a93a0 !important;
+  margin-top: 2px !important;
+}
+
+/* Plan table */
+#mpc-root .ptbl th {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  color: #8a93a0 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+  padding: 10px 8px !important;
+  border-bottom: 1px solid #DDE2E8 !important;
+  background: #fff !important;
+}
+#mpc-root .ptbl td {
+  padding: 13px 8px !important;
+  border-bottom: 1px solid #eee9de !important;
+  font-size: 13px !important;
+  color: #0F2942 !important;
+  vertical-align: middle !important;
+  background: #fff !important;
+}
+#mpc-root .ptbl tr:hover td { background: #fafaf7 !important; }
+#mpc-root .ptbl tfoot td {
+  font-weight: 600 !important;
+  border-top: 1px solid #DDE2E8 !important;
+  border-bottom: none !important;
+  background: #fff !important;
+}
+#mpc-root .ptbl .ch-nm { font-weight: 600 !important; color: #0F2942 !important; }
+#mpc-root .btn-ed, #mpc-root .btn-rm {
+  width: 26px !important; height: 26px !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  color: #8a93a0 !important;
+}
+#mpc-root .btn-ed:hover { background: #DDE2E8 !important; color: #0F2942 !important; }
+#mpc-root .btn-rm:hover { background: #ffe8e3 !important; color: #C75A3C !important; }
+#mpc-root .ph-badge.notoriedad { background: #fbf3d9 !important; color: #6b5612 !important; }
+#mpc-root .ph-badge.interaccion { background: #e6efff !important; color: #1f4e9c !important; }
+#mpc-root .ph-badge.lead_venta { background: #e3f3ea !important; color: #1f8a5b !important; }
+#mpc-root .ph-badge.fidelizacion { background: #fbe5ec !important; color: #9c2a5a !important; }
+#mpc-root .rbadge.rg { background: #e3f3ea !important; color: #1f8a5b !important; }
+#mpc-root .rbadge.rw { background: #fbf3d9 !important; color: #6b5612 !important; }
+#mpc-root .rbadge.rb { background: #ffe8e3 !important; color: #a3382c !important; }
+</style>
 </body>
 </html>
