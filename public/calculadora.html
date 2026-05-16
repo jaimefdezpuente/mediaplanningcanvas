@@ -1918,43 +1918,7 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
   </div>
   <div id="btnTacticoIA" style="display:none"></div>
 </div>
-<div id="tacticoModoBlock" style="display:none!important" style="margin:20px 0;background:linear-gradient(135deg,#0F2942,#1a4a7a);border-radius:14px;padding:28px 24px">
-  <div style="text-align:center;margin-bottom:20px">
-    <div style="font-size:11px;color:rgba(246,244,239,0.5);font-family:'Geist Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Optimizacion con IA</div>
-    <div style="font-size:18px;font-weight:700;color:#F6F4EF;letter-spacing:-0.01em">Plan Tactico con IA</div>
-    <p style="font-size:13px;color:rgba(246,244,239,0.65);margin:8px auto 0;max-width:420px;line-height:1.5">Elige como quieres optimizar. La IA rellena todos los campos de cada canal automaticamente.</p>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-    <div id="cardBudget" onclick="setTacticoModo('budget')" style="background:rgba(255,255,255,0.12);border:2px solid #F6F4EF;border-radius:10px;padding:18px 16px;cursor:pointer">
-      <div style="font-size:14px;font-weight:700;color:#F6F4EF;margin-bottom:4px">Por Presupuesto</div>
-      <div style="font-size:11px;color:rgba(246,244,239,0.6);line-height:1.5;margin-bottom:10px">Distribuye tu presupuesto entre los canales para maximizar resultados.</div>
-      <div style="font-size:10px;color:#C75A3C;font-family:'Geist Mono',monospace;font-weight:600">3 Analisis IA por uso</div>
-      <div id="budgetField" style="margin-top:12px;display:block" onclick="event.stopPropagation()">
-        <label style="font-size:11px;color:rgba(246,244,239,0.6);display:block;margin-bottom:4px">Presupuesto total (EUR)</label>
-        <input id="ia_budget" type="number" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#F6F4EF;font-family:'Geist Mono',monospace;font-size:13px;box-sizing:border-box" placeholder="5000" oninput="document.getElementById('obj_budget').value=this.value;updateBB()">
-      </div>
-    </div>
-    <div id="cardObjetivo" onclick="setTacticoModo('objetivo')" style="background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:18px 16px;cursor:pointer">
-      <div style="font-size:14px;font-weight:700;color:#F6F4EF;margin-bottom:4px">Por Objetivo de Ventas</div>
-      <div style="font-size:11px;color:rgba(246,244,239,0.6);line-height:1.5;margin-bottom:10px">La IA calcula la inversion necesaria para alcanzar tu objetivo de clientes.</div>
-      <div style="font-size:10px;color:#C75A3C;font-family:'Geist Mono',monospace;font-weight:600">3 Analisis IA por uso</div>
-      <div id="objetivoField" style="margin-top:12px;display:none" onclick="event.stopPropagation()">
-        <label style="font-size:11px;color:rgba(246,244,239,0.6);display:block;margin-bottom:4px">Objetivo clientes anuales</label>
-        <input id="ia_clients" type="number" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#F6F4EF;font-family:'Geist Mono',monospace;font-size:13px;margin-bottom:8px;box-sizing:border-box" placeholder="100" oninput="document.getElementById('obj_clients').value=this.value">
-        <label style="font-size:11px;color:rgba(246,244,239,0.6);display:block;margin-bottom:4px">Ticket medio (EUR)</label>
-        <input id="ia_ticket" type="number" style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#F6F4EF;font-family:'Geist Mono',monospace;font-size:13px;box-sizing:border-box" placeholder="150" oninput="document.getElementById('globalTicket').value=this.value;recalcAll()">
-      </div>
-    </div>
-  </div>
-  <div style="text-align:center">
-    <button onclick="runTacticoIA()" style="padding:13px 40px;border-radius:8px;background:#C75A3C;border:none;color:#F6F4EF;font-weight:700;font-size:14px;cursor:pointer;font-family:'Geist',sans-serif;box-shadow:0 4px 14px rgba(199,90,60,0.35);width:100%;max-width:320px">Optimizar con IA</button>
-    <div style="margin-top:8px"><span id="tacticoIAcredits" style="font-size:11px;color:rgba(246,244,239,0.45);font-family:'Geist Mono',monospace"></span></div>
-  </div>
-  <div id="reoptBanner" style="display:none;margin-top:14px;background:rgba(194,136,64,0.2);border:1px solid rgba(194,136,64,0.35);border-radius:8px;padding:10px 16px;font-size:12px;color:#F6D99A;align-items:center;justify-content:center;gap:10px">
-    <span>Has cambiado los objetivos &mdash;</span>
-    <button onclick="runTacticoIA()" style="background:rgba(255,255,255,0.12);border:none;color:#F6D99A;font-size:12px;cursor:pointer;font-family:'Geist',sans-serif;padding:4px 10px;border-radius:4px;font-weight:600;margin-left:4px">Re-optimizar</button>
-  </div>
-</div>
+
 <div id="planSection">
   <div class="empty" id="planEmpty"><span class="empty-ic">📋</span><div>Sin canales todavía.</div><div style="font-size:12px;margin-top:4px">Selecciona canales arriba o carga un ejemplo.</div></div>
   <div id="planContent" style="display:none">
@@ -1966,6 +1930,7 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
       <th id="th_kpi1">KPI Fase</th><th id="th_kpi2">Clientes</th>
       <th>Ingreso Est.</th><th>ROAS</th><th class="np"></th>
     </tr></thead><tbody id="planBody"></tbody><tfoot id="planFoot"></tfoot></table></div>
+    
   </div>
 </div>
 
@@ -3885,6 +3850,17 @@ window.addEventListener('load', function() {
   letter-spacing: 0.1em !important;
   margin-bottom: 8px !important;
 }
+</style>
+
+<style id="hide-cac-ltv">
+#mpc-root .scard.sce,
+#mpc-root .scard.scf { display: none !important; }
+</style>
+
+<style id="hide-cac-ltv-final">
+#mpc-root .scard.sce,
+#mpc-root .scard.scf { display: none !important; }
+#mpc-root #tacticoModoBlock { display: none !important; }
 </style>
 </body>
 </html>
