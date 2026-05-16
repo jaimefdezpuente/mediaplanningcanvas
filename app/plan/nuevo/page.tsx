@@ -655,11 +655,26 @@ function WizardInner() {
 
       {step===4&&(
         <div style={{ maxWidth:1040, margin:'0 auto', padding:'40px 24px 0' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:4 }}>
-            <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, letterSpacing:'-0.02em', margin:0 }}>Tactico & Presupuesto</h1>
-            <span style={{ background:C.navy, color:C.paper, borderRadius:100, padding:'4px 14px', fontSize:13, fontWeight:700 }}>{plan.tipo_negocio}</span>
+          <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:16 }}>
+            <div>
+              <div style={{ display:'flex', alignItems:'baseline', gap:12, marginBottom:4 }}>
+                <h1 style={{ fontSize:32, fontWeight:400, color:C.navy, letterSpacing:'-0.02em', margin:0, fontFamily:"'Georgia',serif" }}>Táctico & Presupuesto</h1>
+                <span style={{ background:C.navy, color:C.paper, borderRadius:100, padding:'4px 10px', fontSize:11, fontWeight:700, letterSpacing:'0.04em' }}>{plan.tipo_negocio}</span>
+              </div>
+              <p style={{ fontSize:12, color:C.steel3, margin:0 }}>Distribuye tu inversión por canal y mes — plan optimizado para el contexto declarado.</p>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:6, alignItems:'flex-end', flexShrink:0 }}>
+              <div style={{ fontSize:10, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:500 }}>Optimizado para</div>
+              <div style={{ display:'flex', gap:8 }}>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 11px', borderRadius:999, background:'#fff8e7', border:'1px solid #f0e4c1', fontSize:12, fontWeight:500, color:'#6b5612' }}>
+                  Fase: <strong>{plan.fase_negocio}</strong>
+                </span>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 11px', borderRadius:999, background:'#e6efff', border:'1px solid #cfdcf3', fontSize:12, fontWeight:500, color:'#1f4e9c' }}>
+                  Sector: <strong>{plan.sector}</strong>
+                </span>
+              </div>
+            </div>
           </div>
-          <p style={{ fontSize:14, color:C.steel, marginBottom:16 }}>{plan.sector} - {plan.pais}</p>
           <VideoBlock vimeoId="1103392013" title="Distribucion tactica de presupuesto" />
 
           <div style={{ background:C.white, border:`1px solid ${C.steel1}`, borderRadius:12, padding:'20px 24px', marginBottom:20 }}>
