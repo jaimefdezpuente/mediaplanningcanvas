@@ -4878,120 +4878,7 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
 </div>
 
 <!-- STEP 00: OBJETIVOS -->
-<div class="slbl"><div class="snum">00</div><div class="stit">Objetivos del Plan Anual</div></div>
-<div class="ssub">Define primero el techo y el objetivo. El plan se construye hacia atrás desde aquí.</div>
-<div class="card">
-  <div class="g4">
-    <div class="fr">
-      <label class="fl" id="budgetLabel">Presupuesto Total (€)</label>
-      <input class="fi mono" type="number" id="obj_budget" value="5000" min="0" step="100" oninput="updateBB();renderSummary()">
-      <span class="fs" id="budgetHint">Techo máximo de inversión</span>
-    </div>
-    <div class="fr">
-      <label class="fl">Objetivo de Clientes Anual</label>
-      <input class="fi mono" type="number" id="obj_clients" value="100" min="0" oninput="renderSummary()">
-      <span class="fs">¿Cuántos clientes quieres conseguir este año?</span>
-    </div>
-    <div class="fr">
-      <label class="fl">Ticket Medio por Cliente (€)</label>
-      <input class="fi mono" type="number" id="globalTicket" value="150" min="0" oninput="recalcAll()">
-      <input type="hidden" id="ticketType" value="por_venta">
-      <span class="fs">Ingreso promedio por cliente al año</span>
-    </div>
-    <div class="fr">
-      <label class="fl">CAC Máximo (€)</label>
-      <input class="fi mono" type="number" id="obj_cac" value="50" min="0" oninput="renderSummary()">
-      <span class="fs">Coste máximo por cliente</span>
-    </div>
-  </div>
-  <div class="g2" style="margin-top:12px">
-    <div class="fr">
-      <label class="fl">Fase del Negocio</label>
-      <select class="fi" id="obj_phase" onchange="onPhaseChange()" onclick="if(window._fromWizard){showLockedFieldModal('Fase del Negocio');return false}" style="cursor:pointer">
-        <option value="launch">🚀 Lanzamiento</option>
-        <option value="growth">📈 Crecimiento</option>
-        <option value="maturity">🏛️ Madurez</option>
-      </select>
-    </div>
-    <div class="fr">
-      <label class="fl">Sector</label>
-      <select class="fi" id="sectorSelect" onchange="onSectorChange()" onclick="if(window._fromWizard){showLockedFieldModal('Sector');return false}" style="cursor:pointer">
-        <option value="">— Selecciona tu sector —</option>
-        <option value="alimentacion">🛒 Alimentación</option>
-        <option value="moda">👗 Moda y Accesorios</option>
-        <option value="salud">💊 Salud y Belleza</option>
-        <option value="deporte">🏋️ Deporte y Fitness</option>
-        <option value="hogar">🏠 Hogar y Decoración</option>
-        <option value="bricolaje">🔧 Bricolaje</option>
-        <option value="tecnologia">💻 Tecnología</option>
-        <option value="cursos">🎓 Cursos y Formación</option>
-        <option value="viajes">✈️ Viajes</option>
-        <option value="food_delivery">🍕 Food Delivery</option>
-        <option value="servicios">💼 Servicios</option>
-        <option value="automovil">🚗 Automoción</option>
-        <option value="seguros">🛡️ Seguros y Finanzas</option>
-        <option value="otros">📦 Otros</option>
-      </select>
-      <div id="benchRow" style="margin-top:8px;display:none">
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <span id="bench_b2c" class="tag tb2c" style="font-size:11px;padding:3px 9px"></span>
-          <span id="bench_b2b" class="tag tb2b" style="font-size:11px;padding:3px 9px"></span>
-        </div>
-        <span style="font-size:10px;color:#3d5370;margin-top:5px;display:block">📄 Flat 101 · Estudio Conversión 2025</span>
-      </div>
-    </div>
-  </div>
-</div>
-<div id="mixBox" style="display:none"></div>
 
-<!-- STEP 01: CÓMO EMPEZAR -->
-<div class="slbl np"><div class="snum">01</div><div class="stit">Tu plan de marketing</div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px" class="np">
-  <!-- A) Tu Selección (IA optimised) -->
-  <div id="btnMySelection" onclick="handleMySelection()" style="background:linear-gradient(135deg,#0F2942,#163659);border:1.5px solid #0F2942;border-radius:10px;padding:24px 20px;cursor:pointer;transition:all 0.15s;text-align:center;position:relative;box-shadow:0 2px 8px rgba(15,41,66,0.18)">
-    <div style="font-size:28px;margin-bottom:10px">🎯</div>
-    <div style="font-weight:700;font-size:14px;color:#F6F4EF;margin-bottom:8px;letter-spacing:-0.01em">Tu Selección</div>
-    <div style="font-size:12px;color:rgba(246,244,239,0.75);line-height:1.7;padding:0 4px">Canales de tu Estrategia, listos para rellenar el detalle táctico</div>
-    <div id="selectionUpdateBadge" style="display:none;position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#C75A3C;color:#fff;border-radius:100px;padding:3px 12px;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(199,90,60,0.4)">⚠ Objetivos cambiados — actualizar</div>
-  </div>
-  <!-- B) Empezar de Cero -->
-  <div id="btnScratch" onclick="startFromScratch()" style="background:#fff;border:1.5px solid var(--mpc-steel1);border-radius:10px;padding:20px 16px;cursor:pointer;transition:all 0.15s;text-align:center;box-shadow:0 1px 4px rgba(15,41,66,0.06)">
-    <div style="font-size:28px;margin-bottom:10px">✦</div>
-    <div style="font-weight:700;font-size:14px;color:var(--mpc-navy);margin-bottom:6px">Empezar de Cero</div>
-    <div style="font-size:12px;color:var(--mpc-steel);line-height:1.6">Borra el plan y empieza con el lienzo vacío</div>
-  </div>
-  <!-- C) Otros Ejemplos (toggleable) -->
-  <div id="btnExamples" onclick="toggleExamples()" style="background:#fff;border:1.5px dashed var(--mpc-steel1);border-radius:10px;padding:20px 16px;cursor:pointer;transition:all 0.15s;text-align:center;box-shadow:0 1px 4px rgba(15,41,66,0.06)">
-    <div style="font-size:28px;margin-bottom:10px">📂</div>
-    <div style="font-weight:700;font-size:14px;color:var(--mpc-navy);margin-bottom:6px">Otros Ejemplos</div>
-    <div style="font-size:12px;color:var(--mpc-steel);line-height:1.6">Ver ejemplos por sector e industria para inspirarte</div>
-  </div>
-</div>
-<!-- Examples panel — hidden by default -->
-<div id="examplesPanel" style="display:none">
-<div class="ex-mode-group" data-ex-mode="B2C">
-<div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--mpc-steel3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace" class="np">Ejemplos B2C</div>
-<div class="ex-g np" style="margin-bottom:16px">
-  <div class="ex-c" onclick="loadExample('ecom_b2c')"><span class="ex-tt">🛍️ E-commerce · Moda</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">Meta Branding + Meta Perf + SEM + Influencer + Email. Plan completo.</div><span class="ex-bg">€ 3.500 · 80 clientes</span></div>
-  <div class="ex-c" onclick="loadExample('academia')"><span class="ex-tt">🎓 Academia Online</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">RRSS Orgánico + Meta Perf + Email BBDD + Webinar + Afiliación.</div><span class="ex-bg">€ 2.200 · 60 clientes</span></div>
-  <div class="ex-c" onclick="loadExample('fitness_b2c')"><span class="ex-tt">🏋️ App Fitness/Salud</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">TikTok Branding + Meta Perf + Influencer + App Store + Email Auto.</div><span class="ex-bg">€ 4.000 · 200 usuarios</span></div>
-  <div class="ex-c" onclick="loadExample('retail_b2c')"><span class="ex-tt">🏪 Retail Local</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">Google Business + Meta Ads + Cupones + SMS + Loyalty Program.</div><span class="ex-bg">€ 1.500 · 150 clientes</span></div>
-  <div class="ex-c" onclick="loadExample('travel_b2c')"><span class="ex-tt">✈️ Viajes y Turismo</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">SEM + Meta Perf + Display Retargeting + Email BBDD + Reviews.</div><span class="ex-bg">€ 5.000 · 100 reservas</span></div>
-  <div class="ex-c" onclick="loadExample('beauty_b2c')"><span class="ex-tt">💄 Belleza y Cosmética</span><div class="ex-tg"><span class="tag tb2c">B2C</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">Influencer Gifting + TikTok Ads + Instagram Meta Perf + Email Own.</div><span class="ex-bg">€ 2.800 · 120 clientes</span></div>
-</div>
-</div>
-<div class="ex-mode-group" data-ex-mode="B2B">
-<div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--mpc-steel3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Geist Mono',monospace" class="np">Ejemplos B2B</div>
-<div class="ex-g np">
-  <div class="ex-c" onclick="loadExample('saas_b2b')"><span class="ex-tt">💼 SaaS · Servicios</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">LinkedIn Branding + LinkedIn Perf + SEM + Email Outreach + Sales Force.</div><span class="ex-bg">€ 6.000 · 20 clientes</span></div>
-  <div class="ex-c" onclick="loadExample('consulting_b2b')"><span class="ex-tt">🏛️ Consultoría</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">LinkedIn Perfiles + Webinar + Cold Outreach + Demos + Customer Success.</div><span class="ex-bg">€ 3.000 · 8 clientes</span></div>
-  <div class="ex-c" onclick="loadExample('industrial_b2b')"><span class="ex-tt">⚙️ Industrial/Manufactura</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">SEM + LinkedIn + Partners Comerciales + Sales Force + Email Auto CRM.</div><span class="ex-bg">€ 8.000 · 15 clientes</span></div>
-  <div class="ex-c" onclick="loadExample('hr_b2b')"><span class="ex-tt">👥 RRHH / Formación B2B</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">LinkedIn Branding + Webinar + Email Outreach + Demos + Customer Success.</div><span class="ex-bg">€ 4.500 · 12 clientes</span></div>
-  <div class="ex-c" onclick="loadExample('agency_b2b')"><span class="ex-tt">🎯 Agencia Digital</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tlaunch">Lanzamiento</span></div><div class="ex-ds">LinkedIn + Branded Content + Cold Outreach + Referidos + Reviews Google.</div><span class="ex-bg">€ 2.500 · 6 clientes</span></div>
-  <div class="ex-c" onclick="loadExample('fintech_b2b')"><span class="ex-tt">💳 Fintech B2B</span><div class="ex-tg"><span class="tag tb2b">B2B</span><span class="tag tgrow">Crecimiento</span></div><div class="ex-ds">SEM + LinkedIn Perf + Eventos Propios + Sales Force + Customer Success.</div><span class="ex-bg">€ 10.000 · 25 clientes</span></div>
-</div>
-</div>
-</div><!-- /examplesPanel -->
 <div class="slbl"><div class="snum">02</div><div class="stit">Añade Canales por Fase del Embudo</div></div>
 <div class="ssub">Selecciona la fase → elige el canal → rellena sus variables. Un mismo canal puede usarse en diferentes fases con KPIs distintos (ej: Meta Ads en Notoriedad = impresiones; en Lead/Venta = conversiones).</div>
 <div class="card np">
@@ -5030,13 +4917,13 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
       <th id="th_kpi1">KPI Fase</th><th id="th_kpi2">Clientes</th>
       <th>Ingreso Est.</th><th>ROAS</th><th class="np"></th>
     </tr></thead><tbody id="planBody"></tbody><tfoot id="planFoot"></tfoot></table></div>
-    <div style="margin:24px 0;background:linear-gradient(135deg,#eaf1ff 0%,#e8f5ec 100%);border:1px solid #d8e4f0;border-radius:14px;padding:32px 24px;text-align:center;position:relative;overflow:hidden">
+    <div style="margin:24px 0;background:linear-gradient(135deg,#eaf1ff 0%,#e8f5ec 100%);border:1px solid #d8e4f0;border-radius:14px;padding:32px 24px;text-align:center">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#1f4e9c;font-weight:600;margin-bottom:12px">&#10022; OPTIMIZACION CON IA</div>
-      <div style="font-size:28px;font-weight:400;color:#0F2942;margin-bottom:12px;font-family:'Instrument Serif',Georgia,serif;letter-spacing:-.01em">¿Cuales son los mejores canales para tu proyecto?</div>
-      <p style="font-size:13px;color:#4a5666;margin:0 auto 24px;max-width:540px;line-height:1.5">Con los datos de tu target, sector, presupuesto y objetivos, la IA recomendara la distribucion presupuestaria optima para alcanzar los objetivos indicados.</p>
-      <button onclick="runTacticoIA()" style="display:inline-flex;align-items:center;gap:10px;background:#ffe8e3;color:#a3382c;padding:11px 24px;border-radius:12px;font-size:13px;font-weight:600;border:1px solid #f5d1c8;cursor:pointer;font-family:inherit">
+      <div style="font-size:28px;font-weight:400;color:#0F2942;margin-bottom:12px;font-family:'Instrument Serif',Georgia,serif">Cuales son los mejores canales para tu proyecto</div>
+      <p style="font-size:13px;color:#4a5666;margin:0 auto 24px;max-width:540px;line-height:1.5">Con los datos de tu target, sector, presupuesto y objetivos, la IA recomendara la distribucion optima para alcanzar tus objetivos.</p>
+      <button onclick="runTacticoIA()" style="display:inline-flex;align-items:center;gap:10px;background:#ffe8e3;color:#a3382c;padding:12px 24px;border-radius:12px;font-size:13px;font-weight:600;border:1px solid #f5d1c8;cursor:pointer;font-family:inherit">
         <span>&#10022;</span>
-        <span>Optimizar con IA</span>
+        <span>AI &middot; Recomendar plan de medios</span>
         <span id="tacticoIAcredits" style="background:#fff;color:#C75A3C;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;font-family:monospace"></span>
       </button>
     </div>
