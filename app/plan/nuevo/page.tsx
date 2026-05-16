@@ -289,6 +289,7 @@ function WizardInner() {
           const { data: savedPlan } = await supabase.from('plans').select('*').eq('id', planId).eq('user_id', user.id).single()
           if (savedPlan) {
             setSavedPlanId(planId)
+            planIdRef.current = planId
             setPlan(p => ({
               ...p,
               projectName: savedPlan.name || '',
@@ -343,11 +344,11 @@ function WizardInner() {
   useEffect(() => { planRef.current = plan }, [plan])
   useEffect(() => { stepRef.current = step; if(step > 0) autoSaveFromRef() }, [step])
   useEffect(() => {
-    if (!planId) return
+    if (!planIdRef.current && !savedPlanId) return
     const url = new URL(window.location.href)
     url.searchParams.set('step', String(step))
     window.history.replaceState(null, '', url.toString())
-  }, [step, planId])
+  }, [step, savedPlanId])
 
   const limits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free
 
