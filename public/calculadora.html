@@ -3650,5 +3650,159 @@ window.addEventListener('load', function() {
   gap: 10px !important;
 }
 </style>
+
+<style id="step03-override">
+/* KPI strip - summary cards */
+#mpc-root .sm-row {
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 0 !important;
+  margin: 4px 0 18px !important;
+  border: 1px solid #e7e2d8 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+#mpc-root .sm {
+  padding: 14px 16px !important;
+  background: #fafaf7 !important;
+  border-right: 1px solid #eee9de !important;
+  border-radius: 0 !important;
+}
+#mpc-root .sm:last-child { border-right: none !important; }
+#mpc-root .sm .l {
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: #8a93a0 !important;
+  font-weight: 500 !important;
+  margin-bottom: 4px !important;
+}
+#mpc-root .sm .v {
+  font-size: 20px !important;
+  color: #0d1b2a !important;
+  font-weight: 600 !important;
+  font-family: 'JetBrains Mono', 'Geist Mono', monospace !important;
+}
+#mpc-root .sm .s {
+  font-size: 10px !important;
+  color: #8a93a0 !important;
+  margin-top: 2px !important;
+}
+
+/* Plan table */
+#mpc-root .ptbl {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  background: white !important;
+}
+#mpc-root .ptbl th {
+  text-align: left !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  color: #8a93a0 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  padding: 10px 8px !important;
+  border-bottom: 1px solid #e7e2d8 !important;
+  background: white !important;
+  white-space: nowrap !important;
+}
+#mpc-root .ptbl td {
+  padding: 14px 8px !important;
+  border-bottom: 1px solid #eee9de !important;
+  font-size: 13px !important;
+  color: #0d1b2a !important;
+  vertical-align: middle !important;
+  background: white !important;
+}
+#mpc-root .ptbl tr:hover td { background: #fafaf7 !important; }
+#mpc-root .ptbl tfoot td {
+  font-weight: 600 !important;
+  padding-top: 12px !important;
+  border-top: 1px solid #e7e2d8 !important;
+  border-bottom: none !important;
+  background: white !important;
+}
+#mpc-root .ptbl .ch-nm { color: #0d1b2a !important; font-weight: 600 !important; }
+#mpc-root .ptbl .mono { font-family: 'JetBrains Mono', monospace !important; }
+
+/* Health indicators */
+#mpc-root .health-g {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important;
+  gap: 10px !important;
+  margin-bottom: 14px !important;
+}
+#mpc-root .hi {
+  background: #fafaf7 !important;
+  border: 1px solid #e7e2d8 !important;
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+}
+
+/* Phase summary */
+#mpc-root .ph-sum {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 10px !important;
+  margin-bottom: 14px !important;
+}
+#mpc-root .scard {
+  background: #fafaf7 !important;
+  border: 1px solid #e7e2d8 !important;
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+}
+
+/* Edit/remove buttons */
+#mpc-root .btn-ed, #mpc-root .btn-rm {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 13px !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  color: #8a93a0 !important;
+}
+#mpc-root .btn-ed:hover { background: #e7e2d8 !important; color: #0d1b2a !important; }
+#mpc-root .btn-rm:hover { background: #ffe8e3 !important; color: #ff6b5b !important; }
+
+/* Phase badges */
+#mpc-root .ph-badge {
+  font-size: 9px !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+#mpc-root .ph-badge.notoriedad { background: #fbf3d9 !important; color: #6b5612 !important; }
+#mpc-root .ph-badge.interaccion { background: #e6efff !important; color: #1f4e9c !important; }
+#mpc-root .ph-badge.lead_venta { background: #e3f3ea !important; color: #1f8a5b !important; }
+#mpc-root .ph-badge.fidelizacion { background: #fbe5ec !important; color: #9c2a5a !important; }
+
+/* ROAS badges */
+#mpc-root .rbadge {
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  font-family: monospace !important;
+}
+#mpc-root .rbadge.rg { background: #e3f3ea !important; color: #1f8a5b !important; }
+#mpc-root .rbadge.rw { background: #fbf3d9 !important; color: #6b5612 !important; }
+#mpc-root .rbadge.rb { background: #ffe8e3 !important; color: #a3382c !important; }
+
+/* AI banner new style */
+#mpc-root .tacticoModoBlock-override {
+  background: linear-gradient(135deg, #0F2942, #1a4a7a) !important;
+  border-radius: 14px !important;
+  margin-top: 20px !important;
+}
+</style>
 </body>
 </html>
