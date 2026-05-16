@@ -246,6 +246,12 @@ function WizardInner() {
   const [competidorLoading, setCompetidorLoading] = useState(false)
   const [suggestedComps, setSuggestedComps] = useState<{nombre:string;descripcion:string;url:string}[]>([])
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [tacticoMode, setTacticoMode] = useState<'presupuesto'|'ventas'>('presupuesto')
+  const [tacticoPresupuesto, setTacticoPresupuesto] = useState(5000)
+  const [tacticoTicket, setTacticoTicket] = useState(150)
+  const [tacticoUnidades, setTacticoUnidades] = useState(100)
+  const [iframeKey, setIframeKey] = useState(0)
+  function rebuildIframe() { setIframeKey(k => k + 1) }
   const [userPlan, setUserPlan] = useState('free')
   const [userAvatar, setUserAvatar] = useState('')
   const [userName, setUserName] = useState('')
@@ -597,14 +603,14 @@ function WizardInner() {
 
   function buildIframeSrc(): string {
     const budMap: Record<string,number> = {'1000_3000':2000,'3000_10000':6000,'10000_30000':20000,'30000_100000':60000,'mas_100000':150000}
-    const bud = Object.entries(budMap).find(([k])=>plan.presupuesto.includes(k))?.[1] ?? 1000
+    const bud = tacticoPresupuesto || Object.entries(budMap).find(([k])=>plan.presupuesto.includes(k))?.[1] || 1000
     const sectorMap: Record<string,string> = {'Moda y Accesorios':'moda','Alimentacion':'alimentacion','Salud y Belleza':'salud','Tecnologia':'tecnologia','Servicios B2B':'servicios','Formacion y Educacion':'cursos','Viajes y Turismo':'viajes','Inmobiliario':'servicios','Deporte y Fitness':'deporte','Hogar y Decoracion':'hogar','Automocion':'automovil','Seguros y Finanzas':'seguros','Hosteleria y Restauracion':'alimentacion','Farmacia y Salud':'salud','Otros':'otros'}
     const sector = sectorMap[plan.sector] || ''
     const objVentas = plan.objectives.find(o=>o.kpi&&o.kpi.includes('unidades'))
     const objLeads  = plan.objectives.find(o=>o.kpi==='Leads')
     const objTicket = plan.objectives.find(o=>o.kpi==='Ticket Medio')
-    const clients = objVentas?.dato || objLeads?.dato || ''
-    const ticket  = objTicket?.dato || ''
+    const clients = tacticoUnidades > 0 ? String(tacticoUnidades) : objVentas?.dato || objLeads?.dato || ''
+    const ticket  = tacticoTicket > 0 ? String(tacticoTicket) : objTicket?.dato || ''
     const mode = plan.tipo_negocio === 'B2B' ? 'B2B' : 'B2C'
     const ro = '0'
     let url = `/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${bud}&mode=${mode}&readonly=${ro}&noheader=1&sector=${sector}&phase=${plan.fase_negocio||'launch'}&plan=${userPlan}&usedAnalisis=${usedAnalisis}`
@@ -657,7 +663,7 @@ function WizardInner() {
           <VideoBlock vimeoId="1103392013" title="Distribucion tactica de presupuesto" />
 
           <div style={{ position:'relative', marginBottom:32, width:'100%', overflow:'hidden' }}>
-            <iframe id="tactico-iframe" key={plan.tipo_negocio} src={buildIframeSrc()} style={{ width:'100%', height:600, border:'none', display:'block', minHeight:600 }} scrolling="no" title="Calculadora" />
+            <iframe id="tactico-iframe" key={`${plan.tipo_negocio}-${iframeKey}`} src={buildIframeSrc()} style={{ width:'100%', height:600, border:'none', display:'block', minHeight:600 }} scrolling="no" title="Calculadora" />
 
           </div>
           <div style={{ position:'sticky', bottom:0, background:C.paper, borderTop:`1px solid ${C.steel1}`, padding:'12px 0', display:'flex', justifyContent:'space-between', zIndex:10 }}>
