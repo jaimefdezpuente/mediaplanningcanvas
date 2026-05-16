@@ -3231,11 +3231,17 @@ const CHANNEL_NAME_MAP = {
 };
 
 window.startFromScratch = function() {
-  if(S.channels.length > 0 && !confirm('¿Borrar el plan actual?')) return;
+  if(S.channels.length > 0) { _showScratchModal(); return; }
+  _doStartFromScratch();
+};
+function _doStartFromScratch() {
   S.channels = []; recalcAll(); if(typeof updateCharts==='function') updateCharts();
   if(typeof _setActiveStartBtn==='function') _setActiveStartBtn('scratch');
-  showToast('✦ Lienzo vacío');
-};
+  showToast('Lienzo vacio');
+  _hideScratchModal();
+}
+function _showScratchModal() { var m=document.getElementById('scratchModal'); if(m) m.style.display='flex'; }
+function _hideScratchModal() { var m=document.getElementById('scratchModal'); if(m) m.style.display='none'; }
 
 window.loadMySelection = function() {
   const params = new URLSearchParams(window.location.search);
@@ -3526,5 +3532,17 @@ window.addEventListener('load', function() {
   box-shadow: 0 1px 0 rgba(13,27,42,0.04), 0 8px 28px -16px rgba(13,27,42,0.18) !important;
 }
 </style>
+<div id="scratchModal" style="display:none;position:fixed;inset:0;background:rgba(13,27,42,0.5);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:#fff;border-radius:16px;padding:32px;max-width:420px;width:90%;box-shadow:0 24px 48px rgba(13,27,42,0.25);text-align:center">
+    <div style="font-size:36px;margin-bottom:16px">&#10022;</div>
+    <h3 style="font-size:20px;font-weight:700;color:#0d1b2a;margin:0 0 8px;font-family:'Geist',sans-serif">Empezar desde cero</h3>
+    <p style="font-size:14px;color:#4a5666;margin:0 0 8px;line-height:1.6">Se borrara tu seleccion actual de canales.</p>
+    <p style="font-size:12px;color:#8a93a0;margin:0 0 24px;line-height:1.5">Puedes recuperarla pulsando <strong>Tu Seleccion</strong> cuando quieras.</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button onclick="_hideScratchModal()" style="padding:10px 20px;border-radius:8px;border:1px solid #e7e2d8;background:#fafaf7;color:#4a5666;font-size:13px;font-weight:500;cursor:pointer">Cancelar</button>
+      <button onclick="_doStartFromScratch()" style="padding:10px 20px;border-radius:8px;border:none;background:#0d1b2a;color:#fff;font-size:13px;font-weight:600;cursor:pointer">Si, empezar de cero</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
