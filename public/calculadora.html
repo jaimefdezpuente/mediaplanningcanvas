@@ -3824,5 +3824,28 @@ window.addEventListener('load', function() {
 /* Ocultar bloque IA duplicado al inicio */
 #mpc-root #tacticoModoBlock { display: none !important; }
 </style>
+
+<style id="hide-blocks">
+/* Ocultar bloques no necesarios en nuevo diseno */
+#mpc-root .health-g { display: none !important; }
+#mpc-root .ph-sum { display: none !important; }
+#mpc-root .sm-row + .sm { display: none !important; }
+#mpc-root .ai-banner { display: none !important; }
+
+/* Ocultar CAC solitario - el sm card que va solo fuera del sm-row */
+#mpc-root #planContent > .sm { display: none !important; }
+
+/* El sm-row (KPI strip) lo mantenemos pero lo mejoramos */
+#mpc-root .sm-row {
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 0 !important;
+  margin: 4px 0 18px !important;
+  border: 1px solid #e7e2d8 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+}
+</style>
 </body>
 </html>
