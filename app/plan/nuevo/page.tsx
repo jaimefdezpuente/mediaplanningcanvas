@@ -246,12 +246,18 @@ function WizardInner() {
   const [competidorLoading, setCompetidorLoading] = useState(false)
   const [suggestedComps, setSuggestedComps] = useState<{nombre:string;descripcion:string;url:string}[]>([])
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [showScratchModal, setShowScratchModal] = useState(false)
   const [tacticoMode, setTacticoMode] = useState<'presupuesto'|'ventas'>('presupuesto')
   const [tacticoPresupuesto, setTacticoPresupuesto] = useState(5000)
   const [tacticoTicket, setTacticoTicket] = useState(150)
   const [tacticoUnidades, setTacticoUnidades] = useState(100)
   const [iframeKey, setIframeKey] = useState(0)
   function rebuildIframe() { setIframeKey(k => k + 1) }
+  function confirmScratch() {
+    const iframe = document.getElementById('tactico-iframe') as HTMLIFrameElement
+    iframe?.contentWindow?.postMessage({type:'mpc-do-scratch'}, '*')
+    setShowScratchModal(false)
+  }
   const [userPlan, setUserPlan] = useState('free')
   const [userAvatar, setUserAvatar] = useState('')
   const [userName, setUserName] = useState('')
@@ -342,6 +348,7 @@ function WizardInner() {
         if (iframe) iframe.style.height = e.data.height + 'px'
       }
       if (e.data?.type === 'mpc-upgrade') setShowUpgrade(true)
+      if (e.data?.type === 'mpc-scratch-confirm') setShowScratchModal(true)
     }
     window.addEventListener('message', handleMsg)
     return () => window.removeEventListener('message', handleMsg)
@@ -628,6 +635,20 @@ function WizardInner() {
       {alert&&<AlertModal title={alert.title} body={alert.body} btn="Entendido" onClose={()=>setAlert(null)}/>}
       {saveModal&&<SaveModal onSave={handleSave} onClose={()=>setSaveModal(false)} busy={busy} defaultName={plan.projectName||`Plan ${plan.sector||'nuevo'}`}/>}
       {showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)}/>}
+      {showScratchModal&&(
+        <div style={{ position:'fixed', inset:0, background:'rgba(13,27,42,0.5)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
+          <div style={{ background:'#fff', borderRadius:16, padding:32, maxWidth:420, width:'90%', boxShadow:'0 24px 48px rgba(13,27,42,0.25)', textAlign:'center' }}>
+            <div style={{ fontSize:36, marginBottom:16 }}>✦</div>
+            <h3 style={{ fontSize:20, fontWeight:700, color:C.navy, margin:'0 0 8px', fontFamily:"'Geist',sans-serif" }}>Empezar desde cero</h3>
+            <p style={{ fontSize:14, color:C.steel, margin:'0 0 8px', lineHeight:1.6 }}>Se borrará tu selección actual de canales.</p>
+            <p style={{ fontSize:12, color:C.steel3, margin:'0 0 24px', lineHeight:1.5 }}>Puedes recuperarla pulsando <strong>Tu Selección</strong> cuando quieras.</p>
+            <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
+              <button onClick={()=>setShowScratchModal(false)} style={{ padding:'10px 20px', borderRadius:8, border:`1px solid ${C.steel1}`, background:C.paper, color:C.steel, fontSize:13, fontWeight:500, cursor:'pointer' }}>Cancelar</button>
+              <button onClick={confirmScratch} style={{ padding:'10px 20px', borderRadius:8, border:'none', background:C.navy, color:C.paper, fontSize:13, fontWeight:600, cursor:'pointer' }}>Sí, empezar de cero</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <AppHeader
         userEmail={userEmail}

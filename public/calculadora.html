@@ -3231,17 +3231,11 @@ const CHANNEL_NAME_MAP = {
 };
 
 window.startFromScratch = function() {
-  if(S.channels.length > 0) { _showScratchModal(); return; }
-  _doStartFromScratch();
-};
-function _doStartFromScratch() {
+  if(S.channels.length > 0 && !confirm('Borrar el plan actual y empezar de cero?')) return;
   S.channels = []; recalcAll(); if(typeof updateCharts==='function') updateCharts();
   if(typeof _setActiveStartBtn==='function') _setActiveStartBtn('scratch');
   showToast('Lienzo vacio');
-  _hideScratchModal();
-}
-function _showScratchModal() { var m=document.getElementById('scratchModal'); if(m) m.style.display='flex'; }
-function _hideScratchModal() { var m=document.getElementById('scratchModal'); if(m) m.style.display='none'; }
+};
 
 window.loadMySelection = function() {
   const params = new URLSearchParams(window.location.search);
