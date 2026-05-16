@@ -3306,6 +3306,66 @@ window.startFromScratch=function(){
 #mpc-root .rbadge.rw { background: #fbf3d9 !important; color: #6b5612 !important; }
 #mpc-root .rbadge.rb { background: #ffe8e3 !important; color: #a3382c !important; }
 </style>
+<style id="ai-banner-css">
+.ai-banner {
+  margin-top: 20px;
+  background: linear-gradient(135deg, #eaf1ff 0%, #e8f5ec 100%);
+  border: 1px solid #d8e4f0;
+  border-radius: 14px;
+  padding: 48px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.ai-banner-eyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: #1f4e9c;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.ai-banner h3 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: #0F2942;
+  margin: 0 0 12px;
+  letter-spacing: -.01em;
+}
+.ai-banner p {
+  font-size: 13px;
+  color: #4a5666;
+  max-width: 540px;
+  margin: 0 auto 24px;
+  line-height: 1.5;
+}
+.ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffe8e3;
+  color: #a3382c;
+  padding: 11px 24px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #f5d1c8;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.ai-btn:hover { background: #ffd9d1; }
+.ai-btn .count {
+  background: white;
+  color: #C75A3C;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: monospace;
+}
+</style>
 </body>
 </html><div style="margin:24px 0;background:linear-gradient(135deg,#eaf1ff 0%,#e8f5ec 100%);border:1px solid #d8e4f0;border-radius:14px;padding:32px 24px;text-align:center;position:relative;overflow:hidden">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#1f4e9c;font-weight:600;margin-bottom:12px">&#10022; OPTIMIZACION CON IA</div>
@@ -4917,14 +4977,14 @@ body { overflow: hidden !important; overflow-x: hidden !important; }
       <th id="th_kpi1">KPI Fase</th><th id="th_kpi2">Clientes</th>
       <th>Ingreso Est.</th><th>ROAS</th><th class="np"></th>
     </tr></thead><tbody id="planBody"></tbody><tfoot id="planFoot"></tfoot></table></div>
-    <div style="margin:24px 0;background:linear-gradient(135deg,#eaf1ff 0%,#e8f5ec 100%);border:1px solid #d8e4f0;border-radius:14px;padding:32px 24px;text-align:center">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#1f4e9c;font-weight:600;margin-bottom:12px">&#10022; OPTIMIZACION CON IA</div>
-      <div style="font-size:28px;font-weight:400;color:#0F2942;margin-bottom:12px;font-family:'Instrument Serif',Georgia,serif">Cuales son los mejores canales para tu proyecto</div>
-      <p style="font-size:13px;color:#4a5666;margin:0 auto 24px;max-width:540px;line-height:1.5">Con los datos de tu target, sector, presupuesto y objetivos, la IA recomendara la distribucion optima para alcanzar tus objetivos.</p>
-      <button onclick="runTacticoIA()" style="display:inline-flex;align-items:center;gap:10px;background:#ffe8e3;color:#a3382c;padding:12px 24px;border-radius:12px;font-size:13px;font-weight:600;border:1px solid #f5d1c8;cursor:pointer;font-family:inherit">
+    <div class="ai-banner">
+      <div class="ai-banner-eyebrow">&#10022; Optimizacion con IA</div>
+      <h3>¿Cuales son los mejores canales para tu proyecto?</h3>
+      <p>Con los datos de tu target, sector, presupuesto y objetivos, la IA recomendara la distribucion presupuestaria optima para alcanzar los objetivos indicados.</p>
+      <button class="ai-btn" onclick="runTacticoIA()">
         <span>&#10022;</span>
-        <span>AI &middot; Recomendar plan de medios</span>
-        <span id="tacticoIAcredits" style="background:#fff;color:#C75A3C;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;font-family:monospace"></span>
+        <span>AI · Recomendar plan de medios</span>
+        <span class="count" id="tacticoIAcredits">0/3</span>
       </button>
     </div>
   </div>
@@ -6511,6 +6571,66 @@ window.startFromScratch=function(){
 #mpc-root .rbadge.rg { background: #e3f3ea !important; color: #1f8a5b !important; }
 #mpc-root .rbadge.rw { background: #fbf3d9 !important; color: #6b5612 !important; }
 #mpc-root .rbadge.rb { background: #ffe8e3 !important; color: #a3382c !important; }
+</style>
+<style id="ai-banner-css">
+.ai-banner {
+  margin-top: 20px;
+  background: linear-gradient(135deg, #eaf1ff 0%, #e8f5ec 100%);
+  border: 1px solid #d8e4f0;
+  border-radius: 14px;
+  padding: 48px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.ai-banner-eyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: #1f4e9c;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.ai-banner h3 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: #0F2942;
+  margin: 0 0 12px;
+  letter-spacing: -.01em;
+}
+.ai-banner p {
+  font-size: 13px;
+  color: #4a5666;
+  max-width: 540px;
+  margin: 0 auto 24px;
+  line-height: 1.5;
+}
+.ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffe8e3;
+  color: #a3382c;
+  padding: 11px 24px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #f5d1c8;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.ai-btn:hover { background: #ffd9d1; }
+.ai-btn .count {
+  background: white;
+  color: #C75A3C;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: monospace;
+}
 </style>
 </body>
 </html>
