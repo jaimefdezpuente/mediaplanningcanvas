@@ -313,8 +313,8 @@ function WizardInner() {
                 ...(savedPlan.estrategia ? [2, 3] : []),
               ],
             }))
-            const savedStep = savedPlan.current_step || 0
-            if (savedStep > 0) setStep(savedStep)
+            const urlStep = stepParam ? parseInt(stepParam) : null
+            if (urlStep !== null && urlStep >= 0) setStep(urlStep)
             else if (savedPlan.estrategia) setStep(4)
             else if (savedPlan.entorno) setStep(2)
             else setStep(1)
@@ -342,6 +342,13 @@ function WizardInner() {
 
   useEffect(() => { planRef.current = plan }, [plan])
   useEffect(() => { stepRef.current = step; if(step > 0) autoSaveFromRef() }, [step])
+  useEffect(() => {
+    if (!planId) return
+    const url = new URL(window.location.href)
+    url.searchParams.set('step', String(step))
+    window.history.replaceState(null, '', url.toString())
+  }, [step, planId])
+
   const limits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free
 
   function canUseMejora(): boolean { if (usedMejoras >= limits.mejoras) { setShowUpgrade(true); return false } return true }
