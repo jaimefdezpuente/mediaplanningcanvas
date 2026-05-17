@@ -1744,8 +1744,10 @@ function renderSummary(){
   document.getElementById('s_ltv').textContent=fE(S.ltvRev);document.getElementById('s_ltv_s').textContent=(maxYrs>0?`LTV a ${maxYrs} años · `:'')+'LTV/CAC: '+fR(ltvCac)+(ltvCac>=3?' ✅':ltvCac>=1?' 👍':ltvCac>0?' ⚠️':'—');
 }
 
+var _mpcIaRunning = false;
 function notifyParent(){
   if(!window.parent||window.parent===window)return;
+  if(_mpcIaRunning)return;
   try{
     var totInv=S.channels.reduce(function(s,c){return s+(c.results&&c.results.inversion||0);},0);
     var monthly={};
@@ -1926,7 +1928,9 @@ function _showNoCreditsModal(data) {
 
 async function runTacticoIA(){
   var MIN_CHANNELS = 3;
+  _mpcIaRunning = true;
   if(S.channels.length < MIN_CHANNELS){
+    _mpcIaRunning = false;
     // Modal nativo del sistema
     document.getElementById('iaMinChanTitle').textContent = 'Canales insuficientes';
     document.getElementById('iaMinChanMsg').textContent = 'Necesitas al menos '+MIN_CHANNELS+' canales en el plan para que la IA pueda optimizar la distribución presupuestaria. Actualmente tienes '+S.channels.length+'.';
@@ -2018,6 +2022,9 @@ async function runTacticoIA(){
     _hideIAModal();
     showToast('❌ Error de conexión. Inténtalo de nuevo.');
     console.error('runTacticoIA error:', err);
+  } finally {
+    _mpcIaRunning = false;
+    notifyParent();
   }
 }
 
