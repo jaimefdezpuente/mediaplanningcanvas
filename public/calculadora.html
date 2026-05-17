@@ -1994,6 +1994,12 @@ function init(){
   var usedA = parseInt(p.get('usedAnalisis')||'0',10);
   var maxA = {free:0,pro:20,business:60,enterprise:999}[plan]||0;
   if(typeof _updateCreditsDisplay==='function') _updateCreditsDisplay(maxA-usedA, plan);
+
+  // Ocultar step00 cuando se carga desde el wizard (el wizard ya tiene su propio bloque)
+  if(p.get('noheader')==='1' || p.get('budget') || p.get('clients') || p.get('ticket')) {
+    var s00 = document.getElementById('step00-block');
+    if(s00) s00.style.display = 'none';
+  }
 }
 document.addEventListener('DOMContentLoaded',init);
 </script>
