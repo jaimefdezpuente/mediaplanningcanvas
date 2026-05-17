@@ -36,7 +36,7 @@ function gn(obj:Obj|null,...keys:string[]):string { if(!obj)return ''; let cur:J
 function ga(obj:Obj|null,...keys:string[]):Jv[] { if(!obj)return []; let cur:Jv=obj; for(const k of keys){if(!cur||typeof cur!=='object'||Array.isArray(cur))return []; cur=(cur as Obj)[k]} return Array.isArray(cur)?cur:[] }
 function uid() { return Math.random().toString(36).slice(2) }
 
-const KPI_MKT = ['Ventas (ingresos EUR)','Ventas (unidades)','Ticket Medio','Leads','LTV','MRR/ARR','Registros','Demos','Descargas','Suscripciones','Trafico web','Churn','Share of market','Uso del producto','Fidelizacion','Otro...']
+const KPI_MKT = ['Ventas (ingresos EUR)','Ventas (unidades)','Leads','ARR','MRR','LTV','Registros','Demos','Descargas','Suscripciones','Trafico web','Churn','Share of market','Uso del producto','Fidelizacion','Otro...']
 const KPI_COM = ['Notoriedad de marca','Cobertura','Alcance','Seguidores RRSS','Conocimiento de funcionalidad','Afinidad de marca','Frecuencia de impacto','Compartir experiencia','Visualizaciones','Reposicionamiento','Otro...']
 
 const PLAN_LIMITS: Record<string, { plans: number; mejoras: number; analisis: number }> = {
@@ -416,6 +416,15 @@ function WizardInner() {
     window.history.replaceState(null, '', url.toString())
   }, [step, savedPlanId, planId])
 
+  // Autoguardado con debounce al modificar el plan
+  useEffect(() => {
+    if (!loaded || (!savedPlanId && !planId)) return
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
+    autoSaveTimer.current = setTimeout(() => { autoSaveFromRef() }, 2500)
+    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plan.edits, plan.selectedChannels, plan.objectives, plan.valueSteps])
+
   const limits = PLAN_LIMITS[userPlan] || PLAN_LIMITS.free
 
   function canUseMejora(): boolean { if (usedMejoras >= limits.mejoras) { setShowUpgrade(true); return false } return true }
@@ -445,15 +454,12 @@ function WizardInner() {
   function markDone(s:number) { setPlan(p=>({...p,completed:p.completed.includes(s)?p.completed:[...p.completed,s]})) }
 
   function ensureMandatoryObjectives() {
-    const modelo = plan.tipo_negocio
-    const mandatoryKPIs = modelo === 'B2B' ? ['Leads','Ventas (unidades)'] : ['Ventas (unidades)','Ticket Medio']
-    setPlan(p => {
-      const nonMandatory = p.objectives.filter(o => !o.mandatory)
-      const newRows: ObjRow[] = mandatoryKPIs.map(kpi => ({ id:uid(), tipo:'Marketing', kpi, dato:'', tiempo:'año', mandatory:true }))
-      const existing = p.objectives.filter(o => o.mandatory)
-      if (existing.length === 2 && existing[0].kpi === mandatoryKPIs[0] && existing[1].kpi === mandatoryKPIs[1]) return p
-      return { ...p, objectives: [...newRows, ...nonMandatory] }
-    })
+    // No mandatory objectives — just add recommended ones if empty
+    if (plan.objectives.length === 0 || (plan.objectives.length === 1 && !plan.objectives[0].kpi)) {
+      const modelo = plan.tipo_negocio
+      const suggestedKPIs = modelo === 'B2B' ? ['Leads','Ventas (unidades)'] : ['Ventas (unidades)','ARR']
+      setPlan(p => ({...p, objectives: suggestedKPIs.map(kpi=>({id:uid(),tipo:'Marketing',kpi,dato:'',tiempo:'año',mandatory:false}))}))
+    }
   }
 
   async function callAI(fase:string, extra?:Record<string,string>) {
@@ -508,14 +514,11 @@ function WizardInner() {
     finally { setCompetidorLoading(false); setAiModal('') }
   }
 
-  async function s0next() {
+  function s0next() {
     if(!plan.sector||!plan.producto) { setErr('Rellena sector y descripcion del producto'); return }
     if(!plan.presupuesto) { setErr('El presupuesto es obligatorio'); return }
-    if(plan.entorno){markDone(0);setStep(1);window.scrollTo({top:0,behavior:"smooth"});return}
-    if(userPlan==='free'){setPlan(p=>({...p,entorno:{} as Obj}));markDone(0);setStep(1);window.scrollTo({top:0,behavior:"smooth"});return}
-    if(!canUseAnalisis()) return
-    const r = await callAI('entorno')
-    if(r){setPlan(p=>({...p,entorno:r}));markDone(0);setStep(1);window.scrollTo({top:0,behavior:"smooth"});trackAnalisis();autoSave({entorno:r as Obj})}
+    markDone(0);setStep(1);window.scrollTo({top:0,behavior:'smooth'})
+    autoSave({})
   }
 
   function s1next() {
@@ -532,6 +535,41 @@ function WizardInner() {
     ensureMandatoryObjectives()
     markDone(2);setStep(3);setShowStrategy(false);window.scrollTo({top:0,behavior:"smooth"})
     autoSave({usp:ed('usp',plan.usp)||plan.usp})
+  }
+
+  async function recommendChannels() {
+    if(plan.objectives.filter(o=>o.kpi).length < 3) {
+      setAlert({title:'Faltan objetivos',body:'Rellena al menos 3 objetivos para que la IA pueda recomendar los mejores canales.'})
+      return
+    }
+    if(!canUseAnalisis()) return
+    setAiModal('Analizando tu proyecto para recomendar los mejores canales...')
+    const objText = plan.objectives.filter(o=>o.kpi).map(o=>`${o.tipo}: ${o.kpi} = ${o.dato||'?'} al año`).join(' | ')
+    const targetDesc = ed('t_cor',gn(plan.target,'core_target','descripcion'))
+    const r = await callAI('estrategia',{
+      objetivos:objText,
+      canales_seleccionados:'Ninguno, recomienda los mejores',
+      fortalezas:ed('d_fo',''),
+      target_desc:targetDesc,
+      escalera_valor:plan.valueSteps.map((s,i)=>`Paso ${i+1} (${s.tipo}): ${s.accion}`).join(' | '),
+      presupuesto:plan.presupuesto,
+      competidores:plan.competidores,
+      seo_difficulty: seoDifficulty,
+      paid_difficulty: paidDifficulty,
+      buyer_persona: ed('bp_nar',''),
+    })
+    if(r) {
+      const phases = ['notoriedad','interaccion','lead_venta','fidelizacion']
+      const names: string[] = []
+      phases.forEach(ph=>{ const chs=(r as Obj).canales_por_fase; if(chs&&typeof chs==='object'){const arr=(chs as Obj)[ph]; if(Array.isArray(arr))arr.forEach((ch:Jv)=>{ if(ch&&typeof ch==='object'){const n=(ch as Obj).canal; if(typeof n==='string'&&n)names.push(n)} })} })
+      if(names.length > 0){
+        // Solo marcar canales, no crear estrategia
+        setPlan(p=>({...p, selectedChannels: names}))
+        setAiModal('')
+        trackAnalisis()
+      }
+    }
+    setAiModal('')
   }
 
   async function createStrategy() {
@@ -671,7 +709,7 @@ function WizardInner() {
     const sector = sectorMap[plan.sector] || ''
     const objVentas = plan.objectives.find(o=>o.kpi&&o.kpi.includes('unidades'))
     const objLeads  = plan.objectives.find(o=>o.kpi==='Leads')
-    const objTicket = plan.objectives.find(o=>o.kpi==='Ticket Medio')
+    
     const clients = tacticoUnidades > 0 ? String(tacticoUnidades) : objVentas?.dato || objLeads?.dato || ''
     const ticket  = tacticoTicket > 0 ? String(tacticoTicket) : objTicket?.dato || ''
     const mode = plan.tipo_negocio === 'B2B' ? 'B2B' : 'B2C'
@@ -1028,8 +1066,19 @@ function WizardInner() {
                     if(!canUseAnalisis()) return
                     setAiModal('Analizando tu mercado para sugerir el mejor target...')
                     const r = await callAI('suggest_target',{producto:plan.producto,sector:plan.sector,pais:plan.pais,tipo_negocio:plan.tipo_negocio,usp:ed('usp',plan.usp)})
-                    if(r&&typeof r.refined_text==='string'){
-                      try{ const d=JSON.parse(r.refined_text.replace(/```json|```/g,'').trim()); if(d.core_desc)se('t_cor',d.core_desc); if(d.core_volumen)se('t_vol',d.core_volumen); if(d.core_sociodem)se('t_soc',d.core_sociodem); if(d.broad_desc)se('t_bro',d.broad_desc); }catch{}
+                    if(r){
+                      try{
+                        // refined_text puede ser string o el objeto directo
+                        const raw = typeof r.refined_text==='string' ? r.refined_text : (typeof r==='object' ? JSON.stringify(r) : '{}')
+                        const clean = raw.replace(/```json|```/g,'').replace(/[؀-ۿ،]/g,'').trim()
+                        const d = JSON.parse(clean)
+                        if(d.core_desc) se('t_cor',d.core_desc)
+                        if(d.core_volumen) se('t_vol',d.core_volumen)
+                        if(d.core_sociodem) se('t_soc',d.core_sociodem)
+                        if(d.broad_desc) se('t_bro',d.broad_desc)
+                        if(d.broad_volumen) se('t_bvol',d.broad_volumen)
+                        if(d.broad_sociodem) se('t_bage',d.broad_sociodem)
+                      }catch(e){ console.error('suggest_target parse error:', e, r) }
                       trackAnalisis()
                     }
                   }} disabled={busy||!ed('usp',plan.usp).trim()} small />
@@ -1081,7 +1130,6 @@ function WizardInner() {
                     {k:'bp_exp',lb:'Expectativas',src:gn(plan.target,'buyer_persona','expectativas')},
                     {k:'bp_bar',lb:'Barreras a la compra',src:gn(plan.target,'buyer_persona','barreras_compra')},
                     {k:'bp_bco',lb:'Barreras a la comunicacion',src:gn(plan.target,'buyer_persona','barreras_comunicacion')},
-                    {k:'bp_cre',lb:'Barreras a la comunicacion',src:gn(plan.target,'buyer_persona','barreras_comunicacion')},
                   ].map(f=>(
                     <EditField key={f.k} label={f.lb} fkey={f.k} value={ed(f.k,f.src)} onChange={v=>se(f.k,v)} onRefine={p=>refine(f.k,ed(f.k,f.src),p)} small />
                   ))}
@@ -1152,20 +1200,20 @@ function WizardInner() {
                       return(
                         <div key={r.id} style={{ marginBottom:8 }}>
                           <div style={{ display:'grid', gridTemplateColumns:'130px 1fr 120px auto', gap:8, alignItems:'center' }}>
-                            <select value={r.tipo} disabled={isMandatory} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tipo:e.target.value,kpi:''}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:isMandatory?'default':'pointer', borderColor:isMandatory?C.success:'' }}>
+                            <select value={r.tipo} disabled={false} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,tipo:e.target.value,kpi:''}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer', borderColor:'' }}>
                               <option>Marketing</option><option>Comunicacion</option>
                             </select>
-                            <select value={r.kpi} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,kpi:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer', borderColor:isMandatory?C.success:'' }}>
+                            <select value={r.kpi} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,kpi:e.target.value}:o)}))} style={{ ...INP, marginBottom:0, padding:'8px 10px', fontSize:13, cursor:'pointer', borderColor:'' }}>
                               <option value="">KPI</option>
                               {kpiList.map(k=><option key={k}>{k}</option>)}
                             </select>
-                            <input style={{ ...INP, marginBottom:0, fontSize:13, borderColor:isMandatory?C.success:'' }} placeholder="1.000" value={r.dato} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,dato:e.target.value}:o)}))} />
+                            <input style={{ ...INP, marginBottom:0, fontSize:13, borderColor:'' }} placeholder="1.000" value={r.dato} onChange={e=>setPlan(p=>({...p,objectives:p.objectives.map(o=>o.id===r.id?{...o,dato:e.target.value}:o)}))} />
                             {isMandatory
-                              ? <div style={{ width:38, textAlign:'center', color:C.success, fontSize:14 }} title="Obligatorio">🔒</div>
+                              ? null
                               : <button onClick={()=>setPlan(p=>({...p,objectives:p.objectives.filter(o=>o.id!==r.id)}))} style={{ ...BTN_SM, padding:'8px 10px', color:C.accent, borderColor:'#FECACA', background:'#FEF2F2' }}>X</button>
                             }
                           </div>
-                          {isMandatory&&<div style={{ fontSize:10, color:C.success, marginTop:3 }}>Obligatorio {plan.tipo_negocio}</div>}
+                          
                         </div>
                       )
                     })}
@@ -1174,23 +1222,23 @@ function WizardInner() {
                 <button onClick={()=>setPlan(p=>({...p,objectives:[...p.objectives,{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'año',mandatory:false}]}))} style={BTN_SM}>+ Anadir objetivo</button>
               </div>
 
-              <div style={{ ...CARD, marginBottom:16 }}>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-                  <div>
-                    <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, margin:0 }}>Inbound vs Outbound</h2>
-                    <p style={{ fontSize:12, color:C.steel3, marginTop:2, marginBottom:0 }}>Define la dificultad para orientar la estrategia de canales.</p>
-                  </div>
-                </div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+              <div style={CARD}>
+                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:4 }}>Inbound vs Outbound</h2>
+                <p style={{ fontSize:13, color:C.steel, marginBottom:4, lineHeight:1.6 }}>
+                  Para orientar la estrategia de canales necesitas conocer la dificultad de posicionarte orgánicamente (SEO) y el coste del paid media en tu sector.
+                  Entra en <a href="https://app.neilpatel.com/" target="_blank" rel="noopener noreferrer" style={{ color:C.navy, fontWeight:600 }}>app.neilpatel.com</a> y busca tus palabras clave para obtener estos datos.
+                </p>
+                <VideoBlock vimeoId="1103392013" title="Inbound vs Outbound — Cómo usar NeilPatel" />
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginTop:8 }}>
                   <div>
                     <label style={LBL}>SEO Difficulty (1-100)</label>
                     <input type="number" min={1} max={100} placeholder="Ej: 65" value={seoDifficulty} onChange={e=>setSeoDifficulty(e.target.value)} style={{ ...INP, marginBottom:4 }} />
-                    <span style={{ fontSize:11, color:C.steel3, display:'block', lineHeight:1.4 }}>Alto = ranking orgánico costoso → más outbound</span>
+                    <span style={{ fontSize:11, color:C.steel3, display:'block', lineHeight:1.4 }}>Alto = posicionamiento orgánico costoso → más outbound</span>
                   </div>
                   <div>
                     <label style={LBL}>Paid Difficulty (1-100)</label>
                     <input type="number" min={1} max={100} placeholder="Ej: 40" value={paidDifficulty} onChange={e=>setPaidDifficulty(e.target.value)} style={{ ...INP, marginBottom:4 }} />
-                    <span style={{ fontSize:11, color:C.steel3, display:'block', lineHeight:1.4 }}>Alto = CPC alto → más inbound/owned media</span>
+                    <span style={{ fontSize:11, color:C.steel3, display:'block', lineHeight:1.4 }}>Alto = CPC caro → más inbound y owned media</span>
                   </div>
                 </div>
               </div>
@@ -1200,7 +1248,7 @@ function WizardInner() {
                 <p style={{ fontSize:13, color:C.steel, marginBottom:16 }}>Con los datos de tu target, sector, presupuesto y objetivos, la IA recomendara el mix de medios mas adecuado.</p>
                 <div style={{ display:'flex', justifyContent:'center' }}>
                   <AiBtn label={busy?'Analizando...':'Recomendar Canales con IA'} used={usedAnalisis} max={limits.analisis}
-                    onClick={()=>{ createStrategy() }}
+                    onClick={()=>{ recommendChannels() }}
                     disabled={busy} />
                 </div>
               </div>
