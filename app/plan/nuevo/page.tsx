@@ -295,6 +295,9 @@ function WizardInner() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [showScratchModal, setShowScratchModal] = useState(false)
   const [tacticoMode, setTacticoMode] = useState<'presupuesto'|'ventas'>('presupuesto')
+  const [seoDifficulty, setSeoDifficulty] = useState('')
+  const [paidDifficulty, setPaidDifficulty] = useState('')
+  const [showIAConfirm, setShowIAConfirm] = useState(false)
   const [tacticoPresupuesto, setTacticoPresupuesto] = useState(5000)
   const [tacticoTicket, setTacticoTicket] = useState(150)
   const [tacticoUnidades, setTacticoUnidades] = useState(100)
@@ -398,6 +401,7 @@ function WizardInner() {
       }
       if (e.data?.type === 'mpc-upgrade') setShowUpgrade(true)
       if (e.data?.type === 'mpc-scratch-confirm') setShowScratchModal(true)
+      if (e.data?.type === 'mpc-ia-confirm') setShowIAConfirm(true)
     }
     window.addEventListener('message', handleMsg)
     return () => window.removeEventListener('message', handleMsg)
@@ -507,17 +511,17 @@ function WizardInner() {
   async function s0next() {
     if(!plan.sector||!plan.producto) { setErr('Rellena sector y descripcion del producto'); return }
     if(!plan.presupuesto) { setErr('El presupuesto es obligatorio'); return }
-    if(plan.entorno){markDone(0);setStep(1);return}
-    if(userPlan==='free'){setPlan(p=>({...p,entorno:{} as Obj}));markDone(0);setStep(1);return}
+    if(plan.entorno){markDone(0);setStep(1);window.scrollTo({top:0,behavior:"smooth"});return}
+    if(userPlan==='free'){setPlan(p=>({...p,entorno:{} as Obj}));markDone(0);setStep(1);window.scrollTo({top:0,behavior:"smooth"});return}
     if(!canUseAnalisis()) return
     const r = await callAI('entorno')
-    if(r){setPlan(p=>({...p,entorno:r}));markDone(0);setStep(1);trackAnalisis();autoSave({entorno:r as Obj})}
+    if(r){setPlan(p=>({...p,entorno:r}));markDone(0);setStep(1);window.scrollTo({top:0,behavior:"smooth"});trackAnalisis();autoSave({entorno:r as Obj})}
   }
 
   function s1next() {
     if(!ed('d_fo','').trim()){setAlert({title:'Fortalezas obligatorias',body:'Rellena tus Fortalezas antes de continuar.'});return}
     if(!ed('d_de','').trim()){setAlert({title:'Debilidades obligatorias',body:'Rellena tus Debilidades antes de continuar.'});return}
-    markDone(1);setStep(2)
+    markDone(1);setStep(2);window.scrollTo({top:0,behavior:'smooth'})
     autoSave({})
   }
 
@@ -526,7 +530,7 @@ function WizardInner() {
     if(!ed('t_cor',gn(plan.target,'core_target','descripcion')).trim()) { setAlert({title:'Core Target obligatorio',body:'Rellena la descripcion del Core Target antes de continuar.'}); return }
 
     ensureMandatoryObjectives()
-    markDone(2);setStep(3);setShowStrategy(false)
+    markDone(2);setStep(3);setShowStrategy(false);window.scrollTo({top:0,behavior:"smooth"})
     autoSave({usp:ed('usp',plan.usp)||plan.usp})
   }
 
@@ -543,6 +547,9 @@ function WizardInner() {
       escalera_valor:escaleraText,
       presupuesto:plan.presupuesto,
       competidores:plan.competidores,
+      seo_difficulty: seoDifficulty,
+      paid_difficulty: paidDifficulty,
+      buyer_persona: ed('bp_nar',''),
     })
     if(r){
       const phases = ['notoriedad','interaccion','lead_venta','fidelizacion']
@@ -691,6 +698,28 @@ function WizardInner() {
       {alert&&<AlertModal title={alert.title} body={alert.body} btn="Entendido" onClose={()=>setAlert(null)}/>}
       {saveModal&&<SaveModal onSave={handleSave} onClose={()=>setSaveModal(false)} busy={busy} defaultName={plan.projectName||`Plan ${plan.sector||'nuevo'}`}/>}
       {showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)} userPlan={userPlan} periodStart={planPeriodStart}/>}
+      {showIAConfirm&&(
+        <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.4)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+          <div style={{ background:'#fff', borderRadius:14, padding:'32px', maxWidth:420, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.25)', textAlign:'center' }}>
+            <div style={{ marginBottom:12 }}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36" style={{ display:'block', margin:'0 auto' }}>
+                <rect x="0" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="35" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/><rect x="70" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/>
+                <rect x="0" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="70" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/>
+                <rect x="0" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="70" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/>
+              </svg>
+            </div>
+            <h3 style={{ fontSize:18, fontWeight:600, color:C.navy, margin:'0 0 8px' }}>Confirmar optimización IA</h3>
+            <p style={{ fontSize:14, color:C.steel, lineHeight:1.7, margin:'0 0 20px' }}>
+              Esta operación consumirá <strong>{plan.selectedChannels.length} análisis IA</strong>, uno por cada canal del plan.
+              Tienes <strong>{Math.max(0,limits.analisis-usedAnalisis)} análisis disponibles</strong>.
+            </p>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={()=>setShowIAConfirm(false)} style={{ flex:1, padding:'11px', borderRadius:6, border:`1px solid ${C.steel1}`, background:'transparent', color:C.steel, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Cancelar</button>
+              <button onClick={()=>{ setShowIAConfirm(false); const ifr=document.getElementById('tactico-iframe') as HTMLIFrameElement; ifr?.contentWindow?.postMessage({type:'mpc-run-ia'},'*') }} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:C.navy, color:C.paper, fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Seguir adelante →</button>
+            </div>
+          </div>
+        </div>
+      )}
       {showScratchModal&&(
         <div style={{ position:'fixed', inset:0, background:'rgba(13,27,42,0.5)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
           <div style={{ background:'#fff', borderRadius:16, padding:32, maxWidth:420, width:'90%', boxShadow:'0 24px 48px rgba(13,27,42,0.25)', textAlign:'center' }}>
@@ -891,7 +920,7 @@ function WizardInner() {
                     ))}
                   </div>
                 )}
-                <label style={LBL}>Presupuesto mensual estimado</label>
+                <label style={LBL}>Presupuesto mensual estimado *</label>
                 <select style={{ ...INP, cursor:'pointer' }} value={plan.presupuesto} onChange={e=>upd('presupuesto',e.target.value)}>
                   <option value="" disabled>Selecciona presupuesto *</option>
                   <option value="menos_1000">Menos de 1.000 EUR/mes</option>
@@ -903,7 +932,7 @@ function WizardInner() {
                 </select>
               </div>
               <div style={{ display:'flex', justifyContent:'flex-end' }}>
-                <button onClick={s0next} disabled={busy} style={{ padding:"9px 18px", borderRadius:6, background:C.navy, border:"none", color:C.paper, fontWeight:600, fontSize:14, cursor:busy?"not-allowed":"pointer", fontFamily:"'Geist',sans-serif", opacity:busy?0.7:1 }}>{userPlan==="free" ? "Continuar →" : `✦ Analizar Mercado con IA (${Math.max(0,limits.analisis-usedAnalisis)} créditos)`}</button>
+                <button onClick={s0next} disabled={busy} style={{ padding:"9px 18px", borderRadius:6, background:C.navy, border:"none", color:C.paper, fontWeight:600, fontSize:14, cursor:busy?"not-allowed":"pointer", fontFamily:"'Geist',sans-serif", opacity:busy?0.7:1 }}>"Continuar →"</button>
               </div>
             </div>
           )}
@@ -962,7 +991,7 @@ function WizardInner() {
                           if(val.trim().length<30){alert("Debes rellenar el campo con al menos 30 caracteres para poder mejorarlo con IA");return}
                           if(!canUseMejora())return
                           refine(item.k,val,"Mejora este texto")
-                        }} style={{ fontSize:11, color:"#C75A3C", background:"none", border:"none", cursor:"pointer", fontWeight:500, fontFamily:"'Geist',sans-serif", display:"flex", alignItems:"center", gap:4 }}><span style={{fontSize:13}}>✨</span> Mejorar con IA</button>
+                        }} style={{ fontSize:11, color:"#C75A3C", background:"none", border:"none", cursor:"pointer", fontWeight:500, fontFamily:"'Geist',sans-serif", display:"flex", alignItems:"center", gap:4 }}><span style={{fontSize:13}}>✨</span> Mejorar con IA →</button>
                       </div>
                       <textarea style={{ ...INP, minHeight:80, background:C.white, fontSize:13, resize:'none' }} value={ed(item.k,item.src)} onChange={e=>se(item.k,e.target.value)} />
                     </div>
@@ -1026,14 +1055,15 @@ function WizardInner() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
                   <h2 style={{ fontSize:18, fontWeight:600, color:C.navy }}>Buyer Persona</h2>
                   <AiBtn label="Sugerir Buyer Persona con IA" used={usedAnalisis} max={limits.analisis} onClick={async()=>{
+                    if(!ed('t_cor',gn(plan.target,'core_target','descripcion')).trim()){setAlert({title:'Core Target necesario',body:'Define primero el Core Target para que la IA pueda crear el Buyer Persona.'});return}
                     if(!canUseAnalisis()) return
                     setAiModal('Creando tu Buyer Persona...')
-                    const r = await callAI('suggest_buyer',{producto:plan.producto,sector:plan.sector,tipo_negocio:plan.tipo_negocio,usp:ed('usp',plan.usp)})
+                    const r = await callAI('suggest_buyer',{producto:plan.producto,sector:plan.sector,tipo_negocio:plan.tipo_negocio,usp:ed('usp',plan.usp),core_target:ed('t_cor',gn(plan.target,'core_target','descripcion'))})
                     if(r&&typeof r.refined_text==='string'){
                       try{
                         const d=JSON.parse(r.refined_text.replace(/```json|```/g,'').trim())
                         const fmt = (v: string|string[]) => Array.isArray(v)?v.slice(0,3).map((x:string)=>'- '+x).join('\n'):String(v||'')
-                        if(d.narrativa)se('bp_nar',fmt(d.narrativa)); if(d.momentos)se('bp_mom',fmt(d.momentos)); if(d.piensa)se('bp_pns',fmt(d.piensa)); if(d.informa)se('bp_inf',fmt(d.informa)); if(d.escucha)se('bp_esc',fmt(d.escucha)); if(d.dice)se('bp_dic',fmt(d.dice)); if(d.expectativas)se('bp_exp',fmt(d.expectativas)); if(d.barreras_compra)se('bp_bar',fmt(d.barreras_compra)); if(d.insight)se('bp_ins',fmt(d.insight))
+                        if(d.narrativa)se('bp_nar',fmt(d.narrativa)); if(d.momentos)se('bp_mom',fmt(d.momentos)); if(d.piensa)se('bp_pns',fmt(d.piensa)); if(d.informa)se('bp_inf',fmt(d.informa)); if(d.escucha)se('bp_esc',fmt(d.escucha)); if(d.dice)se('bp_dic',fmt(d.dice)); if(d.expectativas)se('bp_exp',fmt(d.expectativas)); if(d.barreras_compra)se('bp_bar',fmt(d.barreras_compra)); if(d.barreras_comunicacion)se('bp_bco',fmt(d.barreras_comunicacion)); if(d.insight)se('bp_ins',fmt(d.insight))
                       }catch{}
                       trackAnalisis()
                     }
@@ -1050,6 +1080,7 @@ function WizardInner() {
                     {k:'bp_dic',lb:'Que dice',src:gn(plan.target,'buyer_persona','que_dice')},
                     {k:'bp_exp',lb:'Expectativas',src:gn(plan.target,'buyer_persona','expectativas')},
                     {k:'bp_bar',lb:'Barreras a la compra',src:gn(plan.target,'buyer_persona','barreras_compra')},
+                    {k:'bp_bco',lb:'Barreras a la comunicacion',src:gn(plan.target,'buyer_persona','barreras_comunicacion')},
                     {k:'bp_cre',lb:'Barreras a la comunicacion',src:gn(plan.target,'buyer_persona','barreras_comunicacion')},
                   ].map(f=>(
                     <EditField key={f.k} label={f.lb} fkey={f.k} value={ed(f.k,f.src)} onChange={v=>se(f.k,v)} onRefine={p=>refine(f.k,ed(f.k,f.src),p)} small />
@@ -1099,7 +1130,7 @@ function WizardInner() {
               </div>
               <div style={{ display:'flex', justifyContent:'space-between' }}>
                 <button onClick={()=>setStep(1)} style={BTN_S}>Atras</button>
-                <button onClick={s2next} style={BTN_P}>Definir Objetivos</button>
+                <button onClick={s2next} style={BTN_P}>Definir Objetivos →</button>
               </div>
             </div>
           )}
@@ -1143,12 +1174,33 @@ function WizardInner() {
                 <button onClick={()=>setPlan(p=>({...p,objectives:[...p.objectives,{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'año',mandatory:false}]}))} style={BTN_SM}>+ Anadir objetivo</button>
               </div>
 
+              <div style={{ ...CARD, marginBottom:16 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                  <div>
+                    <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, margin:0 }}>Inbound vs Outbound</h2>
+                    <p style={{ fontSize:12, color:C.steel3, marginTop:2, marginBottom:0 }}>Define la dificultad para orientar la estrategia de canales.</p>
+                  </div>
+                </div>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+                  <div>
+                    <label style={LBL}>SEO Difficulty (1-100)</label>
+                    <input type="number" min={1} max={100} placeholder="Ej: 65" value={seoDifficulty} onChange={e=>setSeoDifficulty(e.target.value)} style={{ ...INP, marginBottom:4 }} />
+                    <span style={{ fontSize:11, color:C.steel3, display:'block', lineHeight:1.4 }}>Alto = ranking orgánico costoso → más outbound</span>
+                  </div>
+                  <div>
+                    <label style={LBL}>Paid Difficulty (1-100)</label>
+                    <input type="number" min={1} max={100} placeholder="Ej: 40" value={paidDifficulty} onChange={e=>setPaidDifficulty(e.target.value)} style={{ ...INP, marginBottom:4 }} />
+                    <span style={{ fontSize:11, color:C.steel3, display:'block', lineHeight:1.4 }}>Alto = CPC alto → más inbound/owned media</span>
+                  </div>
+                </div>
+              </div>
+
               <div style={{ background:'linear-gradient(135deg,#EFF6FF,#F0FDF4)', border:`1px solid ${C.steel1}`, borderRadius:12, padding:'20px 24px', marginBottom:24, textAlign:'center' }}>
                 <div style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:6 }}>¿Cuáles son los mejores canales para tu proyecto?</div>
                 <p style={{ fontSize:13, color:C.steel, marginBottom:16 }}>Con los datos de tu target, sector, presupuesto y objetivos, la IA recomendara el mix de medios mas adecuado.</p>
                 <div style={{ display:'flex', justifyContent:'center' }}>
-                  <AiBtn label={busy?'Analizando...':'Recomendar plan de medios'} used={usedAnalisis} max={limits.analisis}
-                    onClick={()=>{ const mf=plan.objectives.filter(o=>o.mandatory&&!o.dato); if(mf.length>0){setAlert({title:'Completa los objetivos',body:`Rellena el dato de: ${mf.map(o=>o.kpi).join(', ')}`});return} createStrategy() }}
+                  <AiBtn label={busy?'Analizando...':'Recomendar Canales con IA'} used={usedAnalisis} max={limits.analisis}
+                    onClick={()=>{ createStrategy() }}
                     disabled={busy} />
                 </div>
               </div>
@@ -1208,9 +1260,12 @@ function WizardInner() {
                 <button onClick={()=>setStep(2)} style={BTN_S}>← Atras</button>
                 <button onClick={()=>{
                   if(plan.selectedChannels.length < 5){setAlert({title:'Selecciona al menos 5 canales',body:'Elige un mínimo de 5 canales para continuar al Plan Táctico.'});return}
-                  const missingData2 = plan.objectives.filter(o=>o.mandatory&&!o.dato.trim())
-                  if(missingData2.length>0){setAlert({title:'Datos obligatorios',body:`Rellena el dato anual de: ${missingData2.map(o=>o.kpi).join(', ')}`});return}
-                  markDone(3);setStep(4);autoSave()
+                  
+                  markDone(3);setStep(4);window.scrollTo({top:0,behavior:"smooth"});
+                  // Cargar ventas del plan de objetivos
+                  const ventasObj = plan.objectives.find(o=>o.kpi?.toLowerCase().includes('venta'));
+                  if(ventasObj?.dato) setTacticoUnidades(Number(String(ventasObj.dato).replace(/\D/g,'')));
+                  autoSave()
                 }} style={{ ...BTN_P, padding:'12px 32px' }}>Plan Táctico →</button>
               </div>
 
@@ -1250,7 +1305,11 @@ function WizardInner() {
                     <button onClick={()=>setStep(2)} style={BTN_S}>← Atras</button>
                     <button onClick={()=>{
                       if(plan.selectedChannels.length < 5){setAlert({title:'Selecciona al menos 5 canales',body:'Elige un mínimo de 5 canales para continuar al Plan Táctico.'});return}
-                      markDone(3);setStep(4);autoSave()
+                      markDone(3);setStep(4);window.scrollTo({top:0,behavior:"smooth"});
+                  // Cargar ventas del plan de objetivos
+                  const ventasObj = plan.objectives.find(o=>o.kpi?.toLowerCase().includes('venta'));
+                  if(ventasObj?.dato) setTacticoUnidades(Number(String(ventasObj.dato).replace(/\D/g,'')));
+                  autoSave()
                     }} style={{ ...BTN_P, padding:'12px 32px' }}>Plan Táctico →</button>
                   </div>
                 </div>

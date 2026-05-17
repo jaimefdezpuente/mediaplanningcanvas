@@ -41,7 +41,8 @@ const PROMPTS: Record<string, (d: D) => string> = {
   ].join('\n'),
 
   estrategia: (d) => [
-    'Eres experto en marketing digital senior con 15 años de experiencia. Crea un plan estratégico de canales completo.',
+    'Eres experto en marketing digital senior con 15 años de experiencia.',
+    'INSTRUCCION CLAVE: Recomienda los canales mas idoneos. Los % presupuesto suman 100%.',
     'DATOS DEL PROYECTO:',
     '- País: ' + d.pais + ' | Sector: ' + d.sector + ' | Producto: ' + d.producto,
     '- Tipo negocio: ' + d.tipo_negocio + ' | Fase: ' + d.fase_negocio,
@@ -50,8 +51,12 @@ const PROMPTS: Record<string, (d: D) => string> = {
     '- Fortalezas: ' + (d.fortalezas||'No definidas'),
     'OBJETIVOS: ' + (d.objetivos||'No definidos'),
     'CANALES SELECCIONADOS: ' + (d.canales_seleccionados||'Ninguno, recomienda los mejores'),
-    'TARGET: ' + (d.target_desc||'No definido'),
+    'TARGET CORE: ' + (d.target_desc||'No definido'),
+    'BUYER PERSONA: ' + (d.buyer_persona||'No definido'),
     'ESCALERA DE VALOR: ' + (d.escalera_valor||'No definida'),
+    d.seo_difficulty ? 'SEO DIFFICULTY: ' + d.seo_difficulty + '/100 (alto=posicionamiento organico difícil)' : '',
+    d.paid_difficulty ? 'PAID DIFFICULTY: ' + d.paid_difficulty + '/100 (alto=CPC muy caro)' : '',
+    d.seo_difficulty && d.paid_difficulty ? 'ORIENTACION: SEO bajo + Paid bajo = owned first | SEO bajo + Paid alto = inbound/SEO | SEO alto + Paid bajo = outbound/paid | SEO alto + Paid alto = earned+owned.' : '',
     'Los % presupuesto deben sumar 100%.',
     'Devuelve SOLO JSON sin markdown:',
     '{"estrategia_resumen":"3-4 frases","canales_por_fase":{"notoriedad":[{"canal":"nombre","accion":"acción","kpi":"KPI con número","presupuesto_pct":20,"razon":"razón","score_ia":4}],"interaccion":[{"canal":"nombre","accion":"acción","kpi":"KPI","presupuesto_pct":15,"razon":"razón","score_ia":3}],"lead_venta":[{"canal":"nombre","accion":"acción","kpi":"KPI","presupuesto_pct":40,"razon":"razón","score_ia":5}],"fidelizacion":[{"canal":"nombre","accion":"acción","kpi":"KPI","presupuesto_pct":25,"razon":"razón","score_ia":4}]},"quick_wins":["acción 1","acción 2","acción 3"]}',
@@ -80,8 +85,9 @@ const PROMPTS: Record<string, (d: D) => string> = {
   ].join('\n'),
 
   suggest_target: (d) => [
-    'Sugiere Core y Broad Target para este negocio.',
-    'Producto: ' + d.producto + ' | Sector: ' + d.sector + ' | Pais: ' + d.pais + ' | Tipo: ' + d.tipo_negocio + ' | USP: ' + (d.usp||''),
+    'Eres experto en estrategia de marketing. Define Core y Broad Target de este negocio con precision.',
+    'Producto: ' + d.producto + ' | Sector: ' + d.sector + ' | Pais: ' + d.pais + ' | Tipo: ' + d.tipo_negocio + ' | USP: ' + (d.usp||'No definida'),
+    'CORE TARGET: el segmento mas rentable. BROAD TARGET: segmento secundario potencial.',
     'Devuelve SOLO JSON sin markdown: {"refined_text":"{\"core_desc\":\"...\"،\"core_volumen\":\"...\"،\"core_sociodem\":\"...\"،\"broad_desc\":\"...\"،\"broad_volumen\":\"...\"،\"broad_edad\":\"...\"|}"}',
   ].join('\n'),
 

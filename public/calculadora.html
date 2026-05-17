@@ -955,7 +955,7 @@ window._updateCreditsDisplay = function(remaining, plan, maxCredits) {
     <div class="snum">03</div>
     <div class="stit" id="planTit">Plan de Medios</div>
   </div>
-  <button id="btnTacticoIA" onclick="runTacticoIA()" style="display:flex;align-items:center;gap:7px;padding:7px 14px;background:#F6F4EF;border:1px solid #DDE2E8;border-radius:6px;color:#4A6B8A;font-family:'Geist',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:opacity 0.15s">
+  <button id="btnTacticoIA" onclick="window.parent&&window.parent.postMessage({type:'mpc-ia-confirm',n:S.channels.length},'*')" style="display:flex;align-items:center;gap:7px;padding:7px 14px;background:#F6F4EF;border:1px solid #DDE2E8;border-radius:6px;color:#4A6B8A;font-family:'Geist',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:opacity 0.15s">
     <span style="font-size:15px">✨</span> Plan Táctico con IA
     <span id="tacticoIAcredits" style="font-size:10px;background:rgba(255,255,255,0.15);padding:2px 7px;border-radius:100px;font-family:'Geist Mono',monospace">—</span>
   </button>
@@ -2553,6 +2553,9 @@ window.addEventListener('message', function(e) {
   if (e.data.type === 'mpc-set-mode') {
     var m = e.data.mode === 'budget' ? 'budget' : 'objetivo';
     if (typeof setPlanMode === 'function') setPlanMode(m);
+  }
+  if (e.data.type === 'mpc-run-ia') {
+    if (typeof runTacticoIA === 'function') runTacticoIA();
   }
   if (e.data.type === 'mpc-do-scratch') {
     if (typeof doScratch === 'function') doScratch();
