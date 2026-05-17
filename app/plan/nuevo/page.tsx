@@ -295,6 +295,7 @@ function WizardInner() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [showScratchModal, setShowScratchModal] = useState(false)
   const [tacticoMode, setTacticoMode] = useState<'presupuesto'|'ventas'>('presupuesto')
+  const [estrategiaPrioridad, setEstrategiaPrioridad] = useState<'notoriedad'|'equilibrado'|'ventas'>('equilibrado')
   const [seoDifficulty, setSeoDifficulty] = useState('')
   const [paidDifficulty, setPaidDifficulty] = useState('')
   const [showIAConfirm, setShowIAConfirm] = useState(false)
@@ -556,7 +557,9 @@ function WizardInner() {
     const targetDesc = ed('t_cor',gn(plan.target,'core_target','descripcion'))
     const r = await callAI('estrategia',{
       objetivos:objText,
-      canales_seleccionados:'Ninguno, recomienda los mejores (minimo 5, maximo 10 canales)',
+      canales_seleccionados:'Ninguno, recomienda los mejores',
+      prioridad: estrategiaPrioridad,
+      canales_disponibles: Object.entries(CH_OPTIONS).map(([fase, chs]) => fase.toUpperCase() + ': ' + chs.join(', ')).join('\n'),
       fortalezas:ed('d_fo',''),
       target_desc:targetDesc,
       escalera_valor:plan.valueSteps.map((s,i)=>`Paso ${i+1} (${s.tipo}): ${s.accion}`).join(' | '),
@@ -1237,6 +1240,20 @@ function WizardInner() {
                   </div>
                 )}
                 <button onClick={()=>setPlan(p=>({...p,objectives:[...p.objectives,{id:uid(),tipo:'Marketing',kpi:'',dato:'',tiempo:'año',mandatory:false}]}))} style={BTN_SM}>+ Anadir objetivo</button>
+              </div>
+
+              <div style={CARD}>
+                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:4 }}>Prioridad Estratégica</h2>
+                <p style={{ fontSize:13, color:C.steel, marginBottom:12, lineHeight:1.6 }}>¿Qué quieres priorizar este año? Esto orienta el mix de canales y la distribución del presupuesto.</p>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:4 }}>
+                  {([['notoriedad','📣','Notoriedad','Awareness, alcance y marca'],['equilibrado','⚖️','Equilibrado','Mix balanceado'],['ventas','💰','Ventas','Conversión y leads']] as const).map(([val, ic, label, desc])=>(
+                    <button key={val} onClick={()=>setEstrategiaPrioridad(val)} style={{ padding:'12px 10px', borderRadius:8, border:`2px solid ${estrategiaPrioridad===val?C.navy:C.steel1}`, background:estrategiaPrioridad===val?C.navy:C.white, color:estrategiaPrioridad===val?C.paper:C.steel, cursor:'pointer', textAlign:'left', fontFamily:"'Geist',sans-serif", transition:'all 0.15s' }}>
+                      <div style={{ fontSize:18, marginBottom:4 }}>{ic}</div>
+                      <div style={{ fontSize:13, fontWeight:600 }}>{label}</div>
+                      <div style={{ fontSize:11, opacity:0.7, marginTop:2 }}>{desc}</div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div style={CARD}>
