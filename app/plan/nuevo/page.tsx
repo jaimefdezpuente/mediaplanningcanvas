@@ -1430,199 +1430,105 @@ function WizardInner() {
             </div>
           )}
 
-          {step===5&&(
-            <div id="mpc-resumen-print">
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:24 }}>
-                <div>
-                  <h1 style={{ fontSize:28, fontWeight:600, color:C.navy, marginBottom:4 }}>Resumen Ejecutivo</h1>
-                  <p style={{ fontSize:14, color:C.steel }}>Tu plan completo de marketing</p>
-                </div>
-                <div style={{ display:'flex', gap:10 }}>
+          {step===5&&(()=>{
+            // ── helpers ────────────────────────────────────────────────
+            const td = ed('_tactico','')
+            let tactico: {channels?:Obj[];summary?:Obj;monthly?:Obj;ltv?:Obj} = {}
+            try { if(td) tactico = JSON.parse(td) } catch {}
+            const tchs   = (tactico.channels || []) as Obj[]
+            const tsum   = (tactico.summary  || {}) as Obj
+            const tltv   = (tactico.ltv      || {}) as Obj
+            const tmonth = (tactico.monthly   || {}) as Obj
+            const phColors:Record<string,string> = {notoriedad:'#C28840',interaccion:'#1E40AF',lead_venta:'#2F7D5C',fidelizacion:'#7E22CE'}
+            const phLabels:Record<string,string> = {notoriedad:'Notoriedad',interaccion:'Interacción',lead_venta:'Lead / Venta',fidelizacion:'Fidelización'}
+            const monthLabels = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+            const fE = (v:number) => `€ ${Number(v||0).toLocaleString('es-ES',{maximumFractionDigits:0})}`
+            const fN = (v:number) => Number(v||0).toLocaleString('es-ES',{maximumFractionDigits:0})
+            const fR = (v:number) => `${Number(v||0).toFixed(2)}x`
+
+            async function generatePDF() {
+              const btn = document.getElementById('pdf-btn') as HTMLButtonElement
+              if (btn) { btn.textContent = 'Generando PDF…'; btn.disabled = true }
+              try {
+                if (!(window as any).html2canvas) {
+                  await new Promise<void>((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; s.onload=()=>res(); s.onerror=()=>rej(new Error('html2canvas')); document.head.appendChild(s) })
+                }
+                if (!(window as any).jspdf) {
+                  await new Promise<void>((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.onload=()=>res(); s.onerror=()=>rej(new Error('jspdf')); document.head.appendChild(s) })
+                }
+                const el = document.getElementById('mpc-resumen-print')
+                if (!el) return
+                const canvas = await (window as any).html2canvas(el, { scale:2, useCORS:true, backgroundColor:'#F6F4EF', logging:false })
+                const imgData = canvas.toDataURL('image/png')
+                const { jsPDF } = (window as any).jspdf
+                const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' })
+                const pgW = pdf.internal.pageSize.getWidth()
+                const pgH = pdf.internal.pageSize.getHeight()
+                const imgH = (canvas.height * pgW) / canvas.width
+                let left = imgH; let pos = 0
+                pdf.addImage(imgData,'PNG',0,pos,pgW,imgH)
+                left -= pgH
+                while(left > 0){ pos = left - imgH; pdf.addPage(); pdf.addImage(imgData,'PNG',0,pos,pgW,imgH); left -= pgH }
+                const name = (plan.projectName||plan.sector||'media-plan').replace(/\s+/g,'-').toLowerCase()
+                pdf.save(`${name}-resumen.pdf`)
+              } catch(e) { console.error('PDF error',e) }
+              finally { if(btn){ btn.textContent='⬇ Descargar PDF'; btn.disabled=false } }
+            }
+
+            const SH: React.CSSProperties = { fontSize:11, fontWeight:700, color:C.steel3, textTransform:'uppercase', letterSpacing:'0.1em', fontFamily:"'Geist Mono',monospace", marginBottom:10 }
+            const CHIP: React.CSSProperties = { background:C.paper, borderRadius:8, padding:'10px 14px' }
+
+            return (
+            <div id="mpc-resumen-print" style={{ maxWidth:860, margin:'0 auto' }}>
+
+              {/* ── Logo + botones ───────────────────────────────────── */}
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:28 }}>
+                <MpcLockup size={120} />
+                <div style={{ display:'flex', gap:8, flexWrap:'wrap', justifyContent:'flex-end' }}>
                   <button onClick={()=>setStep(4)} style={BTN_S}>← Táctico</button>
-                  <button onClick={()=>{ window.print() }} style={{ ...BTN_P, background:'#2F7D5C' }}>⬇ Imprimir / PDF</button>
+                  <button id="pdf-btn" onClick={generatePDF} style={{ ...BTN_P, background:'#2F7D5C' }}>⬇ Descargar PDF</button>
+                  <button onClick={()=>{ window.print() }} style={{ ...BTN_P, background:C.steel }}>🖨 Imprimir</button>
                   <button onClick={()=>setSaveModal(true)} style={BTN_P}>Guardar Plan</button>
                 </div>
               </div>
+              <div style={{ borderBottom:`2px solid ${C.navy}`, marginBottom:28, paddingBottom:16 }}>
+                <h1 style={{ fontSize:30, fontWeight:400, color:C.navy, margin:'0 0 4px', fontFamily:"'Georgia',serif", letterSpacing:'-0.02em' }}>Resumen Ejecutivo</h1>
+                <p style={{ fontSize:13, color:C.steel3, margin:0 }}>Plan completo de marketing · {plan.projectName||plan.sector||'—'}</p>
+              </div>
 
-              {/* Datos del proyecto */}
-              <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:16 }}>Datos del Proyecto</h2>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
-                  {[
+              {/* 01 — DATOS DEL PROYECTO */}
+              <div style={{ ...CARD, marginBottom:16 }}>
+                <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:14 }}>01 · Datos del Proyecto</h2>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
+                  {([
                     {l:'Proyecto',v:plan.projectName},{l:'País',v:plan.pais},{l:'Sector',v:plan.sector},
                     {l:'Tipo',v:plan.tipo_negocio},{l:'Fase',v:plan.fase_negocio},{l:'Presupuesto',v:plan.presupuesto},
-                  ].map(({l,v})=>(
-                    <div key={l} style={{ background:C.paper, borderRadius:8, padding:'12px 16px' }}>
-                      <div style={{ fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', fontFamily:"'Geist Mono',monospace", marginBottom:4 }}>{l}</div>
-                      <div style={{ fontSize:14, color:C.navy, fontWeight:500 }}>{v||'—'}</div>
+                  ] as {l:string;v:string}[]).map(({l,v})=>(
+                    <div key={l} style={CHIP}>
+                      <div style={SH}>{l}</div>
+                      <div style={{ fontSize:13, color:C.navy, fontWeight:500 }}>{v||'—'}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* USP */}
-              {plan.usp&&<div style={CARD}><h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:8 }}>Propuesta Única de Valor (USP)</h2><p style={{ fontSize:14, color:C.navy, lineHeight:1.7, fontStyle:'italic' }}>"{ed('usp',plan.usp)}"</p></div>}
-
-              {/* Target */}
-              {(ed('t_cor',gn(plan.target,'core_target','descripcion'))||ed('t_bro',gn(plan.target,'broad_target','descripcion')))&&(
-                <div style={CARD}>
-                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:12 }}>Target</h2>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-                    {ed('t_cor',gn(plan.target,'core_target','descripcion'))&&(
-                      <div style={{ background:C.paper, borderRadius:8, padding:14, border:`1px solid ${C.steel1}` }}>
-                        <div style={{ fontSize:11, fontWeight:600, color:C.navy, textTransform:'uppercase', marginBottom:6, fontFamily:"'Geist Mono',monospace" }}>Core Target</div>
-                        <p style={{ fontSize:13, color:C.navy, lineHeight:1.6, margin:0 }}>{ed('t_cor',gn(plan.target,'core_target','descripcion'))}</p>
-                        {ed('t_soc',gn(plan.target,'core_target','sociodemografico','edad'))&&<p style={{ fontSize:12, color:C.steel, marginTop:6 }}>Sociodem: {ed('t_soc',gn(plan.target,'core_target','sociodemografico','edad'))}</p>}
-                      </div>
-                    )}
-                    {ed('t_bro',gn(plan.target,'broad_target','descripcion'))&&(
-                      <div style={{ background:C.paper, borderRadius:8, padding:14, border:`1px solid ${C.steel1}` }}>
-                        <div style={{ fontSize:11, fontWeight:600, color:C.steel3, textTransform:'uppercase', marginBottom:6, fontFamily:"'Geist Mono',monospace" }}>Broad Target</div>
-                        <p style={{ fontSize:13, color:C.navy, lineHeight:1.6, margin:0 }}>{ed('t_bro',gn(plan.target,'broad_target','descripcion'))}</p>
-                        {ed('t_bage',gn(plan.target,'broad_target','sociodemografico','edad'))&&<p style={{ fontSize:12, color:C.steel, marginTop:6 }}>Sociodem: {ed('t_bage',gn(plan.target,'broad_target','sociodemografico','edad'))}</p>}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Objetivos */}
-              {plan.objectives.filter(o=>o.kpi&&o.dato).length>0&&(
-                <div style={CARD}>
-                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:12 }}>Objetivos Anuales</h2>
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:8 }}>
-                    {plan.objectives.filter(o=>o.kpi&&o.dato).map(o=>(
-                      <div key={o.id} style={{ background:C.paper, borderRadius:8, padding:'10px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                        <span style={{ fontSize:12, color:C.steel }}>{o.tipo}: <strong>{o.kpi}</strong></span>
-                        <span style={{ fontSize:14, fontWeight:700, color:C.navy, fontFamily:"'Geist Mono',monospace" }}>{o.dato}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Estrategia */}
-              {plan.estrategia&&(plan.estrategia as Obj).estrategia_resumen&&(
-                <div style={CARD}>
-                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:8 }}>Estrategia de Canales</h2>
-                  <p style={{ fontSize:14, color:C.navy, lineHeight:1.7, marginBottom:16 }}>{String((plan.estrategia as Obj).estrategia_resumen)}</p>
-                  {['notoriedad','interaccion','lead_venta','fidelizacion'].map(ph=>{
-                    const phMap:Record<string,string>={notoriedad:'Notoriedad',interaccion:'Interacción',lead_venta:'Lead / Venta',fidelizacion:'Fidelización'}
-                    const rows = ((plan.estrategia as Obj).canales_por_fase as Obj)?.[ph] as Obj[]
-                    if(!Array.isArray(rows)||!rows.length) return null
-                    return (
-                      <div key={ph} style={{ marginBottom:12 }}>
-                        <div style={{ fontSize:11, fontWeight:600, color:C.steel3, textTransform:'uppercase', marginBottom:6, fontFamily:"'Geist Mono',monospace" }}>{phMap[ph]}</div>
-                        {rows.map((r,i)=>(
-                          <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr 1fr auto', gap:8, padding:'8px 10px', background:C.paper, borderRadius:6, marginBottom:4, fontSize:12 }}>
-                            <span style={{ fontWeight:600, color:C.navy }}>{String(r.canal)}</span>
-                            <span style={{ color:C.steel }}>{String(r.kpi||'')}</span>
-                            <span style={{ fontFamily:"'Geist Mono',monospace", color:C.steel3 }}>{r.presupuesto_pct}%</span>
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-
-              {/* Plan de medios del táctico */}
-              {(()=>{
-                const td = ed('_tactico','')
-                if(!td) return null
-                try {
-                  const data = JSON.parse(td) as {channels?:Obj[],summary?:Obj,monthly?:Obj}
-                  if(!data.channels||!data.channels.length) return null
-                  const chs = data.channels as Obj[]
-                  const summary = (data.summary||{}) as Obj
-                  const monthLabels = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
-                  return (
-                    <>
-                      <div style={CARD}>
-                        <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:4 }}>Plan de Medios</h2>
-                        <p style={{ fontSize:12, color:C.steel3, marginBottom:12 }}>Distribución presupuestaria por canal</p>
-                        <div style={{ overflowX:'auto' }}>
-                          <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
-                            <thead>
-                              <tr style={{ background:C.paper, borderBottom:`1px solid ${C.steel1}` }}>
-                                {['Canal','Fase','Inversión','ROAS','Clientes Est.'].map(h=>(
-                                  <th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', fontFamily:"'Geist Mono',monospace" }}>{h}</th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {chs.map((ch,i)=>{
-                                const res = (ch.results||{}) as Obj
-                                const phMap2:Record<string,string>={notoriedad:'Notoriedad',interaccion:'Interacción',lead_venta:'Venta',fidelizacion:'Fidelización'}
-                                return (
-                                  <tr key={i} style={{ borderBottom:`1px solid ${C.steel1}` }}>
-                                    <td style={{ padding:'8px 12px', fontWeight:500, color:C.navy }}>{String(ch.name||'')}</td>
-                                    <td style={{ padding:'8px 12px', color:C.steel, fontSize:11 }}>{phMap2[String(ch.phase||'')]||String(ch.phase||'')}</td>
-                                    <td style={{ padding:'8px 12px', fontFamily:"'Geist Mono',monospace", color:C.navy }}>€ {Number(res.inversion||0).toLocaleString('es-ES',{maximumFractionDigits:0})}</td>
-                                    <td style={{ padding:'8px 12px', fontFamily:"'Geist Mono',monospace", color:Number(res.roas||0)>=3?'#10b981':Number(res.roas||0)>=1?'#f59e0b':'#64748B' }}>{Number(res.roas||0).toFixed(1)}x</td>
-                                    <td style={{ padding:'8px 12px', fontFamily:"'Geist Mono',monospace" }}>{Number(res.clients||0).toLocaleString('es-ES',{maximumFractionDigits:0})}</td>
-                                  </tr>
-                                )
-                              })}
-                              <tr style={{ background:C.paper, fontWeight:700 }}>
-                                <td colSpan={2} style={{ padding:'10px 12px', color:C.navy }}>TOTAL</td>
-                                <td style={{ padding:'10px 12px', fontFamily:"'Geist Mono',monospace", color:C.navy }}>€ {Number((summary.total_inv as number)||0).toLocaleString('es-ES',{maximumFractionDigits:0})}</td>
-                                <td colSpan={2}></td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                      <div style={CARD}>
-                        <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:12 }}>Distribución Mensual</h2>
-                        <div style={{ overflowX:'auto' }}>
-                          <table style={{ width:'100%', borderCollapse:'collapse', fontSize:11 }}>
-                            <thead>
-                              <tr style={{ background:C.paper }}>
-                                <th style={{ padding:'6px 8px', textAlign:'left', color:C.steel3, fontFamily:"'Geist Mono',monospace", fontSize:10 }}>Canal</th>
-                                {monthLabels.map(m=><th key={m} style={{ padding:'6px 8px', textAlign:'center', color:C.steel3, fontFamily:"'Geist Mono',monospace", fontSize:10 }}>{m}</th>)}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {chs.map((ch,i)=>{
-                                const monthly = data.monthly ? (data.monthly as Obj)[String(ch.uid||'')] as Obj : null
-                                const months = monthly?.months as boolean[] || Array(12).fill(true)
-                                const invPerMonth = monthly ? Number(monthly.inv_per_active||0) : 0
-                                return (
-                                  <tr key={i} style={{ borderBottom:`1px solid ${C.steel1}` }}>
-                                    <td style={{ padding:'6px 8px', fontWeight:500, color:C.navy, whiteSpace:'nowrap' }}>{String(ch.name||'')}</td>
-                                    {Array.from({length:12},(_,m)=>(
-                                      <td key={m} style={{ padding:'6px 8px', textAlign:'center', background:months[m]?'#EFF6FF':'transparent', color:months[m]?C.navy:C.steel3, fontSize:10, fontFamily:"'Geist Mono',monospace" }}>
-                                        {months[m]?`€${Math.round(invPerMonth/1000)}k`:'—'}
-                                      </td>
-                                    ))}
-                                  </tr>
-                                )
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </>
-                  )
-                } catch { return null }
-              })()}
-
-              {/* Escalera de valor */}
-              {plan.valueSteps.length>0&&(
-                <div style={CARD}>
-                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:12 }}>Escalera de Valor</h2>
-                  <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                    {plan.valueSteps.map((s,i)=>{
-                      const cols:Record<string,string>={TOFU:'#92400E',MOFU:'#1E40AF',BOFU:'#2F7D5C',FIDELIZACION:'#7E22CE'}
-                      return(
-                        <div key={s.id} style={{ display:'flex', gap:10, alignItems:'flex-start', padding:'10px 14px', background:C.paper, borderRadius:8, border:`1px solid ${C.steel1}` }}>
-                          <span style={{ background:cols[s.tipo]||C.steel, color:'#fff', fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4, flexShrink:0, marginTop:2 }}>{s.tipo}</span>
-                          <div>
-                            <div style={{ fontSize:13, fontWeight:600, color:C.navy }}>{s.accion}</div>
-                            {s.objetivo&&<div style={{ fontSize:12, color:C.steel, marginTop:2 }}>{s.objetivo}</div>}
-                          </div>
+              {/* 02 — DAFO */}
+              {(ed('d_fo','')||ed('d_de','')||ed('d_op',gn(plan.entorno,'dafo','oportunidades'))||ed('d_am',gn(plan.entorno,'dafo','amenazas')))&&(
+                <div style={{ ...CARD, marginBottom:16 }}>
+                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:14 }}>02 · DAFO</h2>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                    {([
+                      {k:'d_op',src:gn(plan.entorno,'dafo','oportunidades'),lb:'Oportunidades',bg:'#F0FDF4',col:'#2F7D5C'},
+                      {k:'d_am',src:gn(plan.entorno,'dafo','amenazas'),lb:'Amenazas',bg:'#FFFBEB',col:C.warn},
+                      {k:'d_fo',src:'',lb:'Fortalezas',bg:'#EFF6FF',col:'#1E40AF'},
+                      {k:'d_de',src:'',lb:'Debilidades',bg:'#FDF4FF',col:'#7E22CE'},
+                    ] as {k:string;src:string;lb:string;bg:string;col:string}[]).map(item=>{
+                      const val = ed(item.k, item.src)
+                      if(!val.trim()) return null
+                      return (
+                        <div key={item.k} style={{ background:item.bg, borderRadius:8, padding:14, border:`1px solid ${item.col}33` }}>
+                          <div style={{ fontSize:11, fontWeight:700, color:item.col, textTransform:'uppercase', fontFamily:"'Geist Mono',monospace", marginBottom:8 }}>{item.lb}</div>
+                          <p style={{ fontSize:12, color:C.navy, lineHeight:1.6, margin:0, whiteSpace:'pre-wrap' }}>{val}</p>
                         </div>
                       )
                     })}
@@ -1630,12 +1536,236 @@ function WizardInner() {
                 </div>
               )}
 
+              {/* 03 — USP */}
+              {ed('usp',plan.usp)&&(
+                <div style={{ ...CARD, marginBottom:16, border:`1px solid ${C.steel1}` }}>
+                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:10 }}>03 · Propuesta Única de Valor (USP)</h2>
+                  <p style={{ fontSize:15, color:C.navy, lineHeight:1.7, fontStyle:'italic', margin:0, borderLeft:`3px solid ${C.accent}`, paddingLeft:14 }}>"{ed('usp',plan.usp)}"</p>
+                </div>
+              )}
+
+              {/* 04 — CORE TARGET */}
+              {ed('t_cor',gn(plan.target,'core_target','descripcion'))&&(
+                <div style={{ ...CARD, marginBottom:16 }}>
+                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:14 }}>04 · Core Target</h2>
+                  <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:12 }}>
+                    <div>
+                      <div style={SH}>Descripción</div>
+                      <p style={{ fontSize:13, color:C.navy, lineHeight:1.6, margin:0 }}>{ed('t_cor',gn(plan.target,'core_target','descripcion'))}</p>
+                    </div>
+                    <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                      {ed('t_vol',gn(plan.target,'core_target','volumen_estimado'))&&(
+                        <div style={CHIP}><div style={SH}>Volumen</div><div style={{ fontSize:13, color:C.navy }}>{ed('t_vol',gn(plan.target,'core_target','volumen_estimado'))}</div></div>
+                      )}
+                      {ed('t_soc',gn(plan.target,'core_target','sociodemografico','edad'))&&(
+                        <div style={CHIP}><div style={SH}>Sociodem.</div><div style={{ fontSize:13, color:C.navy }}>{ed('t_soc',gn(plan.target,'core_target','sociodemografico','edad'))}</div></div>
+                      )}
+                    </div>
+                  </div>
+                  {ed('bp_nar',gn(plan.target,'buyer_persona','descripcion_narrativa'))&&(
+                    <div style={{ marginTop:12, padding:12, background:C.paper, borderRadius:8, border:`1px solid ${C.steel1}` }}>
+                      <div style={SH}>Buyer Persona</div>
+                      <p style={{ fontSize:12, color:C.navy, lineHeight:1.6, margin:0 }}>{ed('bp_nar',gn(plan.target,'buyer_persona','descripcion_narrativa'))}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 05 — ESCALERA DE VALOR */}
+              {plan.valueSteps.length>0&&(
+                <div style={{ ...CARD, marginBottom:16 }}>
+                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:14 }}>05 · Escalera de Valor</h2>
+                  <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                    {plan.valueSteps.map((s,i)=>{
+                      const cols:Record<string,string>={TOFU:'#92400E',MOFU:'#1E40AF',BOFU:'#2F7D5C',FIDELIZACION:'#7E22CE',RETENTION:'#831843'}
+                      return(
+                        <div key={s.id} style={{ display:'flex', gap:10, alignItems:'flex-start', padding:'10px 14px', background:C.paper, borderRadius:8, border:`1px solid ${C.steel1}` }}>
+                          <span style={{ background:cols[s.tipo]||C.steel, color:'#fff', fontSize:9, fontWeight:700, padding:'3px 8px', borderRadius:4, flexShrink:0, marginTop:2, fontFamily:"'Geist Mono',monospace" }}>{s.tipo}</span>
+                          <span style={{ fontSize:11, color:C.steel3, flexShrink:0, marginTop:3 }}>#{i+1}</span>
+                          <div><div style={{ fontSize:13, fontWeight:600, color:C.navy }}>{s.accion}</div>{s.objetivo&&<div style={{ fontSize:12, color:C.steel, marginTop:2 }}>{s.objetivo}</div>}</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 06 — OBJETIVOS */}
+              {plan.objectives.filter(o=>o.kpi&&o.dato).length>0&&(
+                <div style={{ ...CARD, marginBottom:16 }}>
+                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:14 }}>06 · Objetivos Anuales</h2>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:8 }}>
+                    {plan.objectives.filter(o=>o.kpi&&o.dato).map(o=>(
+                      <div key={o.id} style={{ ...CHIP, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                        <span style={{ fontSize:12, color:C.steel }}>{o.tipo}: <strong style={{ color:C.navy }}>{o.kpi}</strong></span>
+                        <span style={{ fontSize:14, fontWeight:700, color:C.navy, fontFamily:"'Geist Mono',monospace" }}>{o.dato}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 07 — ESTRATEGIA DE CANALES */}
+              {plan.estrategia&&(plan.estrategia as Obj).estrategia_resumen&&(
+                <div style={{ ...CARD, marginBottom:16 }}>
+                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:10 }}>07 · Estrategia de Canales</h2>
+                  <p style={{ fontSize:13, color:C.navy, lineHeight:1.7, marginBottom:14 }}>{String((plan.estrategia as Obj).estrategia_resumen)}</p>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                    {(['notoriedad','interaccion','lead_venta','fidelizacion'] as string[]).map(ph=>{
+                      const rows = ((plan.estrategia as Obj).canales_por_fase as Obj)?.[ph] as Obj[]
+                      if(!Array.isArray(rows)||!rows.length) return null
+                      return (
+                        <div key={ph} style={{ background:phColors[ph]+'12', border:`1px solid ${phColors[ph]}33`, borderRadius:8, padding:12 }}>
+                          <div style={{ fontSize:10, fontWeight:700, color:phColors[ph], textTransform:'uppercase', fontFamily:"'Geist Mono',monospace", marginBottom:8 }}>{phLabels[ph]}</div>
+                          {rows.map((r,i)=>(
+                            <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'4px 0', borderBottom:`1px solid ${phColors[ph]}22`, fontSize:12 }}>
+                              <span style={{ fontWeight:600, color:C.navy }}>{String(r.canal)}</span>
+                              <span style={{ fontFamily:"'Geist Mono',monospace", color:C.steel3 }}>{r.presupuesto_pct}%</span>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 08 — PLAN DE MEDIOS */}
+              {tchs.length>0&&(
+                <div style={{ ...CARD, marginBottom:16 }}>
+                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:4 }}>08 · Plan de Medios</h2>
+                  <p style={{ fontSize:12, color:C.steel3, marginBottom:12 }}>Distribución presupuestaria por canal</p>
+                  <div style={{ overflowX:'auto' }}>
+                    <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
+                      <thead>
+                        <tr style={{ background:C.paper, borderBottom:`2px solid ${C.steel1}` }}>
+                          {['Canal','Fase','Inversión','ROAS','Leads','Clientes','Ingreso Est.'].map(h=>(
+                            <th key={h} style={{ padding:'8px 10px', textAlign:'left', fontSize:10, fontWeight:600, color:C.steel3, textTransform:'uppercase', fontFamily:"'Geist Mono',monospace" }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tchs.map((ch,i)=>{
+                          const res = (ch.results||{}) as Obj
+                          const rc = Number(res.roas||0)>=3?'#10b981':Number(res.roas||0)>=1?C.warn:C.steel3
+                          return (
+                            <tr key={i} style={{ borderBottom:`1px solid ${C.steel1}` }}>
+                              <td style={{ padding:'8px 10px', fontWeight:600, color:C.navy }}>{String(ch.name||'')}</td>
+                              <td style={{ padding:'8px 10px' }}>
+                                <span style={{ fontSize:10, fontWeight:600, color:phColors[String(ch.phase||'')]||C.steel3, background:(phColors[String(ch.phase||'')]||C.steel3)+'18', padding:'2px 6px', borderRadius:4 }}>
+                                  {phLabels[String(ch.phase||'')]||String(ch.phase||'')}
+                                </span>
+                              </td>
+                              <td style={{ padding:'8px 10px', fontFamily:"'Geist Mono',monospace" }}>{fE(Number(res.inversion||0))}</td>
+                              <td style={{ padding:'8px 10px', fontFamily:"'Geist Mono',monospace", color:rc, fontWeight:600 }}>{fR(Number(res.roas||0))}</td>
+                              <td style={{ padding:'8px 10px', fontFamily:"'Geist Mono',monospace", color:C.steel }}>{fN(Number(res.leads||0))}</td>
+                              <td style={{ padding:'8px 10px', fontFamily:"'Geist Mono',monospace" }}>{fN(Number(res.clients||0))}</td>
+                              <td style={{ padding:'8px 10px', fontFamily:"'Geist Mono',monospace", color:'#10b981' }}>{fE(Number(res.ingreso||0))}</td>
+                            </tr>
+                          )
+                        })}
+                        <tr style={{ background:C.paper, fontWeight:700, borderTop:`2px solid ${C.steel1}` }}>
+                          <td colSpan={2} style={{ padding:'10px', color:C.navy }}>TOTAL</td>
+                          <td style={{ padding:'10px', fontFamily:"'Geist Mono',monospace", color:C.navy }}>{fE(Number(tsum.total_inv||0))}</td>
+                          <td style={{ padding:'10px', fontFamily:"'Geist Mono',monospace", color:Number(tsum.roas||0)>=3?'#10b981':C.warn }}>{fR(Number(tsum.roas||0))}</td>
+                          <td style={{ padding:'10px', fontFamily:"'Geist Mono',monospace" }}>{fN(Number(tsum.total_leads||0))}</td>
+                          <td style={{ padding:'10px', fontFamily:"'Geist Mono',monospace" }}>{fN(Number(tsum.total_clients||0))}</td>
+                          <td style={{ padding:'10px', fontFamily:"'Geist Mono',monospace", color:'#10b981' }}>{fE(Number(tsum.total_revenue||0))}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* 09 — DISTRIBUCIÓN MENSUAL */}
+              {tchs.length>0&&(
+                <div style={{ ...CARD, marginBottom:16 }}>
+                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:12 }}>09 · Distribución Mensual</h2>
+                  <div style={{ overflowX:'auto' }}>
+                    <table style={{ width:'100%', borderCollapse:'collapse', fontSize:11 }}>
+                      <thead>
+                        <tr style={{ background:C.paper }}>
+                          <th style={{ padding:'6px 8px', textAlign:'left', color:C.steel3, fontFamily:"'Geist Mono',monospace", fontSize:10, fontWeight:600 }}>Canal</th>
+                          {monthLabels.map(m=><th key={m} style={{ padding:'6px 4px', textAlign:'center', color:C.steel3, fontFamily:"'Geist Mono',monospace", fontSize:10, fontWeight:600 }}>{m}</th>)}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tchs.map((ch,i)=>{
+                          const mdata = tmonth[String(ch.uid||'')] as Obj|null
+                          const months = (mdata?.months as boolean[]) || Array(12).fill(true)
+                          const inv = mdata ? Number(mdata.inv_per_active||0) : 0
+                          const col = phColors[String(ch.phase||'')] || C.steel3
+                          return (
+                            <tr key={i} style={{ borderBottom:`1px solid ${C.steel1}` }}>
+                              <td style={{ padding:'5px 8px', fontWeight:600, color:C.navy, fontSize:11, whiteSpace:'nowrap' }}>{String(ch.name||'')}</td>
+                              {Array.from({length:12},(_,m)=>(
+                                <td key={m} style={{ padding:'5px 4px', textAlign:'center', background:months[m]?col+'18':'transparent', borderRadius:3, fontSize:10, fontFamily:"'Geist Mono',monospace", color:months[m]?col:C.steel3 }}>
+                                  {months[m]?`€${Math.round(inv/1000)}k`:'·'}
+                                </td>
+                              ))}
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* 10 — LIFE TIME VALUE */}
+              {Number(tltv.ltv_per_cl||0)>0&&(
+                <div style={{ ...CARD, marginBottom:16 }}>
+                  <h2 style={{ fontSize:16, fontWeight:600, color:C.navy, marginBottom:14 }}>10 · Life Time Value</h2>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
+                    {([
+                      {l:'LTV por Cliente',v:fE(Number(tltv.ltv_per_cl||0)),note:'Valor medio de vida del cliente'},
+                      {l:'Ingresos LTV Total',v:fE(Number(tltv.ltv_rev_total||0)),note:'Ingresos estimados de toda la cartera'},
+                      {l:'LTV / CAC',v:Number(tsum.cac||0)>0?fR(Number(tltv.ltv_per_cl||0)/Number(tsum.cac||0)):'—',note:Number(tsum.cac||0)>0&&Number(tltv.ltv_per_cl||0)/Number(tsum.cac||0)>=3?'✅ Excelente':Number(tsum.cac||0)>0&&Number(tltv.ltv_per_cl||0)/Number(tsum.cac||0)>=1?'👍 Positivo':'⚠️ Por mejorar'},
+                    ] as {l:string;v:string;note:string}[]).map(({l,v,note})=>(
+                      <div key={l} style={{ background:'linear-gradient(135deg,#f0fdf4,#dcfce7)', border:'1px solid #bbf7d0', borderRadius:8, padding:'14px 16px' }}>
+                        <div style={SH}>{l}</div>
+                        <div style={{ fontSize:22, fontWeight:700, color:C.navy, fontFamily:"'Geist Mono',monospace", marginBottom:4 }}>{v}</div>
+                        <div style={{ fontSize:11, color:C.steel }}>{note}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 11 — RESUMEN DEL PLAN */}
+              {tchs.length>0&&(
+                <div style={{ background:`linear-gradient(135deg,${C.navy},#163659)`, borderRadius:14, padding:'28px', marginBottom:16 }}>
+                  <div style={{ fontSize:10, color:'rgba(246,244,239,0.5)', fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:12 }}>11 · Resumen del Plan</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:20 }}>
+                    {([
+                      {l:'Inversión Total',v:fE(Number(tsum.total_inv||0))},
+                      {l:'Clientes Est.',v:fN(Number(tsum.total_clients||0))},
+                      {l:'Ingresos Est.',v:fE(Number(tsum.total_revenue||0))},
+                      {l:'ROAS',v:fR(Number(tsum.roas||0))},
+                    ] as {l:string;v:string}[]).map(({l,v})=>(
+                      <div key={l}>
+                        <div style={{ fontSize:10, color:'rgba(246,244,239,0.45)', textTransform:'uppercase', fontFamily:"'Geist Mono',monospace", marginBottom:6 }}>{l}</div>
+                        <div style={{ fontSize:24, fontWeight:700, color:'#F6F4EF', fontFamily:"'Geist Mono',monospace" }}>{v}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ paddingTop:16, borderTop:'1px solid rgba(246,244,239,0.12)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                    <div style={{ fontSize:11, color:'rgba(246,244,239,0.4)', fontFamily:"'Geist Mono',monospace" }}>Media Planning Canvas · {plan.projectName||'—'} · {new Date().toLocaleDateString('es-ES')}</div>
+                    <MpcMark size={28} style={{ opacity:0.3 }} />
+                  </div>
+                </div>
+              )}
+
               {userPlan==='free'&&(
-                <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:8, padding:'12px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:8 }}>
+                <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:8, padding:'12px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
                   <span style={{ fontSize:13, color:C.warn }}>Con el plan gratuito no puedes guardar tu plan.</span>
                   <button onClick={()=>setShowUpgrade(true)} style={{ ...BTN_P, background:C.accent }}>Activar Pro</button>
                 </div>
               )}
+            </div>
+            )
+          })()}
             </div>
           )}
         </div>
