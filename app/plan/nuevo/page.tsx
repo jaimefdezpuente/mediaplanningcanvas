@@ -556,7 +556,7 @@ function WizardInner() {
     const targetDesc = ed('t_cor',gn(plan.target,'core_target','descripcion'))
     const r = await callAI('estrategia',{
       objetivos:objText,
-      canales_seleccionados:'Ninguno, recomienda los mejores',
+      canales_seleccionados:'Ninguno, recomienda los mejores (minimo 5, maximo 10 canales)',
       fortalezas:ed('d_fo',''),
       target_desc:targetDesc,
       escalera_valor:plan.valueSteps.map((s,i)=>`Paso ${i+1} (${s.tipo}): ${s.accion}`).join(' | '),
@@ -1276,9 +1276,15 @@ function WizardInner() {
                     <h2 style={{ fontSize:18, fontWeight:600, color:C.navy }}>Seleccion de Canales</h2>
                     <p style={{ fontSize:13, color:C.steel, marginTop:4 }}>Elige los canales. La IA creara la estrategia.</p>
                   </div>
+                  {plan.selectedChannels.length > 0 && (
+                    <button
+                      onClick={()=>{ setPlan(p=>({...p,selectedChannels:[]})); if(showStrategy) setChannelsChanged(true) }}
+                      style={{ padding:'6px 14px', borderRadius:6, border:'1px solid #FECACA', background:'#FEF2F2', color:'#B33A2E', fontWeight:500, fontSize:12, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}
+                    >✕ Borrar selección</button>
+                  )}
                 </div>
                 <div style={{ background:C.paper, borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:13, color:C.navy }}>
-                  {plan.selectedChannels.length} canales seleccionados
+                  {plan.selectedChannels.length} canal{plan.selectedChannels.length !== 1 ? 'es' : ''} seleccionado{plan.selectedChannels.length !== 1 ? 's' : ''}
                 </div>
                 {Object.entries(CH_OPTIONS).map(([phase,channels])=>(
                   <div key={phase} style={{ marginBottom:16 }}>
@@ -1288,7 +1294,7 @@ function WizardInner() {
                         const on=plan.selectedChannels.includes(ch)
                         return(
                           <button key={ch} onClick={()=>{setPlan(p=>({...p,selectedChannels:on?p.selectedChannels.filter(s=>s!==ch):[...p.selectedChannels,ch]}));if(showStrategy)setChannelsChanged(true)}} style={{ padding:'6px 12px', borderRadius:999, border:`1px solid ${on?phaseColors[phase]:C.steel1}`, background:on?phaseColors[phase]+'18':C.white, color:on?phaseColors[phase]:C.steel, fontWeight:on?600:400, fontSize:12, cursor:'pointer' }}>
-                            {on?'ok ':''}{ch}
+                            {on ? <span style={{ marginRight:4, fontSize:10 }}>✓</span> : null}{ch}
                           </button>
                         )
                       })}
