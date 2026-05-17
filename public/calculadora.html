@@ -742,6 +742,34 @@ input, select, textarea { font-family: inherit; }
 #mpc-root #healthG { display: none !important; }
 #mpc-root #phSum { display: none !important; }
 </style>
+<script>
+// ===== CRÉDITOS IA — función global (disponible desde el primer DOMContentLoaded) =====
+var _mpcPlanMax = 0;
+var _mpcPlanName = 'free';
+
+window._updateCreditsDisplay = function(remaining, plan, maxCredits) {
+  _mpcPlanMax  = maxCredits || 0;
+  _mpcPlanName = plan || 'free';
+  var el  = document.getElementById('tacticoIAcredits');
+  var btn = document.getElementById('btnTacticoIA');
+  if (!el) return;
+
+  var isFree = (plan === 'free');
+  if (isFree) {
+    var used = maxCredits - remaining;
+    el.textContent = remaining + '/3';
+    el.style.background = remaining <= 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.15)';
+  } else {
+    el.textContent = remaining + '/' + (maxCredits || remaining);
+    el.style.background = remaining <= 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.15)';
+  }
+  if (btn) {
+    btn.style.opacity  = remaining <= 0 ? '0.55' : '1';
+    btn.style.pointerEvents = remaining <= 0 ? 'none' : '';
+  }
+};
+</script>
+
 </head>
 <div id="mpc-root" style="position:relative">
 <div aria-hidden="true" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;overflow:hidden;"><button id="btnB2C" class="mode-btn b2c act">B2C</button><button id="btnB2B" class="mode-btn">B2B</button></div>
@@ -1840,7 +1868,8 @@ function _showIAModal(msg) {
     m.id = 'iaLoadingModal';
     m.style.cssText = 'position:fixed;inset:0;background:rgba(13,27,42,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
     m.innerHTML = '<div style="background:#fff;border-radius:14px;padding:32px;max-width:380px;width:100%;box-shadow:0 24px 48px rgba(13,27,42,0.25);text-align:center">'
-      +'<div style="width:40px;height:40px;border:3px solid #e7e2d8;border-top-color:#0d1b2a;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>'
+      +'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><rect x="0"  y="0"  width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="35" y="0"  width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/><rect x="70" y="0"  width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="0"  y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="70" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/><rect x="0"  y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="70" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/></svg>'
+      +'<div style="width:40px;height:40px;border:3px solid #e7e2d8;border-top-color:#0d1b2a;border-radius:50%;animation:spin 0.8s linear infinite;margin:16px auto"></div>'
       +'<div id="iaLoadingMsg" style="font-size:15px;font-weight:500;color:#0d1b2a;line-height:1.6;margin-bottom:6px"></div>'
       +'<div style="font-size:12px;color:#8a93a0;font-family:\'JetBrains Mono\',monospace">Esto puede tardar unos segundos...</div>'
       +'</div>';
@@ -1850,6 +1879,32 @@ function _showIAModal(msg) {
   m.style.display = 'flex';
 }
 function _hideIAModal(){ var m=document.getElementById('iaLoadingModal'); if(m) m.style.display='none'; }
+
+function _showNoCreditsModal(data) {
+  var modal  = document.getElementById('iaNoCreditsModal');
+  var titleEl = document.getElementById('iaNoCreditsTitle');
+  var msgEl   = document.getElementById('iaNoCreditsMsg');
+  if (!modal || !titleEl || !msgEl) {
+    window.parent.postMessage({ type: 'mpc-upgrade' }, '*');
+    return;
+  }
+  var isFree = (data.plan === 'free');
+  if (isFree) {
+    titleEl.textContent = 'Sin análisis IA en plan Free';
+    msgEl.innerHTML = '<strong>Te has quedado sin Análisis IA en tu plan Free.</strong><br>'
+      + 'El plan Free incluye 3 análisis de por vida. Amplía tu plan para tener '
+      + 'créditos mensuales ilimitados y más funcionalidades.';
+  } else {
+    var days = data.renewal_days;
+    var daysMsg = days != null
+      ? 'Los créditos se recargan en <strong>' + days + ' días</strong>.'
+      : 'Los créditos se recargan al inicio del próximo ciclo mensual.';
+    titleEl.textContent = 'Sin créditos IA este mes';
+    msgEl.innerHTML = 'Has consumido todos tus análisis IA de este período.<br>' + daysMsg
+      + '<br><br>Amplía tu plan para obtener más créditos mensuales.';
+  }
+  modal.style.display = 'flex';
+}
 
 async function runTacticoIA(){
   var MIN_CHANNELS = 3;
@@ -1915,16 +1970,7 @@ async function runTacticoIA(){
     _hideIAModal();
 
     if(res.status === 402){
-      // Insufficient credits
-      var isFreePlan = data.plan === 'free';
-      showToast('⚠️ '+( isFreePlan ? 'Necesitas un plan de pago para usar Plan Táctico con IA' : 'Créditos insuficientes. Necesitas '+data.needed+', tienes '+data.remaining));
-      if(isFreePlan){
-        setTimeout(function(){
-          if(confirm('Esta función requiere un plan Pro o superior.\n\n¿Quieres ver los planes disponibles?')){
-            window.parent.postMessage({type:'mpc-upgrade'}, '*');
-          }
-        }, 300);
-      }
+      _showNoCreditsModal(data);
       return;
     }
 
@@ -1945,7 +1991,7 @@ async function runTacticoIA(){
     recalcAll(); updateCharts();
 
     // Update credits display
-    if(typeof _updateCreditsDisplay === 'function') _updateCreditsDisplay(data.remaining, data.plan, data.max||window._planCreditsMax||0);
+    if(typeof _updateCreditsDisplay === 'function') _updateCreditsDisplay(data.remaining, data.plan, data.max||_mpcPlanMax||window._planCreditsMax||0);
 
     showToast('✅ Plan Táctico generado — '+needed+' canales rellenados con IA ('+data.remaining+' créditos restantes)');
   } catch(err) {
@@ -2029,10 +2075,10 @@ function init(){
   // Update credits display if plan info is in URL
   var plan = p.get('plan') || 'free';
   var usedA = parseInt(p.get('usedAnalisis')||'0',10);
-  var maxA = {free:0,pro:20,business:60,enterprise:999}[plan]||0;
+  var maxA = {free:3,pro:20,business:60,enterprise:999}[plan]||0;
   window._planCreditsMax = maxA;
   window._planUserPlan = plan;
-  if(typeof _updateCreditsDisplay==='function') _updateCreditsDisplay(maxA-usedA, plan, maxA); window._planCreditsTotal = maxA;
+  _updateCreditsDisplay(maxA-usedA, plan, maxA); window._planCreditsTotal = maxA;
   // Leer contexto del wizard desde URL params
   window._wizardCtx = {
     usp: p.get('usp') || '',
