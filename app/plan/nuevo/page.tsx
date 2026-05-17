@@ -104,24 +104,71 @@ function SaveModal({ onSave, onClose, busy, defaultName }: { onSave:(name:string
   )
 }
 
-function UpgradeModal({ onClose }: { onClose: () => void }) {
+function UpgradeModal({ onClose, userPlan, periodStart }: { onClose: () => void; userPlan: string; periodStart?: string }) {
+  const upgradeTarget = userPlan === 'pro' ? 'business_monthly' : userPlan === 'business' ? 'enterprise_monthly' : 'pro_monthly'
+  const upgradeLabel  = userPlan === 'pro' ? 'Ampliar a Business' : userPlan === 'business' ? 'Ampliar a Enterprise' : 'Activar Pro'
+  const isFree        = userPlan === 'free'
+
+  let renewalDays: number | null = null
+  if (!isFree && periodStart) {
+    const start = new Date(periodStart)
+    const now   = new Date()
+    const next  = new Date(start)
+    while (next <= now) next.setMonth(next.getMonth() + 1)
+    renewalDays = Math.ceil((next.getTime() - now.getTime()) / 86400000)
+  }
+
   async function goUpgrade() {
     const supabase = (await import('@/lib/supabase')).createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user?.email) return
-    const res = await fetch('/api/create-checkout', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email:user.email, plan:'pro_monthly' }) })
+    const res  = await fetch('/api/create-checkout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: user.email, plan: upgradeTarget }) })
     const data = await res.json()
     if (data.url) window.location.href = data.url
   }
+
+  const MpcLogo = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="40" height="40" style={{ display:'block', margin:'0 auto' }}>
+      <rect x="0"  y="0"  width="30" height="30" rx="3" fill="#0F2942" opacity="1"/>
+      <rect x="35" y="0"  width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/>
+      <rect x="70" y="0"  width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/>
+      <rect x="0"  y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/>
+      <rect x="35" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/>
+      <rect x="70" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/>
+      <rect x="0"  y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/>
+      <rect x="35" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/>
+      <rect x="70" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/>
+    </svg>
+  )
+
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
-      <div style={{ background:'#fff', borderRadius:14, padding:36, maxWidth:440, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.25)', textAlign:'center' }}>
-        <div style={{ fontSize:32, marginBottom:12 }}>Star</div>
-        <h3 style={{ fontSize:20, fontWeight:600, color:C.navy, marginBottom:8 }}>Funcion de plan Pro</h3>
-        <p style={{ fontSize:14, color:C.steel, lineHeight:1.7, marginBottom:24 }}>Has alcanzado el limite de tu plan. Pasa a Pro para mas analisis con IA.</p>
+      <div style={{ background:'#fff', borderRadius:14, padding:'36px 32px', maxWidth:440, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.25)', textAlign:'center' }}>
+        <div style={{ marginBottom:16 }}><MpcLogo /></div>
+        {isFree ? (
+          <>
+            <h3 style={{ fontSize:18, fontWeight:600, color:C.navy, margin:'0 0 10px' }}>Sin análisis IA en plan Free</h3>
+            <p style={{ fontSize:14, color:C.steel, lineHeight:1.7, margin:'0 0 24px' }}>
+              Te has quedado sin Análisis IA en tu plan Free. El plan Free incluye 3 análisis de por vida.<br />
+              Amplía tu plan para tener créditos mensuales y más funcionalidades.
+            </p>
+          </>
+        ) : (
+          <>
+            <h3 style={{ fontSize:18, fontWeight:600, color:C.navy, margin:'0 0 10px' }}>Sin créditos IA este mes</h3>
+            <p style={{ fontSize:14, color:C.steel, lineHeight:1.7, margin:'0 0 24px' }}>
+              Has consumido todos tus análisis IA de este período.{' '}
+              {renewalDays != null
+                ? <><strong>Se recargarán en {renewalDays} días.</strong><br /></>
+                : 'Se recargarán al inicio del próximo ciclo mensual.'
+              }<br />
+              Amplía tu plan para obtener más créditos mensuales.
+            </p>
+          </>
+        )}
         <div style={{ display:'flex', gap:10 }}>
-          <button onClick={onClose} style={{ flex:1, padding:'11px', borderRadius:6, border:`1px solid ${C.steel1}`, background:'transparent', color:C.steel, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Cancelar</button>
-          <button onClick={goUpgrade} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:C.navy, color:C.paper, fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Activar Pro</button>
+          <button onClick={onClose} style={{ flex:1, padding:'11px', borderRadius:6, border:`1px solid ${C.steel1}`, background:'transparent', color:C.steel, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Cerrar</button>
+          <button onClick={goUpgrade} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:C.navy, color:C.paper, fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>{upgradeLabel}</button>
         </div>
       </div>
     </div>
@@ -262,6 +309,7 @@ function WizardInner() {
   const [userAvatar, setUserAvatar] = useState('')
   const [userName, setUserName] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [planPeriodStart, setPlanPeriodStart] = useState<string|undefined>(undefined)
   const [usedPlans, setUsedPlans] = useState(0)
   const [usedMejoras, setUsedMejoras] = useState(0)
   const [usedAnalisis, setUsedAnalisis] = useState(0)
@@ -294,6 +342,7 @@ function WizardInner() {
         setUserPlan(planKey)
         setUserName(user.user_metadata?.full_name || '')
         setUserEmail(user.email || '')
+        setPlanPeriodStart(user.user_metadata?.plan_period_start as string | undefined)
         setUsedPlans(user.user_metadata?.used_plans || 0)
         setUsedMejoras(Number(user.user_metadata?.used_mejoras || 0))
         setUsedAnalisis(Number(user.user_metadata?.used_analisis || 0))
@@ -641,7 +690,7 @@ function WizardInner() {
       {aiModal&&<AiModal msg={aiModal}/>}
       {alert&&<AlertModal title={alert.title} body={alert.body} btn="Entendido" onClose={()=>setAlert(null)}/>}
       {saveModal&&<SaveModal onSave={handleSave} onClose={()=>setSaveModal(false)} busy={busy} defaultName={plan.projectName||`Plan ${plan.sector||'nuevo'}`}/>}
-      {showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)}/>}
+      {showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)} userPlan={userPlan} periodStart={planPeriodStart}/>}
       {showScratchModal&&(
         <div style={{ position:'fixed', inset:0, background:'rgba(13,27,42,0.5)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
           <div style={{ background:'#fff', borderRadius:16, padding:32, maxWidth:420, width:'90%', boxShadow:'0 24px 48px rgba(13,27,42,0.25)', textAlign:'center' }}>
