@@ -841,8 +841,10 @@ input, select, textarea { font-family: inherit; }
 <div id="mixBox" style="display:none"></div>
 
 <!-- STEP 01: CÓMO EMPEZAR -->
-<div class="slbl np"><div class="snum">01</div><div class="stit">Tu plan de marketing</div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px" class="np">
+<div class="slbl"><div class="snum">01</div><div class="stit">Tu plan de marketing</div></div>
+<div class="card">
+<p style="font-size:12px;color:var(--ink-3);margin:0 0 18px;line-height:1.5">Elige desde dónde quieres construir tu plan táctico.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
   <!-- A) Tu Selección (IA optimised) -->
   <div id="btnMySelection" onclick="handleMySelection()" style="background:linear-gradient(135deg,#0F2942,#163659);border:1.5px solid #0F2942;border-radius:10px;padding:24px 20px;cursor:pointer;transition:all 0.15s;text-align:center;position:relative;box-shadow:0 2px 8px rgba(15,41,66,0.18)">
     <div style="font-size:28px;margin-bottom:10px">🎯</div>
@@ -888,9 +890,10 @@ input, select, textarea { font-family: inherit; }
 </div>
 </div>
 </div><!-- /examplesPanel -->
+</div><!-- /card step01 -->
 <div class="slbl"><div class="snum">02</div><div class="stit">Añade Canales por Fase del Embudo</div></div>
-<div class="ssub">Selecciona la fase → elige el canal → rellena sus variables. Un mismo canal puede usarse en diferentes fases con KPIs distintos (ej: Meta Ads en Notoriedad = impresiones; en Lead/Venta = conversiones).</div>
-<div class="card np">
+<div class="card">
+<p style="font-size:12px;color:var(--ink-3);margin:0 0 16px;line-height:1.5">Selecciona la fase → elige el canal → rellena sus variables. Un mismo canal puede usarse en diferentes fases con KPIs distintos.</p>
   <div class="ph-tabs">
     <button class="ph-tab act" data-ph="notoriedad" onclick="setPhaseTab('notoriedad')">📣 Notoriedad</button>
     <button class="ph-tab" data-ph="interaccion" onclick="setPhaseTab('interaccion')">🔄 Interacción | Tráfico</button>
@@ -925,7 +928,7 @@ input, select, textarea { font-family: inherit; }
     <span id="tacticoIAcredits" style="font-size:10px;background:rgba(255,255,255,0.15);padding:2px 7px;border-radius:100px;font-family:'Geist Mono',monospace">—</span>
   </button>
 </div>
-<div id="planSection">
+<div class="card" style="padding:0;overflow:hidden"><div id="planSection" style="padding:22px">
   <div class="empty" id="planEmpty"><span class="empty-ic">📋</span><div>Sin canales todavía.</div><div style="font-size:12px;margin-top:4px">Selecciona canales arriba o carga un ejemplo.</div></div>
   <div id="planContent" style="display:none">
     <div class="health-g" style="display:none" id="healthG"></div>
@@ -947,11 +950,12 @@ input, select, textarea { font-family: inherit; }
       </button>
     </div>
   </div>
-</div>
+</div></div><!-- /card planSection -->
 
 <!-- STEP 04: MENSUAL -->
 <div class="slbl"><div class="snum">04</div><div class="stit">Distribución Mensual</div></div>
 <div class="card">
+<p style="font-size:12px;color:var(--ink-3);margin:0 0 14px;line-height:1.5">Activa los meses en los que cada canal estará activo. La inversión total se reparte entre los meses activos.</p>
   <div class="mon-help">
     <strong>🗓️ ¿Cómo funciona?</strong> Cada <strong>●</strong> activa el canal ese mes. La inversión total del canal se <strong>divide entre los meses activos</strong>. Ejemplo: un canal con <strong>€1.200 activado en 6 meses = €200/mes</strong> esos meses. Al desactivar un mes pausas la inversión ese período — el canal sigue en el plan. Útil para gestionar <strong>estacionalidad, lanzamientos o presupuestos trimestrales</strong>.
   </div>
@@ -965,8 +969,8 @@ input, select, textarea { font-family: inherit; }
 
 <!-- STEP 05: SENSIBILIDAD -->
 <div class="slbl"><div class="snum">05</div><div class="stit">Análisis de Sensibilidad</div></div>
-<div class="ssub">¿Qué pasa si los ratios de conversión cambian? Testa la solidez del plan.</div>
 <div class="card">
+<p style="font-size:12px;color:var(--ink-3);margin:0 0 16px;line-height:1.5">¿Qué pasa si los ratios de conversión cambian? Testa la solidez del plan.</p>
   <label class="fl" style="margin-bottom:8px">Variación del CR (Ratio de Conversión)</label>
   <div class="sens-sl">
     <span style="font-size:12px;color:#3d5370">-50%</span>
@@ -979,8 +983,8 @@ input, select, textarea { font-family: inherit; }
 
 <!-- STEP 06: LTV -->
 <div class="slbl"><div class="snum">06</div><div class="stit">Life Time Value</div></div>
-<div class="ssub">Porcentajes deben sumar 100%. El LTV se calcula sobre los clientes del plan.</div>
 <div class="card">
+<p style="font-size:12px;color:var(--ink-3);margin:0 0 14px;line-height:1.5">Los porcentajes deben sumar 100%. El LTV se calcula sobre los clientes del plan.</p>
     <div id="pct_warn" class="pct-warn">⚠️ Los porcentajes no suman 100%</div>
   <div style="overflow-x:auto">
     <table class="ltbl">
@@ -1036,6 +1040,8 @@ input, select, textarea { font-family: inherit; }
 
 <!-- STEP 07: RESUMEN -->
 <div class="slbl"><div class="snum">07</div><div class="stit">Resumen del Plan</div></div>
+<div class="card">
+<p style="font-size:12px;color:var(--ink-3);margin:0 0 16px;line-height:1.5">Visión global de los principales indicadores del plan.</p>
 <div class="sumg">
   <div class="scard sca"><span class="sc-ic">💰</span><span class="sc-lbl">Inversión Total</span><span class="sc-val" id="s_inv">€ 0</span><span class="sc-sub" id="s_inv_s">—</span></div>
   <div class="scard scb" id="s_leads_card" style="display:none"><span class="sc-ic">🎯</span><span class="sc-lbl">Leads Generados</span><span class="sc-val" id="s_leads">0</span><span class="sc-sub" id="s_leads_s">—</span></div>
@@ -1089,8 +1095,8 @@ input, select, textarea { font-family: inherit; }
       <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:10px;height:10px;border-radius:2px;background:#C75A3C;flex-shrink:0;margin-top:2px;display:inline-block"></span><div><strong style="color:#C75A3C;font-size:12px">Own Media</strong><div style="font-size:11px;color:#8a93a0;line-height:1.5">Canales propios: web, blog, email, app, podcast propio, RRSS orgánico. Inversión en producción y gestión, sin coste de distribución.</div></div></div>
       <div style="display:flex;gap:10px;align-items:flex-start"><span style="width:10px;height:10px;border-radius:2px;background:#4A6B8A;flex-shrink:0;margin-top:2px;display:inline-block"></span><div><strong style="color:#4A6B8A;font-size:12px">Shared Media</strong><div style="font-size:11px;color:#8a93a0;line-height:1.5">Medios compartidos: influencers, colaboraciones, contenido co-creado, comunidades. El alcance se comparte con otro propietario.</div></div></div>
     </div>
-  </div>
-</div>
+  </div><!-- /sumg close -->
+</div><!-- /card 07 -->
 
 </div><!-- /inn -->
 <div class="toast" id="toast"></div>
