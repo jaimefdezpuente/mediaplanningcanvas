@@ -88,6 +88,8 @@ input, select, textarea { font-family: inherit; }
   justify-content: flex-start !important;
   gap: 10px !important;
   margin: 24px 0 4px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 /* Botón IA en step 03 va a la derecha */
 #mpc-root #btnTacticoIA { display: none !important; }
@@ -126,6 +128,8 @@ input, select, textarea { font-family: inherit; }
   margin-bottom: 16px !important;
   box-shadow: var(--shadow) !important;
   color: var(--ink) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 #mpc-root .card2 {
   background: #fafaf7 !important;
@@ -928,7 +932,7 @@ input, select, textarea { font-family: inherit; }
     <span id="tacticoIAcredits" style="font-size:10px;background:rgba(255,255,255,0.15);padding:2px 7px;border-radius:100px;font-family:'Geist Mono',monospace">—</span>
   </button>
 </div>
-<div class="card" style="padding:0;overflow:hidden"><div id="planSection" style="padding:22px">
+<div class="card" id="planSection">
   <div class="empty" id="planEmpty"><span class="empty-ic">📋</span><div>Sin canales todavía.</div><div style="font-size:12px;margin-top:4px">Selecciona canales arriba o carga un ejemplo.</div></div>
   <div id="planContent" style="display:none">
     <div class="health-g" style="display:none" id="healthG"></div>
@@ -940,17 +944,17 @@ input, select, textarea { font-family: inherit; }
       <th>Ingreso Est.</th><th>ROAS</th><th class="np"></th>
     </tr></thead><tbody id="planBody"></tbody><tfoot id="planFoot"></tfoot></table></div>
     <div class="ai-banner">
-      <div class="ai-banner-eyebrow">&#10022; Optimizacion con IA</div>
-      <h3>Cuales son los mejores canales para tu proyecto</h3>
-      <p>Con los datos de tu target, sector, presupuesto y objetivos, la IA recomendara la distribucion presupuestaria optima para alcanzar los objetivos indicados.</p>
+      <div class="ai-banner-eyebrow">✦ Optimización con IA</div>
+      <h3>Optimiza la distribución presupuestaria</h3>
+      <p>La IA analiza tus canales, objetivos y target para distribuir tu presupuesto de forma óptima con benchmarks reales de tu sector. Consume 1 análisis IA por uso.</p>
       <button class="ai-btn" onclick="runTacticoIA()">
-        <span>&#10022;</span>
-        <span>AI · Recomendar plan de medios</span>
-        <span class="count" id="tacticoIAcredits">0/3</span>
+        <span>✦</span>
+        <span>AI · Optimizar distribución presupuestaria</span>
+        <span class="count" id="tacticoIAcredits">—</span>
       </button>
     </div>
   </div>
-</div></div><!-- /card planSection -->
+</div><!-- /card planSection -->
 
 <!-- STEP 04: MENSUAL -->
 <div class="slbl"><div class="snum">04</div><div class="stit">Distribución Mensual</div></div>
@@ -1100,6 +1104,16 @@ input, select, textarea { font-family: inherit; }
 
 </div><!-- /inn -->
 <div class="toast" id="toast"></div>
+
+<!-- Modal aviso IA mínimo canales -->
+<div id="iaModalOverlay" class="overlay" style="display:none">
+  <div class="mbox" style="text-align:center;max-width:400px">
+    <div style="font-size:36px;margin-bottom:12px">⚡</div>
+    <div id="iaMinChanTitle" style="font-size:18px;font-weight:600;color:var(--ink);margin-bottom:8px">Necesitas más canales</div>
+    <p id="iaMinChanMsg" style="font-size:14px;color:var(--ink-3);line-height:1.6;margin:0 0 20px">Para optimizar el plan con IA necesitas al menos 3 canales.</p>
+    <button id="iaMinChanBtn" class="btn-p" style="width:100%" onclick="document.getElementById('iaModalOverlay').style.display='none'">Entendido</button>
+  </div>
+</div>
 <div class="overlay" id="storageModal">
   <div class="mbox">
     <button class="mclose" onclick="closeModal('storageModal')">✕</button>
@@ -1832,27 +1846,44 @@ function _showIAModal(msg) {
       +'</div></div>';
     document.body.appendChild(m);
   }
-  document.getElementById('iaModalMsg').textContent = msg;
+  document.getElementById('iaMinChanMsg').textContent = msg;
   m.style.display = 'flex';
 }
 function _hideIAModal(){ var m=document.getElementById('iaModal'); if(m) m.style.display='none'; }
 
 async function runTacticoIA(){
-  if(!S.channels.length){ showToast('⚠️ Añade canales al plan primero'); return; }
-  // Uses session cookie automatically (same domain as Next.js app)
+  var MIN_CHANNELS = 3;
+  if(S.channels.length < MIN_CHANNELS){
+    // Modal nativo del sistema
+    document.getElementById('iaMinChanTitle').textContent = 'Canales insuficientes';
+    document.getElementById('iaModalMsg').textContent = 'Necesitas al menos '+MIN_CHANNELS+' canales en el plan para que la IA pueda optimizar la distribución presupuestaria. Actualmente tienes '+S.channels.length+'.';
+    document.getElementById('iaMinChanBtn').style.display = 'block';
+    document.getElementById('iaModalOverlay').style.display = 'flex';
+    return;
+  }
 
   var needed = S.channels.length;
   _showIAModal('Analizando '+needed+' canales y calculando la distribución óptima para tus objetivos...');
 
-  // Build context from current form values
+  // Contexto enriquecido con datos del wizard
+  var wizCtx = window._wizardCtx || {};
+  var presupuesto = (document.getElementById('obj_budget')||{}).value || '5000';
+  var clientes = (document.getElementById('obj_clients')||{}).value || '100';
+  var ticket = (document.getElementById('globalTicket')||{}).value || '150';
   var ctx = {
-    sector: (document.getElementById('sectorSelect')||{}).value || '',
+    sector: (document.getElementById('sectorSelect')||{}).value || wizCtx.sector || '',
     mode: S.mode || 'B2C',
     phase: (document.getElementById('obj_phase')||{}).value || 'growth',
-    budget: (document.getElementById('obj_budget')||{}).value || '5000',
-    clients: (document.getElementById('obj_clients')||{}).value || '100',
-    ticket: (document.getElementById('globalTicket')||{}).value || '150',
-    objetivos: 'Ventas: '+(document.getElementById('obj_clients')||{}).value+' clientes · Ticket: €'+(document.getElementById('globalTicket')||{}).value+' · CAC máx: €'+(document.getElementById('obj_cac')||{}).value,
+    budget: presupuesto,
+    clients: clientes,
+    ticket: ticket,
+    tactico_mode: window._dcMode || 'presupuesto',
+    usp: wizCtx.usp || '',
+    target_desc: wizCtx.target || '',
+    escalera_valor: wizCtx.escalera || '',
+    objetivos: (window._dcMode==='ventas'
+      ? 'Ventas objetivo: '+clientes+' clientes · Ticket: €'+ticket+' · Ingreso objetivo: €'+(parseFloat(clientes)*parseFloat(ticket)||0).toFixed(0)
+      : 'Presupuesto: €'+presupuesto+' · Ticket: €'+ticket+' · Clientes estimados: '+clientes),
   };
 
   var totalBudget = parseFloat(ctx.budget) || 5000;
@@ -1914,7 +1945,7 @@ async function runTacticoIA(){
     recalcAll(); updateCharts();
 
     // Update credits display
-    if(typeof _updateCreditsDisplay === 'function') _updateCreditsDisplay(data.remaining, data.plan);
+    if(typeof _updateCreditsDisplay === 'function') _updateCreditsDisplay(data.remaining, data.plan, data.max||window._planCreditsMax||0);
 
     showToast('✅ Plan Táctico generado — '+needed+' canales rellenados con IA ('+data.remaining+' créditos restantes)');
   } catch(err) {
@@ -1999,7 +2030,16 @@ function init(){
   var plan = p.get('plan') || 'free';
   var usedA = parseInt(p.get('usedAnalisis')||'0',10);
   var maxA = {free:0,pro:20,business:60,enterprise:999}[plan]||0;
-  if(typeof _updateCreditsDisplay==='function') _updateCreditsDisplay(maxA-usedA, plan);
+  window._planCreditsMax = maxA;
+  window._planUserPlan = plan;
+  if(typeof _updateCreditsDisplay==='function') _updateCreditsDisplay(maxA-usedA, plan, maxA);
+  // Leer contexto del wizard desde URL params
+  window._wizardCtx = {
+    usp: p.get('usp') || '',
+    target: p.get('target') || '',
+    escalera: p.get('escalera') || '',
+    modo: p.get('tactico_mode') || 'presupuesto'
+  };
 
   // Ocultar step00 cuando se carga desde el wizard (el wizard ya tiene su propio bloque)
   if(p.get('noheader')==='1' || p.get('budget') || p.get('clients') || p.get('ticket')) {
@@ -2226,11 +2266,13 @@ window.addEventListener('DOMContentLoaded', function(){
   var budget = params.get('budget');
   if(budget){ document.getElementById('obj_budget').value = budget; updateBB(); }
   // Update credits display
-  window._updateCreditsDisplay = function(remaining, plan){
+  var _maxCredits = 0;
+  window._updateCreditsDisplay = function(remaining, plan, maxCredits){
+    _maxCredits = maxCredits || remaining;
     var el = document.getElementById('tacticoIAcredits');
     if(!el) return;
-    if(plan==='free'){ el.textContent = 'Plan Free — sin créditos'; el.style.background='rgba(239,68,68,0.25)'; }
-    else{ el.textContent = remaining+' créditos'; el.style.background='rgba(255,255,255,0.15)'; }
+    if(plan==='free'){ el.textContent = '0/0 free'; el.style.background='rgba(239,68,68,0.25)'; }
+    else{ el.textContent = remaining+'/'+(maxCredits||remaining); el.style.background='rgba(255,255,255,0.15)'; }
     var btn = document.getElementById('btnTacticoIA');
     if(btn && plan==='free'){ btn.style.opacity='0.5'; btn.title='Actualiza tu plan para usar esta función'; }
   };

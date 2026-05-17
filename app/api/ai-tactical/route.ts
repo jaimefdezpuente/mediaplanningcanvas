@@ -10,33 +10,38 @@ const PLAN_LIMITS: Record<string, number> = {
 }
 
 function channelPrompt(ch: Record<string, string>, ctx: Record<string, string>): string {
-  const isModoObjetivo = ctx.tactico_mode === 'objetivo'
+  const isModoObjetivo = ctx.tactico_mode === 'ventas'
 
   const modoInstruccion = isModoObjetivo
-    ? 'MODO OBJETIVO DE VENTAS: El cliente quiere conseguir ' + ctx.clients + ' clientes con ticket medio EUR ' + ctx.ticket + '. Calcula la inversion NECESARIA en este canal para contribuir a ese objetivo. No te limites al presupuesto sugerido si necesitas mas para alcanzar el objetivo.'
-    : 'MODO PRESUPUESTO: El cliente tiene EUR ' + ctx.budget + ' en total. La inversion sugerida para este canal es EUR ' + ch.suggestedInv + '. Optimiza los ratios para maximizar clientes dentro de ese presupuesto.'
+    ? 'MODO VENTAS: El cliente quiere conseguir ' + ctx.clients + ' ventas con ticket medio €' + ctx.ticket + '. Objetivo de ingresos: €' + (parseFloat(ctx.clients||'0') * parseFloat(ctx.ticket||'0')).toFixed(0) + '. Calcula la inversión NECESARIA en este canal para contribuir a ese objetivo.'
+    : 'MODO PRESUPUESTO: El cliente tiene €' + ctx.budget + ' en total. Inversión sugerida: €' + ch.suggestedInv + '. Optimiza los ratios para maximizar clientes dentro de ese presupuesto.'
 
   const benchmarks = ctx.mode === 'B2B'
-    ? 'B2B benchmarks: lead2mql 20-40%, mql2sql 40-60%, demo2client 15-30%, CPL LinkedIn EUR 40-120, CPL Google EUR 20-80.'
-    : 'B2C benchmarks: carrito2venta 25-45%, CTR Meta 1-3%, CTR Google 2-5%, CPM Display EUR 3-8, CPC Meta EUR 0.5-2.'
+    ? 'B2B benchmarks: lead2mql 20-40%, mql2sql 40-60%, demo2client 15-30%, CPL LinkedIn €40-120, CPL Google €20-80.'
+    : 'B2C benchmarks: carrito2venta 25-45%, CTR Meta 1-3%, CTR Google 2-5%, CPM Display €3-8, CPC Meta €0.5-2.'
 
   const phaseContext: Record<string, string> = {
-    notoriedad: 'Canal de notoriedad: optimiza CPM, alcance e impresiones. No esperes conversion directa.',
-    interaccion: 'Canal de trafico: optimiza CTR y CPC. El objetivo es traer visitas cualificadas.',
-    lead_venta: 'Canal de conversion: optimiza CPL, tasa de conversion y CAC. Aqui se genera el ROI.',
-    fidelizacion: 'Canal de retencion: optimiza frecuencia de compra y LTV. Coste bajo, alto retorno.',
+    notoriedad: 'Canal de notoriedad: optimiza CPM, alcance e impresiones. No esperes conversión directa.',
+    interaccion: 'Canal de tráfico: optimiza CTR y CPC. Objetivo: traer visitas cualificadas.',
+    lead_venta: 'Canal de conversión: optimiza CPL, tasa de conversión y CAC. Aquí se genera el ROI.',
+    fidelizacion: 'Canal de retención: optimiza frecuencia de compra y LTV. Coste bajo, alto retorno.',
   }
 
+  const uspLine = ctx.usp ? `\n- USP del producto: "${ctx.usp.slice(0, 150)}"` : ''
+  const targetLine = ctx.target_desc ? `\n- Target: ${ctx.target_desc.slice(0, 150)}` : ''
+  const escaleraLine = ctx.escalera_valor ? `\n- Escalera de valor: ${ctx.escalera_valor.slice(0, 300)}` : ''
+
   const lines = [
-    'Eres media planner senior con 15 anos de experiencia en ' + ctx.sector + '.',
+    'Eres media planner senior con 15 años de experiencia en ' + ctx.sector + '.',
     '',
     'CONTEXTO DEL PROYECTO:',
     '- Sector: ' + ctx.sector,
     '- Modelo: ' + ctx.mode,
     '- Fase del negocio: ' + ctx.phase,
-    '- Presupuesto total: EUR ' + ctx.budget,
+    '- Presupuesto total: €' + ctx.budget,
     '- Objetivo clientes: ' + ctx.clients,
-    '- Ticket medio: EUR ' + ctx.ticket,
+    '- Ticket medio: €' + ctx.ticket,
+    '- Objetivos: ' + ctx.objetivos + uspLine + targetLine + escaleraLine,
     '',
     'INSTRUCCION DE OPTIMIZACION:',
     modoInstruccion,
@@ -51,12 +56,10 @@ function channelPrompt(ch: Record<string, string>, ctx: Record<string, string>):
     benchmarks,
     '',
     'INSTRUCCIONES:',
-    '- Devuelve SOLO JSON con numeros reales y realistas para el sector.',
-    '- Usa el campo inv para la inversion en EUR.',
-    '- Si el modo es objetivo de ventas, calcula inv segun lo necesario para alcanzar el objetivo.',
-    '- Si el modo es presupuesto, usa aproximadamente EUR ' + ch.suggestedInv + ' para inv.',
-    '- Todos los ratios deben ser coherentes entre si.',
-    '- Devuelve solo el JSON sin markdown. Ejemplo: {"inv":1500,"cpm":8,"ctr":1.5}',
+    '- Devuelve SOLO JSON con números realistas para el sector.',
+    '- Usa "inv" para la inversión en EUR.',
+    '- Los ratios deben ser coherentes entre sí y con el contexto del cliente.',
+    '- Ejemplo: {"inv":1500,"cpm":8,"ctr":1.5}',
   ]
 
   return lines.join('\n')
@@ -83,7 +86,9 @@ export async function POST(req: NextRequest) {
       context: Record<string, string>
     }
 
-    if (!channels?.length) return NextResponse.json({ error: 'Sin canales' }, { status: 400 })
+    if (!channels?.length || channels.length < 3) {
+      return NextResponse.json({ error: 'Necesitas al menos 3 canales' }, { status: 400 })
+    }
 
     const needed = channels.length
     const remaining = maxAnalisis - usedAnalisis
@@ -113,6 +118,7 @@ export async function POST(req: NextRequest) {
       results,
       used: usedAnalisis + needed,
       remaining: maxAnalisis - usedAnalisis - needed,
+      max: maxAnalisis,
       plan: userPlan,
     })
   } catch (err) {

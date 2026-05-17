@@ -623,6 +623,13 @@ function WizardInner() {
     let url = `/calculadora.html?channels=${encodeURIComponent(plan.selectedChannels.join(','))}&budget=${bud}&mode=${mode}&readonly=${ro}&noheader=1&sector=${sector}&phase=${plan.fase_negocio||'launch'}&plan=${userPlan}&usedAnalisis=${usedAnalisis}`
     if (clients) url += `&clients=${clients}`
     if (ticket)  url += `&ticket=${ticket}`
+    // Contexto extra del wizard para mejorar el contexto de la IA
+    const uspText = plan.edits?.usp || plan.usp || ''
+    if (uspText.trim()) url += `&usp=${encodeURIComponent(uspText.substring(0, 200))}`
+    const targetDesc = plan.edits?.t_cor || gn(plan.target, 'core_target', 'descripcion') || ''
+    if (targetDesc.trim()) url += `&target=${encodeURIComponent(targetDesc.substring(0, 250))}`
+    const escaleraText = plan.valueSteps?.map((s,i) => `Paso ${i+1} (${s.tipo}): ${s.accion}`).join('; ') || ''
+    if (escaleraText.trim()) url += `&escalera=${encodeURIComponent(escaleraText.substring(0, 400))}`
     return url
   }
 
