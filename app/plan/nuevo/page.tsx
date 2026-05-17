@@ -402,6 +402,14 @@ function WizardInner() {
         const iframe = document.getElementById('tactico-iframe') as HTMLIFrameElement
         if (iframe) iframe.style.height = e.data.height + 'px'
       }
+      if (e.data?.type === 'mpc-ready') {
+        const rs = pendingRestoreRef.current
+        if (rs) {
+          pendingRestoreRef.current = null
+          const ifr = document.getElementById('tactico-iframe') as HTMLIFrameElement
+          ifr?.contentWindow?.postMessage({ type: 'mpc-restore', state: rs }, '*')
+        }
+      }
       if (e.data?.type === 'mpc-upgrade') setShowUpgrade(true)
       if (e.data?.type === 'mpc-scratch-confirm') setShowScratchModal(true)
       if (e.data?.type === 'mpc-ia-confirm') { setIaConfirmN(e.data.n || 0); setShowIAConfirm(true) }
@@ -419,21 +427,18 @@ function WizardInner() {
 
   useEffect(() => { planRef.current = plan }, [plan])
   useEffect(() => { stepRef.current = step; if(step > 0 && savedPlanId) autoSaveFromRef() }, [step, savedPlanId])
-  // When returning to step 4, restore táctico state from saved edits
+  // Track whether we should restore táctico state on next mpc-ready
+  const pendingRestoreRef = useRef<Obj|null>(null)
   useEffect(() => {
     if (step !== 4) return
-    const saved = plan.edits['_tactico']
-    if (!saved) return
     try {
+      const saved = plan.edits['_tactico']
+      if (!saved) return
       const parsed = JSON.parse(saved) as Obj
-      const rs = (parsed as Obj).restoreState
-      if (!rs) return
-      // Wait for iframe to mount, then send restore
-      const t = setTimeout(() => {
-        const ifr = document.getElementById('tactico-iframe') as HTMLIFrameElement
-        ifr?.contentWindow?.postMessage({ type: 'mpc-restore', state: rs }, '*')
-      }, 600)
-      return () => clearTimeout(t)
+      const rs = (parsed as Obj).restoreState as Obj
+      if (!rs || !(rs.channels as Jv[])?.length) return
+      // Store restore state — will be sent when calculadora signals mpc-ready
+      pendingRestoreRef.current = rs
     } catch {}
   }, [step])
   useEffect(() => {

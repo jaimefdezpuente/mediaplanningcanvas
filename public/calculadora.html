@@ -2101,6 +2101,8 @@ function init(){
     window.loadMySelection();
     setTimeout(function(){ if(typeof _markSelectionLoaded==='function') _markSelectionLoaded(); }, 400);
   }
+  // Signal parent that iframe is fully loaded and ready to receive restore
+  try { if(window.parent && window.parent !== window) window.parent.postMessage({type:'mpc-ready'},'*'); } catch(ex){}
   // Update credits display if plan info is in URL
   var plan = p.get('plan') || 'free';
   var usedA = parseInt(p.get('usedAnalisis')||'0',10);
