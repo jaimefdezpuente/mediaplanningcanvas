@@ -1666,7 +1666,7 @@ function renderPlan(){
   const budget=parseFloat(document.getElementById('obj_budget').value)||0;const objCl=parseFloat(document.getElementById('obj_clients').value)||0;const cacMax=parseFloat(document.getElementById('obj_cac').value)||0;const cac=totCl>0?totInv/totCl:0;const pB=budget>0?totInv/budget*100:0;const pC=objCl>0?totCl/objCl*100:0;const hasAw=S.channels.some(c=>getCh(c.channelId)?.ph==='notoriedad');const hasLV=S.channels.some(c=>getCh(c.channelId)?.ph==='lead_venta');const hasFid=S.channels.some(c=>getCh(c.channelId)?.ph==='fidelizacion');const maxSh=totInv>0?Math.max(...S.channels.map(c=>(c.results?.inversion||0)/totInv))*100:0;
   const H=[{s:pB<=100?'ok':'er',l:'Presupuesto',v:fP(pB),n:pB>100?'Presupuesto superado':pB<50?'Tienes margen':'Bien asignado'},{s:objCl>0?(pC>=100?'ok':pC>=70?'wa':'er'):'gr',l:'Objetivo Clientes',v:fN(totCl)+'/'+fN(objCl),n:objCl>0?(pC>=100?'✅ Conseguido':pC>=70?'Cerca':'Por debajo'):'Define un objetivo'},{s:cacMax>0?(cac<=cacMax?'ok':cac<=cacMax*1.5?'wa':'er'):'gr',l:'CAC vs Objetivo',v:fE(cac),n:cacMax>0?(cac<=cacMax?'Dentro del objetivo':'CAC alto'):'Define el CAC máx.'},{s:totROAS>=3?'ok':totROAS>=1?'wa':totROAS>0?'er':'gr',l:'ROAS',v:fR(totROAS),n:totROAS>=3?'Excelente':totROAS>=1?'Positivo':totROAS>0?'Bajo':'Sin datos'}];
   document.getElementById('healthG').innerHTML=H.map(h=>`<div class="hi ${h.s}"><div class="hi-dot"></div><div><div class="hi-lbl">${h.l}</div><div class="hi-val">${h.v}</div><div class="hi-note">${h.n}</div></div></div>`).join('');
-  document.getElementById('smRow').innerHTML=`<div class="sm"><span class="l">Inversión total</span><span class="v">${fE(totInv)}</span><span class="s">${S.channels.length} canales</span></div><div class="sm"><span class="l">${S.mode==='B2B'?'Leads':'Carritos'}</span><span class="v">${fN(totL)}</span></div><div class="sm"><span class="l">Clientes Est.</span><span class="v">${fN(totCl)}</span></div><div class="sm"><span class="l">Ingreso Est.</span><span class="v">${fE(totRev)}</span></div><div class="sm"><span class="l">ROAS</span><span class="v" style="color:${totROAS>=3?'#10b981':totROAS>=1?'#f59e0b':'#ef4444'}">${fR(totROAS)}</span></div><div class="sm"><span class="l">CAC</span><span class="v">${fE(cac)}</span></div>`;
+  document.getElementById('smRow').innerHTML=`<div class="sm"><span class="l">Inversión total</span><span class="v">${fE(totInv)}</span><span class="s">${S.channels.length} canales</span></div><div class="sm"><span class="l">Clientes Est.</span><span class="v">${fN(totCl)}</span></div><div class="sm"><span class="l">Ingreso Est.</span><span class="v">${fE(totRev)}</span></div><div class="sm"><span class="l">ROAS</span><span class="v" style="color:${totROAS>=3?'#10b981':totROAS>=1?'#f59e0b':'#ef4444'}">${fR(totROAS)}</span></div><div class="sm"><span class="l">CAC</span><span class="v" style="color:${cacMax>0?(cac<=cacMax?'#10b981':cac<=cacMax*1.5?'#f59e0b':'#ef4444'):'inherit'}">${fE(cac)}</span></div>`;
   const phL={notoriedad:'📣',interaccion:'🔄',lead_venta:'💰',fidelizacion:'❤️'};
   const tbody=document.getElementById('planBody');
   tbody.onclick=function(ev){
@@ -1925,6 +1925,7 @@ async function runTacticoIA(){
   var presupuesto = (document.getElementById('obj_budget')||{}).value || '5000';
   var clientes = (document.getElementById('obj_clients')||{}).value || '100';
   var ticket = (document.getElementById('globalTicket')||{}).value || '150';
+  var allChNames = S.channels.map(function(e){ var c=getCh(e.channelId); return c?c.name:''; }).filter(Boolean).join(', ');
   var ctx = {
     sector: (document.getElementById('sectorSelect')||{}).value || wizCtx.sector || '',
     mode: S.mode || 'B2C',
@@ -1936,6 +1937,7 @@ async function runTacticoIA(){
     usp: wizCtx.usp || '',
     target_desc: wizCtx.target || '',
     escalera_valor: wizCtx.escalera || '',
+    all_channels: allChNames,
     objetivos: (window._dcMode==='ventas'
       ? 'Ventas objetivo: '+clientes+' clientes · Ticket: €'+ticket+' · Ingreso objetivo: €'+(parseFloat(clientes)*parseFloat(ticket)||0).toFixed(0)
       : 'Presupuesto: €'+presupuesto+' · Ticket: €'+ticket+' · Clientes estimados: '+clientes),
@@ -2311,17 +2313,6 @@ window.addEventListener('DOMContentLoaded', function(){
   var chParam = params.get('channels');
   var budget = params.get('budget');
   if(budget){ document.getElementById('obj_budget').value = budget; updateBB(); }
-  // Update credits display
-  var _maxCredits = 0;
-  window._updateCreditsDisplay = function(remaining, plan, maxCredits){
-    _maxCredits = maxCredits || remaining;
-    var el = document.getElementById('tacticoIAcredits');
-    if(!el) return;
-    if(plan==='free'){ el.textContent = '0/0 free'; el.style.background='rgba(239,68,68,0.25)'; }
-    else{ el.textContent = remaining+'/'+(maxCredits||remaining); el.style.background='rgba(255,255,255,0.15)'; }
-    var btn = document.getElementById('btnTacticoIA');
-    if(btn && plan==='free'){ btn.style.opacity='0.5'; btn.title='Actualiza tu plan para usar esta función'; }
-  };
   // Auto-load is handled inside init() after CHANNELS is ready
 });
 </script>

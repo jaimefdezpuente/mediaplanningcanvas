@@ -22,47 +22,70 @@ function daysUntilRenewal(periodStart: string | undefined): number | null {
 
 function channelPrompt(ch: Record<string, string>, ctx: Record<string, string>): string {
   const isModoVentas = ctx.tactico_mode === 'ventas'
-
-  const modoInstruccion = isModoVentas
-    ? `MODO VENTAS: El cliente quiere conseguir ${ctx.clients} ventas con ticket medio €${ctx.ticket}. Objetivo de ingresos: €${(parseFloat(ctx.clients||'0') * parseFloat(ctx.ticket||'0')).toFixed(0)}. Calcula la inversión necesaria para contribuir a ese objetivo.`
-    : `MODO PRESUPUESTO: El cliente tiene €${ctx.budget} en total. Inversión sugerida para este canal: €${ch.suggestedInv}. Optimiza los ratios para maximizar clientes dentro del presupuesto.`
-
-  const benchmarks = ctx.mode === 'B2B'
-    ? 'B2B benchmarks: lead2mql 20-40%, mql2sql 40-60%, demo2client 15-30%, CPL LinkedIn €40-120, CPL Google €20-80.'
-    : 'B2C benchmarks: carrito2venta 25-45%, CTR Meta 1-3%, CTR Google 2-5%, CPM Display €3-8, CPC Meta €0.5-2.'
+  const budget       = parseFloat(ctx.budget || '0')
+  const clients      = parseFloat(ctx.clients || '0')
+  const ticket       = parseFloat(ctx.ticket  || '0')
 
   const phaseContext: Record<string, string> = {
-    notoriedad:   'Canal de notoriedad: optimiza CPM, alcance e impresiones. No esperes conversión directa.',
-    interaccion:  'Canal de tráfico: optimiza CTR y CPC. Objetivo: visitas cualificadas.',
-    lead_venta:   'Canal de conversión: optimiza CPL, CR y CAC. Aquí se genera el ROI.',
-    fidelizacion: 'Canal de retención: optimiza frecuencia de compra y LTV.',
+    notoriedad:   'Canal de NOTORIEDAD. Genera awareness. No convierte directamente pero sienta las bases. Una buena presencia puede acelerar los canales de conversión.',
+    interaccion:  'Canal de TRÁFICO. Lleva visitas cualificadas al funnel. Impacta directamente el volumen de leads y conversiones.',
+    lead_venta:   'Canal de CONVERSIÓN. Genera ventas directas. Aquí es donde se consiguen los clientes y el ROI.',
+    fidelizacion: 'Canal de RETENCIÓN. Incrementa LTV y frecuencia de compra de clientes existentes.',
   }
 
-  const uspLine      = ctx.usp           ? `\n- USP: "${ctx.usp.slice(0, 150)}"` : ''
-  const targetLine   = ctx.target_desc   ? `\n- Target: ${ctx.target_desc.slice(0, 150)}` : ''
-  const escaleraLine = ctx.escalera_valor? `\n- Escalera de valor: ${ctx.escalera_valor.slice(0, 300)}` : ''
+  const benchmarks = ctx.mode === 'B2B'
+    ? 'B2B benchmarks reales: lead2mql 20-40%, mql2sql 40-60%, demo2client 15-30%, CPL LinkedIn €40-120, CPL Google €20-80, cierre demos 15-25%.'
+    : 'B2C benchmarks reales: carrito2venta 25-45%, CTR Meta 1-3%, CTR Google 2-5%, CPM Display €3-8, CPC Meta €0.5-2, CTR Email 15-25%.'
+
+  const uspLine      = ctx.usp           ? `
+- USP del producto: "${ctx.usp.slice(0, 150)}"` : ''
+  const targetLine   = ctx.target_desc   ? `
+- Target: ${ctx.target_desc.slice(0, 150)}` : ''
+  const escaleraLine = ctx.escalera_valor? `
+- Escalera de valor: ${ctx.escalera_valor.slice(0, 300)}` : ''
+
+  const modoInstruccion = isModoVentas
+    ? `MODO OBJETIVO DE VENTAS:
+- Meta: conseguir ${clients} clientes · ticket €${ticket} · ingreso objetivo €${(clients * ticket).toFixed(0)}
+- Calcula la inversión óptima para este canal según su potencial real de contribuir a esa meta.
+- Si el canal es poco eficiente para ese objetivo, asigna inv:0 o inv muy bajo.
+- Si el canal tiene alto potencial de conversión directa, puede absorber más presupuesto.
+- No distribuyas de forma proporcional: razona cuánto necesita realmente este canal para funcionar.`
+    : `MODO PRESUPUESTO FIJO:
+- Presupuesto total: €${budget}
+- Todos los canales del plan suman ese presupuesto. Canales disponibles: ${ctx.all_channels || ch.name}
+- Para ESTE canal (${ch.name}), asigna la inversión óptima según su ROI esperado y fase del embudo.
+- Si el canal no es eficiente o ya cubre otro canal esa necesidad, asigna inv:0.
+- Prioriza los canales de conversión directa para maximizar clientes.
+- El presupuesto no necesita repartirse equitativamente: el mejor canal puede recibir el 60-70% si tiene mejor ROI.`
 
   return [
-    `Eres media planner senior con 15 años de experiencia en ${ctx.sector}.`,
+    `Eres un media planner senior especializado en ${ctx.sector}, modelo ${ctx.mode}, fase ${ctx.phase}.`,
     '',
-    'CONTEXTO DEL PROYECTO:',
-    `- Sector: ${ctx.sector} | Modelo: ${ctx.mode} | Fase: ${ctx.phase}`,
-    `- Presupuesto total: €${ctx.budget} | Objetivo clientes: ${ctx.clients} | Ticket: €${ctx.ticket}`,
+    'CONTEXTO DEL NEGOCIO:',
+    `- Sector: ${ctx.sector} | Modelo: ${ctx.mode} | Fase negocio: ${ctx.phase}`,
+    `- Presupuesto total: €${budget} | Objetivo: ${clients} clientes | Ticket medio: €${ticket}`,
     `- Objetivos: ${ctx.objetivos}${uspLine}${targetLine}${escaleraLine}`,
     '',
-    'INSTRUCCIÓN DE OPTIMIZACIÓN:',
+    'INSTRUCCIÓN CLAVE (obligatoria):',
     modoInstruccion,
     '',
-    'CANAL A RELLENAR:',
-    `- Nombre: ${ch.name} | Fase: ${ch.phase}`,
-    `- ${phaseContext[ch.phase] || ''}`,
-    `- Campos: ${ch.fields}`,
+    'CANAL QUE DEBES RELLENAR AHORA:',
+    `- Canal: ${ch.name}`,
+    `- Tipo: ${phaseContext[ch.phase] || ch.phase}`,
+    `- Campos disponibles: ${ch.fields}`,
     '',
-    'BENCHMARKS:',
+    'BENCHMARKS DE REFERENCIA:',
     benchmarks,
     '',
-    'Devuelve SOLO JSON con números realistas. Ejemplo: {"inv":1500,"cpm":8,"ctr":1.5}',
-  ].join('\n')
+    'REGLAS IMPORTANTES:',
+    '- Devuelve SOLO JSON puro, sin markdown, sin texto adicional.',
+    '- inv es la inversión en EUR para este canal. Puede ser 0 si no es útil.',
+    '- Todos los ratios deben ser coherentes con el sector y fase declarados.',
+    '- Basate en benchmarks reales, no en valores genéricos o medios.',
+    '- Ejemplo de formato: {"inv":2000,"cpm":8,"ctr":1.8}',
+  ].join('
+')
 }
 
 export async function POST(req: NextRequest) {
