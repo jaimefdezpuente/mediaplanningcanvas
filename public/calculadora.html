@@ -1639,8 +1639,11 @@ function removeChannel(u){S.channels=S.channels.filter(c=>c.uid!==u);recalcAll()
 
 function editChannel(u){
   const e=S.channels.find(c=>c.uid===u);if(!e)return;
-  const ch=getCh(e.channelId);S.selectedCh=e.channelId;S.editUid=u;
-  S.phase=ch.ph;setPhaseTab(ch.ph);renderChGrid();
+  const ch=getCh(e.channelId);
+  // Fix 2: setPhaseTab resets S.selectedCh/S.editUid — assign AFTER it runs
+  S.phase=ch.ph;setPhaseTab(ch.ph);
+  S.selectedCh=e.channelId;S.editUid=u;
+  renderChGrid();
   renderForm(e.channelId,e.fields);
   document.getElementById('chForm').style.display='block';
   document.getElementById('addLbl').textContent='Actualizar Canal';
@@ -2121,6 +2124,12 @@ function init(){
   }
 }
 document.addEventListener('DOMContentLoaded',init);
+document.addEventListener('DOMContentLoaded', function() {
+  // Fix 3: notify parent that iframe is ready to receive restored state
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: 'mpc-ready' }, '*');
+  }
+});
 </script>
 
 <script>
@@ -2573,6 +2582,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(function() { dcUpdateResult(); }, 500);
 });
 </script>
+<script>
 window.addEventListener('message', function(e) {
   if (!e.data || !e.data.type) return;
   if (e.data.type === 'mpc-set-mode') {
@@ -2585,6 +2595,16 @@ window.addEventListener('message', function(e) {
   if (e.data.type === 'mpc-do-scratch') {
     if (typeof doScratch === 'function') doScratch();
     else { S.channels = []; S.uidCtr = 0; recalcAll(); showToast('🗑️ Plan reiniciado'); }
+  }
+  // Fix 3: restore full channel state when coming back to step 4
+  if (e.data.type === 'mpc-restore' && Array.isArray(e.data.channels) && e.data.channels.length > 0) {
+    S.channels = e.data.channels.map(function(c) {
+      return { uid: c.uid, channelId: c.channelId, fields: c.fields || {}, months: c.months || Array(12).fill(true), results: null };
+    });
+    S.uidCtr = Math.max.apply(null, S.channels.map(function(c) { return c.uid || 0; }));
+    recalcAll();
+    notifyParent();
+    showToast('📂 Plan táctico restaurado');
   }
 });
 </script>

@@ -445,6 +445,19 @@ function WizardInner() {
       if (e.data?.type === 'mpc-upgrade') setShowUpgrade(true)
       if (e.data?.type === 'mpc-scratch-confirm') setShowScratchModal(true)
       if (e.data?.type === 'mpc-ia-confirm') { setIaConfirmN(e.data.n || 0); setShowIAConfirm(true) }
+      // Fix 3: iframe signals it's ready — send back saved channel data
+      if (e.data?.type === 'mpc-ready') {
+        const raw = planRef.current?.edits?.['_tactico']
+        if (raw) {
+          try {
+            const saved = JSON.parse(raw)
+            if (Array.isArray(saved.channels) && saved.channels.length > 0) {
+              const iframe = document.getElementById('tactico-iframe') as HTMLIFrameElement
+              iframe?.contentWindow?.postMessage({ type: 'mpc-restore', channels: saved.channels }, '*')
+            }
+          } catch { /* ignore */ }
+        }
+      }
       if (e.data?.type === 'mpc-state') {
         se('_tactico', JSON.stringify(e.data))
         setTacticoData(e.data as Obj)
@@ -921,7 +934,21 @@ function WizardInner() {
           </div>
 
           <div style={{ position:'relative', marginBottom:32, width:'100%', overflow:'hidden' }}>
-            <iframe id="tactico-iframe" key={`${plan.tipo_negocio}-${iframeKey}`} src={buildIframeSrc()} style={{ width:'100%', height:600, border:'none', display:'block', minHeight:600 }} scrolling="no" title="Calculadora" />
+            <iframe id="tactico-iframe" key={`${plan.tipo_negocio}-${iframeKey}`} src={buildIframeSrc()} style={{ width:'100%', height:600, border:'none', display:'block', minHeight:600 }} scrolling="no" title="Calculadora"
+              onLoad={() => {
+                // Fix 3: restore saved channel data into the freshly-loaded iframe
+                const raw = plan.edits['_tactico']
+                if (raw) {
+                  try {
+                    const saved = JSON.parse(raw)
+                    if (Array.isArray(saved.channels) && saved.channels.length > 0) {
+                      const iframe = document.getElementById('tactico-iframe') as HTMLIFrameElement
+                      iframe?.contentWindow?.postMessage({ type: 'mpc-restore', channels: saved.channels }, '*')
+                    }
+                  } catch { /* ignore parse errors */ }
+                }
+              }}
+            />
 
           </div>
           <div style={{ position:'sticky', bottom:0, background:C.paper, borderTop:`1px solid ${C.steel1}`, padding:'12px 0', display:'flex', justifyContent:'space-between', zIndex:10 }}>
