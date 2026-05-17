@@ -2525,6 +2525,18 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 
 // ===== ENFOLD: make all functions globally accessible =====
 window.setMode=setMode;window.setPlanMode=setPlanMode;window.setPhaseTab=setPhaseTab;
+// Listener de mensajes desde el wizard (parent)
+window.addEventListener('message', function(e) {
+  if (!e.data || !e.data.type) return;
+  if (e.data.type === 'mpc-set-mode') {
+    var m = e.data.mode === 'budget' ? 'budget' : 'objetivo';
+    if (typeof setPlanMode === 'function') setPlanMode(m);
+  }
+  if (e.data.type === 'mpc-do-scratch') {
+    if (typeof doScratch === 'function') doScratch();
+    else { S.channels = []; S.uidCtr = 0; recalcAll(); }
+  }
+});
 window.onSectorChange=onSectorChange;window.onPhaseChange=onPhaseChange;
 window.selectCh=selectCh;window.cancelForm=cancelForm;window.toggleFT=toggleFT;
 window.onFI=onFI;window.addOrUpdate=addOrUpdate;window.removeChannel=removeChannel;
