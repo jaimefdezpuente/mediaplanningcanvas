@@ -1382,23 +1382,7 @@ function WizardInner() {
                 </div>
                 <div style={{ display:'flex', gap:10 }}>
                   <button onClick={()=>setStep(4)} style={BTN_S}>← Táctico</button>
-                  <button onClick={async()=>{
-                    const { jsPDF } = await import('jspdf')
-                    const { default: html2canvas } = await import('html2canvas')
-                    const el = document.getElementById('mpc-resumen-print')
-                    if(!el) return
-                    const canvas = await html2canvas(el, { scale:1.5, useCORS:true, allowTaint:true })
-                    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' })
-                    const W = pdf.internal.pageSize.getWidth()
-                    const H = pdf.internal.pageSize.getHeight()
-                    const ratio = canvas.width / canvas.height
-                    let imgW = W - 20
-                    let imgH = imgW / ratio
-                    let y = 10
-                    if(imgH > H - 20) { imgH = H - 20; imgW = imgH * ratio }
-                    pdf.addImage(canvas.toDataURL('image/jpeg',0.9), 'JPEG', 10, y, imgW, imgH)
-                    pdf.save(`${plan.projectName||'plan'}-mpc.pdf`)
-                  }} style={{ ...BTN_P, background:'#2F7D5C' }}>⬇ Descargar PDF</button>
+                  <button onClick={()=>{ window.print() }} style={{ ...BTN_P, background:'#2F7D5C' }}>⬇ Imprimir / PDF</button>
                   <button onClick={()=>setSaveModal(true)} style={BTN_P}>Guardar Plan</button>
                 </div>
               </div>

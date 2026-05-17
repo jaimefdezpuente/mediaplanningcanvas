@@ -62,3 +62,13 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--mpc-paper-2); }
 ::-webkit-scrollbar-thumb { background: var(--mpc-steel-200); border-radius: 3px; }
+
+/* ===== PRINT STYLES — Resumen PDF ===== */
+@media print {
+  body > *:not(#__NEXT_DATA__) { display: none !important; }
+  #mpc-resumen-print { display: block !important; }
+  #mpc-resumen-print * { display: revert !important; }
+  nav, header, footer, button, [data-noprint] { display: none !important; }
+  body { background: white !important; font-family: sans-serif; }
+  @page { margin: 15mm; size: A4; }
+}
