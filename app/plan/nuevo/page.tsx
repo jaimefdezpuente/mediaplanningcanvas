@@ -318,6 +318,7 @@ function WizardInner() {
   const [usedMejoras, setUsedMejoras] = useState(0)
   const [usedAnalisis, setUsedAnalisis] = useState(0)
   const [savedPlanId, setSavedPlanId] = useState<string|null>(null)
+  const savedPlanIdRef = useRef<string|null>(null)
   const [autoSaving, setAutoSaving] = useState(false)
   const [headerMenu, setHeaderMenu] = useState(false)
   const [plan, setPlan] = useState<PlanData>({
@@ -416,6 +417,7 @@ function WizardInner() {
   }, [])
 
   useEffect(() => { planRef.current = plan }, [plan])
+  useEffect(() => { savedPlanIdRef.current = savedPlanId }, [savedPlanId])
   useEffect(() => { stepRef.current = step; if(step > 0 && savedPlanId) autoSaveFromRef() }, [step, savedPlanId])
   useEffect(() => {
     if (!savedPlanId && !planId) return
@@ -568,12 +570,29 @@ function WizardInner() {
     })
     if(r) {
       const phases = ['notoriedad','interaccion','lead_venta','fidelizacion']
-      const names: string[] = []
-      phases.forEach(ph=>{ const chs=(r as Obj).canales_por_fase; if(chs&&typeof chs==='object'){const arr=(chs as Obj)[ph]; if(Array.isArray(arr))arr.forEach((ch:Jv)=>{ if(ch&&typeof ch==='object'){const n=(ch as Obj).canal; if(typeof n==='string'&&n)names.push(n)} })} })
-      if(names.length > 0){
-        // Solo marcar canales, no crear estrategia
-        setPlan(p=>({...p, selectedChannels: names}))
-        setAiModal('')
+      const rawNames: string[] = []
+      phases.forEach(ph=>{ const chs=(r as Obj).canales_por_fase; if(chs&&typeof chs==='object'){const arr=(chs as Obj)[ph]; if(Array.isArray(arr))arr.forEach((ch:Jv)=>{ if(ch&&typeof ch==='object'){const n=(ch as Obj).canal; if(typeof n==='string'&&n)rawNames.push(n)} })} })
+      // Normalizar nombres de IA contra CH_OPTIONS para que los botones queden marcados
+      const allAvailable = Object.values(CH_OPTIONS).flat()
+      function normName(s:string){ return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s]/g,'').trim() }
+      const matched: string[] = []
+      rawNames.forEach(aiName=>{
+        const normAi = normName(aiName)
+        // Exact match primero
+        const exact = allAvailable.find(ch=>ch===aiName)
+        if(exact){ matched.push(exact); return }
+        // Match normalizado exacto
+        const normExact = allAvailable.find(ch=>normName(ch)===normAi)
+        if(normExact){ matched.push(normExact); return }
+        // Match parcial (contiene)
+        const partial = allAvailable.find(ch=>normName(ch).includes(normAi)||normAi.includes(normName(ch)))
+        if(partial){ matched.push(partial); return }
+        // Si no hay match, incluir el nombre original de todos modos (para visibilidad)
+        matched.push(aiName)
+      })
+      const deduped = Array.from(new Set(matched))
+      if(deduped.length > 0){
+        setPlan(p=>({...p, selectedChannels: deduped}))
         trackAnalisis()
       }
     }
@@ -623,13 +642,13 @@ function WizardInner() {
 
   async function autoSaveFromRef() {
     const current = planRef.current
-    console.log("autoSaveFromRef called, savedPlanId:", savedPlanId, "current edits:", current?.edits)
-    if (!current) { console.log("no current plan"); return }
+    const id = savedPlanIdRef.current
+    if (!current) { return }
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     setAutoSaving(true)
     try {
-      if (savedPlanId) {
+      if (id) {
         await supabase.from('plans').update({
           name: current.projectName || `Plan ${current.sector}`,
           pais: current.pais, sector: current.sector, producto: current.producto,
@@ -640,7 +659,7 @@ function WizardInner() {
           objectives: current.objectives, value_steps: current.valueSteps,
           selected_channels: current.selectedChannels,
           status: 'in_progress', current_step: stepRef.current, updated_at: new Date().toISOString(),
-        }).eq('id', savedPlanId)
+        }).eq('id', id)
       } else {
         const { data } = await supabase.from('plans').insert({
           user_id: user.id, name: current.projectName || `Plan ${current.sector || 'nuevo'}`,
@@ -653,7 +672,10 @@ function WizardInner() {
           selected_channels: current.selectedChannels,
           status: 'in_progress', current_step: stepRef.current,
         }).select('id').single()
-        if (data?.id) setSavedPlanId(data.id)
+        if (data?.id) {
+          setSavedPlanId(data.id)
+          savedPlanIdRef.current = data.id
+        }
       }
     } catch(e) { console.error('autoSave error:', e) }
     setAutoSaving(false)

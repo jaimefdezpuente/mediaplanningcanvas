@@ -1487,7 +1487,7 @@ function calcEntry(entry,crMult){
   return{leads,clients,ingreso,inversion:inv,roas:inv>0?ingreso/inv:0,funnel,extraKPI};
 }
 
-function recalcAll(){S.channels.forEach(c=>{c.results=calcEntry(c);});updateBB();renderPlan();renderMonthly();renderSens();calcLTV();renderSummary();updateCharts();}
+function recalcAll(){S.channels.forEach(c=>{c.results=calcEntry(c);});updateBB();renderPlan();renderMonthly();renderSens();calcLTV();renderSummary();updateCharts();notifyParent();}
 
 function updateBB(){
   const tot=parseFloat(document.getElementById('obj_budget').value)||0;
@@ -1699,7 +1699,7 @@ function renderMonthly(){
   b.innerHTML=S.channels.map((e,i)=>{const ch=getCh(e.channelId);const col=COLORS[i%COLORS.length];const m=e.months||Array(12).fill(true);const na=m.filter(Boolean).length;const inv=e.results?.inversion||0;const im=na>0?inv/na:0;const cells=m.map((on,mi)=>`<td><button class="mtog ${on?'on':''}" data-uid="${e.uid}" data-mi="${mi}">${on?'●':''}</button></td>`).join('');return`<tr><td class="cch"><div style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:${col};display:inline-block"></span><span style="font-size:12px;font-weight:600;color:#0d1b2a">${ch.icon} ${ch.name}</span></div></td>${cells}<td style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#38bdf8">${na}</td><td style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#94a3b8">${fE(im)}</td></tr>`;}).join('');
 }
 
-function toggleM(u,m){const e=S.channels.find(c=>c.uid===u);if(!e)return;if(!e.months)e.months=Array(12).fill(true);e.months[m]=!e.months[m];renderMonthly();}
+function toggleM(u,m){const e=S.channels.find(c=>c.uid===u);if(!e)return;if(!e.months)e.months=Array(12).fill(true);e.months[m]=!e.months[m];renderMonthly();notifyParent();}
 
 function renderSens(){
   const sv=parseInt(document.getElementById('sensSlider').value);
@@ -1744,6 +1744,24 @@ function renderSummary(){
   document.getElementById('s_ltv').textContent=fE(S.ltvRev);document.getElementById('s_ltv_s').textContent=(maxYrs>0?`LTV a ${maxYrs} años · `:'')+'LTV/CAC: '+fR(ltvCac)+(ltvCac>=3?' ✅':ltvCac>=1?' 👍':ltvCac>0?' ⚠️':'—');
 }
 
+function notifyParent(){
+  if(!window.parent||window.parent===window)return;
+  try{
+    var totInv=S.channels.reduce(function(s,c){return s+(c.results&&c.results.inversion||0);},0);
+    var monthly={};
+    S.channels.forEach(function(e){
+      var m=e.months||Array(12).fill(true);
+      var inv=(e.results&&e.results.inversion)||0;
+      var active=m.filter(Boolean).length;
+      monthly[String(e.uid)]={months:m,inv_per_active:active>0?inv/active:0};
+    });
+    var channels=S.channels.map(function(e){
+      var ch=getCh(e.channelId);
+      return{uid:e.uid,name:ch?ch.name:'',phase:ch?ch.ph:'',results:{inversion:(e.results&&e.results.inversion)||0,roas:(e.results&&e.results.roas)||0,clients:(e.results&&e.results.clients)||0}};
+    });
+    window.parent.postMessage({type:'mpc-state',channels:channels,summary:{total_inv:totInv},monthly:monthly},'*');
+  }catch(ex){}
+}
 function saveToStorage(){try{const d={mode:S.mode,sector:S.sector,uidCtr:S.uidCtr,planMode:S.planMode,channels:S.channels,budget:document.getElementById('obj_budget').value,clients:document.getElementById('obj_clients').value,cac:document.getElementById('obj_cac').value,ticket:document.getElementById('globalTicket').value,ticketType:document.getElementById('ticketType').value,phase:document.getElementById('obj_phase').value,sectorVal:document.getElementById('sectorSelect').value,ltv:{lh_p:document.getElementById('lh_p').value,lh_f:document.getElementById('lh_f').value,lh_y:document.getElementById('lh_y').value,lh_t:document.getElementById('lh_t').value,lm_p:document.getElementById('lm_p').value,lm_f:document.getElementById('lm_f').value,lm_y:document.getElementById('lm_y').value,lm_t:document.getElementById('lm_t').value,lb_p:document.getElementById('lb_p').value,lb_f:document.getElementById('lb_f').value,lb_y:document.getElementById('lb_y').value,lb_t:document.getElementById('lb_t').value,ln_p:document.getElementById('ln_p').value}};localStorage.setItem('mpc_v3',JSON.stringify(d));showToast('💾 Plan guardado en el navegador');}catch(e){showToast('❌ Error al guardar');}}
 
 function loadFromStorage(){try{const raw=localStorage.getItem('mpc_v3');if(!raw){showToast('📂 No hay plan guardado');return;}applyData(JSON.parse(raw));showToast('📂 Plan cargado correctamente');}catch(e){showToast('❌ Error al cargar');}}
