@@ -568,12 +568,21 @@ function WizardInner() {
     })
     if(r) {
       const phases = ['notoriedad','interaccion','lead_venta','fidelizacion']
-      const names: string[] = []
-      phases.forEach(ph=>{ const chs=(r as Obj).canales_por_fase; if(chs&&typeof chs==='object'){const arr=(chs as Obj)[ph]; if(Array.isArray(arr))arr.forEach((ch:Jv)=>{ if(ch&&typeof ch==='object'){const n=(ch as Obj).canal; if(typeof n==='string'&&n)names.push(n)} })} })
-      if(names.length > 0){
-        // Solo marcar canales, no crear estrategia
-        setPlan(p=>({...p, selectedChannels: names}))
-        setAiModal('')
+      const rawNames: string[] = []
+      phases.forEach(ph=>{ const chs=(r as Obj).canales_por_fase; if(chs&&typeof chs==='object'){const arr=(chs as Obj)[ph]; if(Array.isArray(arr))arr.forEach((ch:Jv)=>{ if(ch&&typeof ch==='object'){const n=(ch as Obj).canal; if(typeof n==='string'&&n)rawNames.push(n)} })} })
+      // Mapear nombres de la IA contra CH_OPTIONS para que los botones queden marcados
+      const allAvailable = Object.values(CH_OPTIONS).flat()
+      const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').trim()
+      const matched: string[] = []
+      rawNames.forEach(aiName => {
+        const n = norm(aiName)
+        const hit = allAvailable.find(ch => ch === aiName)
+          || allAvailable.find(ch => norm(ch) === n)
+          || (n.length >= 4 ? allAvailable.find(ch => norm(ch).includes(n) || n.includes(norm(ch))) : undefined)
+        if (hit && !matched.includes(hit)) matched.push(hit)
+      })
+      if(matched.length > 0){
+        setPlan(p=>({...p, selectedChannels: matched}))
         trackAnalisis()
       }
     }
