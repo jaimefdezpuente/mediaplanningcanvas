@@ -1834,29 +1834,29 @@ function toggleExamples(){
 
 // ── Plan Táctico con IA ────────────────────────────────────────────────────
 function _showIAModal(msg) {
-  var m = document.getElementById('iaModal');
+  var m = document.getElementById('iaLoadingModal');
   if(!m){
     m = document.createElement('div');
-    m.id = 'iaModal';
-    m.style.cssText = 'position:fixed;inset:0;background:rgba(15,41,66,0.55);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
-    m.innerHTML = '<div style="background:#fff;border-radius:14px;padding:36px 44px;text-align:center;max-width:360px;width:90%;box-shadow:0 24px 48px rgba(15,41,66,0.3)">'
-      +'<div id="iaModalSpinner" style="width:48px;height:48px;border:3px solid #0F2942;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px"></div>'
-      +'<div id="iaModalMsg" style="font-size:15px;font-weight:500;color:#0F2942;line-height:1.6"></div>'
-      +'<div style="font-size:11px;color:#8a93a0;margin-top:8px;font-family:\'Geist Mono\',monospace">Esto puede tardar unos segundos...</div>'
-      +'</div></div>';
+    m.id = 'iaLoadingModal';
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(13,27,42,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
+    m.innerHTML = '<div style="background:#fff;border-radius:14px;padding:32px;max-width:380px;width:100%;box-shadow:0 24px 48px rgba(13,27,42,0.25);text-align:center">'
+      +'<div style="width:40px;height:40px;border:3px solid #e7e2d8;border-top-color:#0d1b2a;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>'
+      +'<div id="iaLoadingMsg" style="font-size:15px;font-weight:500;color:#0d1b2a;line-height:1.6;margin-bottom:6px"></div>'
+      +'<div style="font-size:12px;color:#8a93a0;font-family:\'JetBrains Mono\',monospace">Esto puede tardar unos segundos...</div>'
+      +'</div>';
     document.body.appendChild(m);
   }
-  document.getElementById('iaMinChanMsg').textContent = msg;
+  document.getElementById('iaLoadingMsg').textContent = msg;
   m.style.display = 'flex';
 }
-function _hideIAModal(){ var m=document.getElementById('iaModal'); if(m) m.style.display='none'; }
+function _hideIAModal(){ var m=document.getElementById('iaLoadingModal'); if(m) m.style.display='none'; }
 
 async function runTacticoIA(){
   var MIN_CHANNELS = 3;
   if(S.channels.length < MIN_CHANNELS){
     // Modal nativo del sistema
     document.getElementById('iaMinChanTitle').textContent = 'Canales insuficientes';
-    document.getElementById('iaModalMsg').textContent = 'Necesitas al menos '+MIN_CHANNELS+' canales en el plan para que la IA pueda optimizar la distribución presupuestaria. Actualmente tienes '+S.channels.length+'.';
+    document.getElementById('iaMinChanMsg').textContent = 'Necesitas al menos '+MIN_CHANNELS+' canales en el plan para que la IA pueda optimizar la distribución presupuestaria. Actualmente tienes '+S.channels.length+'.';
     document.getElementById('iaMinChanBtn').style.display = 'block';
     document.getElementById('iaModalOverlay').style.display = 'flex';
     return;
@@ -2032,7 +2032,7 @@ function init(){
   var maxA = {free:0,pro:20,business:60,enterprise:999}[plan]||0;
   window._planCreditsMax = maxA;
   window._planUserPlan = plan;
-  if(typeof _updateCreditsDisplay==='function') _updateCreditsDisplay(maxA-usedA, plan, maxA);
+  if(typeof _updateCreditsDisplay==='function') _updateCreditsDisplay(maxA-usedA, plan, maxA); window._planCreditsTotal = maxA;
   // Leer contexto del wizard desde URL params
   window._wizardCtx = {
     usp: p.get('usp') || '',
