@@ -975,7 +975,7 @@ window._updateCreditsDisplay = function(remaining, plan, maxCredits) {
       <div class="ai-banner-eyebrow">✦ Optimización con IA</div>
       <h3>Optimiza la distribución presupuestaria</h3>
       <p>La IA analiza tus canales, objetivos y target para distribuir tu presupuesto de forma óptima con benchmarks reales de tu sector. Consume 1 análisis IA por uso.</p>
-      <button class="ai-btn" onclick="runTacticoIA()">
+      <button class="ai-btn" onclick="if(window.parent&&window.parent!==window){window.parent.postMessage({type:'mpc-ia-confirm',n:S.channels.length},'*');}else{runTacticoIA();}">
         <span>✦</span>
         <span>AI · Optimizar distribución presupuestaria</span>
         <span class="count" id="tacticoIAcredits">—</span>
