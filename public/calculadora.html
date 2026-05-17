@@ -2583,19 +2583,6 @@ window.addEventListener('message', function(e) {
     var m = e.data.mode === 'budget' ? 'budget' : 'objetivo';
     if (typeof setPlanMode === 'function') setPlanMode(m);
   }
-  if (e.data.type === 'mpc-restore' && e.data.state) {
-    try {
-      var rs = e.data.state;
-      S.mode = rs.mode || S.mode;
-      S.uidCtr = rs.uidCtr || S.uidCtr;
-      S.planMode = rs.planMode || S.planMode;
-      S.channels = (rs.channels || []).map(function(c) {
-        return { uid: c.uid, channelId: c.channelId, fields: c.fields || {}, months: c.months || Array(12).fill(true), results: null };
-      });
-      recalcAll();
-    } catch(ex) { console.error('mpc-restore error', ex); }
-    return;
-  }
   if (e.data.type === 'mpc-run-ia') {
     if (typeof runTacticoIA === 'function') runTacticoIA();
   }

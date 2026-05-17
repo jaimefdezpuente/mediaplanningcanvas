@@ -273,6 +273,47 @@ function ToolsBlock({ title, tools }: { title:string; tools:{name:string;url:str
   )
 }
 
+function IAConfirmModal({ n, credAvail, onClose, onConfirm, onUpgrade }: {
+  n: number; credAvail: number; onClose: ()=>void; onConfirm: ()=>void; onUpgrade: ()=>void
+}) {
+  const hasCredits = credAvail >= n
+  return (
+    <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.45)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+      <div style={{ background:'#fff', borderRadius:14, padding:'32px', maxWidth:440, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.28)', position:'relative' }}>
+        <button onClick={onClose} style={{ position:'absolute', top:14, right:14, width:28, height:28, borderRadius:6, border:'1px solid #DDE2E8', background:'transparent', cursor:'pointer', fontSize:14, color:'#8AA0B5', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Geist',sans-serif" }}>✕</button>
+        <div style={{ textAlign:'center', marginBottom:16 }}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36" style={{ display:'block', margin:'0 auto' }}>
+            <rect x="0" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="35" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/><rect x="70" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/>
+            <rect x="0" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="70" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/>
+            <rect x="0" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="70" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/>
+          </svg>
+        </div>
+        <h3 style={{ fontSize:18, fontWeight:600, color:'#0F2942', margin:'0 0 4px', textAlign:'center' }}>Optimizar Plan Táctico con IA</h3>
+        <p style={{ fontSize:13, color:'#4A6B8A', textAlign:'center', margin:'0 0 16px', lineHeight:1.5 }}>La IA analiza cada canal y distribuye el presupuesto de forma óptima.</p>
+        <div style={{ background:hasCredits?'#F0FDF4':'#FEF2F2', border:`1px solid ${hasCredits?'#BBF7D0':'#FECACA'}`, borderRadius:8, padding:'12px 16px', marginBottom:16, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div>
+            <div style={{ fontSize:13, fontWeight:600, color:hasCredits?'#2F7D5C':'#B33A2E' }}>
+              {hasCredits ? `Consumirá ${n} crédito${n!==1?'s':''} de Análisis IA` : 'Créditos insuficientes'}
+            </div>
+            <div style={{ fontSize:11, color:'#4A6B8A', marginTop:2 }}>
+              {hasCredits ? `Disponibles: ${credAvail} · Quedarán: ${credAvail-n}` : `Necesitas ${n}, tienes ${credAvail}. Se recargan al inicio del próximo ciclo.`}
+            </div>
+          </div>
+          <div style={{ fontSize:28, fontWeight:700, fontFamily:"'Geist Mono',monospace", color:hasCredits?'#2F7D5C':'#B33A2E' }}>{n}</div>
+        </div>
+        {!hasCredits&&<p style={{ fontSize:13, color:'#4A6B8A', lineHeight:1.6, marginBottom:16, textAlign:'center' }}>Amplía tu plan para obtener más créditos mensuales.</p>}
+        <div style={{ display:'flex', gap:10 }}>
+          <button onClick={onClose} style={{ flex:1, padding:'11px', borderRadius:6, border:'1px solid #DDE2E8', background:'transparent', color:'#4A6B8A', fontWeight:500, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Descartar</button>
+          {hasCredits
+            ? <button onClick={onConfirm} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:'#0F2942', color:'#F6F4EF', fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Analizar →</button>
+            : <button onClick={onUpgrade} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:'#C75A3C', color:'#F6F4EF', fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Ampliar plan →</button>
+          }
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function NuevoPlanPage() {
   return (
     <Suspense fallback={<div style={{ minHeight:'100vh', background:'#F6F4EF', display:'flex', alignItems:'center', justifyContent:'center', color:'#4A6B8A', fontSize:14, fontFamily:"'Geist',sans-serif" }}>Cargando...</div>}>
@@ -403,14 +444,7 @@ function WizardInner() {
         const iframe = document.getElementById('tactico-iframe') as HTMLIFrameElement
         if (iframe) iframe.style.height = e.data.height + 'px'
       }
-      if (e.data?.type === 'mpc-ready') {
-        const rs = pendingRestoreRef.current
-        if (rs) {
-          pendingRestoreRef.current = null
-          const ifr = document.getElementById('tactico-iframe') as HTMLIFrameElement
-          ifr?.contentWindow?.postMessage({ type: 'mpc-restore', state: rs }, '*')
-        }
-      }
+
       if (e.data?.type === 'mpc-upgrade') setShowUpgrade(true)
       if (e.data?.type === 'mpc-scratch-confirm') setShowScratchModal(true)
       if (e.data?.type === 'mpc-ia-confirm') { setIaConfirmN(e.data.n || 0); setShowIAConfirm(true) }
@@ -429,20 +463,7 @@ function WizardInner() {
   useEffect(() => { planRef.current = plan }, [plan])
   useEffect(() => { savedPlanIdRef.current = savedPlanId }, [savedPlanId])
   useEffect(() => { stepRef.current = step; if(step > 0 && savedPlanId) autoSaveFromRef() }, [step, savedPlanId])
-  // Track whether we should restore táctico state on next mpc-ready
-  const pendingRestoreRef = useRef<Obj|null>(null)
-  useEffect(() => {
-    if (step !== 4) return
-    try {
-      const saved = plan.edits['_tactico']
-      if (!saved) return
-      const parsed = JSON.parse(saved) as Obj
-      const rs = (parsed as Obj).restoreState as Obj
-      if (!rs || !(rs.channels as Jv[])?.length) return
-      // Store restore state — will be sent when calculadora signals mpc-ready
-      pendingRestoreRef.current = rs
-    } catch {}
-  }, [step])
+  // Iframe stays mounted via CSS display — no restore needed
   useEffect(() => {
     if (!savedPlanId && !planId) return
     const url = new URL(window.location.href)
@@ -729,7 +750,7 @@ function WizardInner() {
           selected_channels: current.selectedChannels,
           status: 'in_progress', current_step: stepRef.current,
         }).select('id').single()
-        if (data?.id) setSavedPlanId(data.id)
+        if (data?.id) { setSavedPlanId(data.id); savedPlanIdRef.current = data.id }
       }
     } catch { /* silent */ }
     setAutoSaving(false)
@@ -784,55 +805,15 @@ function WizardInner() {
       {alert&&<AlertModal title={alert.title} body={alert.body} btn="Entendido" onClose={()=>setAlert(null)}/>}
       {saveModal&&<SaveModal onSave={handleSave} onClose={()=>setSaveModal(false)} busy={busy} defaultName={plan.projectName||`Plan ${plan.sector||'nuevo'}`}/>}
       {showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)} userPlan={userPlan} periodStart={planPeriodStart}/>}
-      {showIAConfirm&&(()=>{
-        const credNeeded = iaConfirmN
-        const credAvail = Math.max(0, limits.analisis - usedAnalisis)
-        const hasCredits = credAvail >= credNeeded
-        const runIA = () => { setShowIAConfirm(false); const ifr=document.getElementById('tactico-iframe') as HTMLIFrameElement; ifr?.contentWindow?.postMessage({type:'mpc-run-ia'},'*') }
-        return (
-          <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.45)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
-            <div style={{ background:'#fff', borderRadius:14, padding:'32px', maxWidth:440, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.28)', position:'relative' }}>
-              {/* X close */}
-              <button onClick={()=>setShowIAConfirm(false)} style={{ position:'absolute', top:16, right:16, width:28, height:28, borderRadius:6, border:`1px solid ${C.steel1}`, background:'transparent', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, color:C.steel3, fontFamily:"'Geist',sans-serif" }}>✕</button>
-              {/* Icon */}
-              <div style={{ textAlign:'center', marginBottom:16 }}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36" style={{ display:'block', margin:'0 auto' }}>
-                  <rect x="0" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="35" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/><rect x="70" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/>
-                  <rect x="0" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="70" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/>
-                  <rect x="0" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="70" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/>
-                </svg>
-              </div>
-              <h3 style={{ fontSize:18, fontWeight:600, color:C.navy, margin:'0 0 8px', textAlign:'center' }}>Optimizar Plan Táctico con IA</h3>
-              {/* Credits info */}
-              <div style={{ background:hasCredits?'#F0FDF4':'#FEF2F2', border:`1px solid ${hasCredits?'#BBF7D0':'#FECACA'}`, borderRadius:8, padding:'12px 16px', margin:'16px 0', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <div>
-                  <div style={{ fontSize:13, fontWeight:600, color:hasCredits?C.success:'#B33A2E' }}>
-                    {hasCredits ? `${credNeeded} crédito${credNeeded!==1?'s':''} de Análisis IA` : 'Créditos insuficientes'}
-                  </div>
-                  <div style={{ fontSize:12, color:C.steel, marginTop:2 }}>
-                    {hasCredits
-                      ? `Disponibles: ${credAvail} · Quedarán: ${credAvail - credNeeded}`
-                      : `Necesitas ${credNeeded}, tienes ${credAvail}. Se recargan al inicio del próximo ciclo.`}
-                  </div>
-                </div>
-                <div style={{ fontSize:24, fontWeight:700, fontFamily:"'Geist Mono',monospace", color:hasCredits?C.success:'#B33A2E' }}>{credNeeded}</div>
-              </div>
-              {!hasCredits && (
-                <div style={{ fontSize:13, color:C.steel, lineHeight:1.6, marginBottom:16, textAlign:'center' }}>
-                  Amplía tu plan para obtener más créditos mensuales o espera a que se recarguen al inicio del próximo ciclo.
-                </div>
-              )}
-              <div style={{ display:'flex', gap:10, marginTop:4 }}>
-                <button onClick={()=>setShowIAConfirm(false)} style={{ flex:1, padding:'11px', borderRadius:6, border:`1px solid ${C.steel1}`, background:'transparent', color:C.steel, fontWeight:500, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Descartar</button>
-                {hasCredits
-                  ? <button onClick={runIA} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:C.navy, color:C.paper, fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Analizar →</button>
-                  : <button onClick={()=>{ setShowIAConfirm(false); setShowUpgrade(true) }} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:C.accent, color:C.paper, fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Ampliar plan →</button>
-                }
-              </div>
-            </div>
-          </div>
-        )
-      })()}
+      {showIAConfirm&&(
+        <IAConfirmModal
+          n={iaConfirmN}
+          credAvail={Math.max(0, limits.analisis - usedAnalisis)}
+          onClose={()=>setShowIAConfirm(false)}
+          onConfirm={()=>{ setShowIAConfirm(false); const ifr=document.getElementById('tactico-iframe') as HTMLIFrameElement; ifr?.contentWindow?.postMessage({type:'mpc-run-ia'},'*') }}
+          onUpgrade={()=>{ setShowIAConfirm(false); setShowUpgrade(true) }}
+        />
+      )}
       {showScratchModal&&(
         <div style={{ position:'fixed', inset:0, background:'rgba(13,27,42,0.5)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
           <div style={{ background:'#fff', borderRadius:16, padding:32, maxWidth:420, width:'90%', boxShadow:'0 24px 48px rgba(13,27,42,0.25)', textAlign:'center' }}>
@@ -872,8 +853,7 @@ function WizardInner() {
         })}
       </AppHeader>
 
-      {step===4&&(
-        <div style={{ maxWidth:1040, margin:'0 auto', padding:'40px 24px 0' }}>
+      <div style={{ display:step===4?'block':'none', maxWidth:1040, margin:'0 auto', padding:'40px 24px 0' }}>
           <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:16, maxWidth:920, margin:'0 auto' }}>
             <div>
               <div style={{ display:'flex', alignItems:'baseline', gap:12, marginBottom:4 }}>
@@ -963,11 +943,10 @@ function WizardInner() {
           </div>
           <div style={{ position:'sticky', bottom:0, background:C.paper, borderTop:`1px solid ${C.steel1}`, padding:'12px 0', display:'flex', justifyContent:'space-between', zIndex:10 }}>
             <button onClick={()=>setStep(3)} style={BTN_S}>Atras</button>
-            <button onClick={()=>{markDone(4);setStep(5)}} style={{ ...BTN_P, padding:'12px 32px' }}>Ver Resumen</button>
+            <button onClick={()=>{markDone(4);setStep(5);autoSave({})}} style={{ ...BTN_P, padding:'12px 32px' }}>Ver Resumen</button>
           </div>
           <div style={{ height:24 }} />
         </div>
-      )}
 
       {step!==4&&(
         <div style={{ maxWidth:1040, margin:'0 auto', padding:'40px 24px 80px' }}>
