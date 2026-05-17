@@ -295,7 +295,7 @@ function WizardInner() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [showScratchModal, setShowScratchModal] = useState(false)
   const [tacticoMode, setTacticoMode] = useState<'presupuesto'|'ventas'>('presupuesto')
-  const [estrategiaPrioridad, setEstrategiaPrioridad] = useState<'notoriedad'|'equilibrado'|'ventas'>('equilibrado')
+  const [estrategiaSlider, setEstrategiaSlider] = useState(50)
   const [seoDifficulty, setSeoDifficulty] = useState('')
   const [paidDifficulty, setPaidDifficulty] = useState('')
   const [showIAConfirm, setShowIAConfirm] = useState(false)
@@ -558,8 +558,8 @@ function WizardInner() {
     const r = await callAI('estrategia',{
       objetivos:objText,
       canales_seleccionados:'Ninguno, recomienda los mejores',
-      prioridad: estrategiaPrioridad,
-      canales_disponibles: Object.entries(CH_OPTIONS).map(([fase, chs]) => fase.toUpperCase() + ': ' + chs.join(', ')).join('\n'),
+      prioridad_slider: String(estrategiaSlider),
+      canales_disponibles: Object.entries(CH_OPTIONS).map(([fase, chs]) => fase.toUpperCase().replace('_',' ') + ': ' + chs.join(' | ')).join('\n'),
       fortalezas:ed('d_fo',''),
       target_desc:targetDesc,
       escalera_valor:plan.valueSteps.map((s,i)=>`Paso ${i+1} (${s.tipo}): ${s.accion}`).join(' | '),
@@ -1243,16 +1243,47 @@ function WizardInner() {
               </div>
 
               <div style={CARD}>
-                <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, marginBottom:4 }}>Prioridad Estratégica</h2>
-                <p style={{ fontSize:13, color:C.steel, marginBottom:12, lineHeight:1.6 }}>¿Qué quieres priorizar este año? Esto orienta el mix de canales y la distribución del presupuesto.</p>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:4 }}>
-                  {([['notoriedad','📣','Notoriedad','Awareness, alcance y marca'],['equilibrado','⚖️','Equilibrado','Mix balanceado'],['ventas','💰','Ventas','Conversión y leads']] as const).map(([val, ic, label, desc])=>(
-                    <button key={val} onClick={()=>setEstrategiaPrioridad(val)} style={{ padding:'12px 10px', borderRadius:8, border:`2px solid ${estrategiaPrioridad===val?C.navy:C.steel1}`, background:estrategiaPrioridad===val?C.navy:C.white, color:estrategiaPrioridad===val?C.paper:C.steel, cursor:'pointer', textAlign:'left', fontFamily:"'Geist',sans-serif", transition:'all 0.15s' }}>
-                      <div style={{ fontSize:18, marginBottom:4 }}>{ic}</div>
-                      <div style={{ fontSize:13, fontWeight:600 }}>{label}</div>
-                      <div style={{ fontSize:11, opacity:0.7, marginTop:2 }}>{desc}</div>
-                    </button>
-                  ))}
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:8 }}>
+                  <h2 style={{ fontSize:18, fontWeight:600, color:C.navy, margin:0 }}>Notoriedad vs Performance</h2>
+                  <span style={{ fontSize:13, fontWeight:600, color:C.navy, fontFamily:"'Geist Mono',monospace" }}>
+                    {estrategiaSlider <= 5 ? '100% Notoriedad' : estrategiaSlider >= 95 ? '100% Performance' : `${100-estrategiaSlider}% Notoriedad · ${estrategiaSlider}% Performance`}
+                  </span>
+                </div>
+                <p style={{ fontSize:13, color:C.steel, marginBottom:16, lineHeight:1.6 }}>
+                  Mueve la barra para definir el peso entre construir marca y generar ventas. La IA ajustará los canales y el presupuesto en consecuencia.
+                </p>
+                <div style={{ position:'relative', paddingBottom:28 }}>
+                  <input
+                    type="range" min={0} max={100} step={5} value={estrategiaSlider}
+                    onChange={e=>setEstrategiaSlider(Number(e.target.value))}
+                    style={{ width:'100%', accentColor:C.navy, cursor:'pointer', height:6 }}
+                  />
+                  <div style={{ display:'flex', justifyContent:'space-between', marginTop:6 }}>
+                    <span style={{ fontSize:11, color:C.steel3 }}>📣 Solo Notoriedad</span>
+                    <span style={{ fontSize:11, color:C.steel3 }}>⚖️ Equilibrado</span>
+                    <span style={{ fontSize:11, color:C.steel3 }}>🎯 Solo Performance</span>
+                  </div>
+                </div>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, marginTop:4 }}>
+                  {(()=>{
+                    const p = estrategiaSlider
+                    const not = Math.round(45 - 0.40*p)
+                    const int_ = Math.round(30 - 0.20*p)
+                    const lv = Math.round(15 + 0.55*p)
+                    const fid = Math.round(10 + 0.05*p)
+                    const phases = [
+                      {label:'Notoriedad', pct:not, color:C.warn, show: p < 95},
+                      {label:'Interacción', pct:int_, color:'#1E40AF', show: true},
+                      {label:'Lead/Venta', pct:lv, color:C.success, show: p > 5},
+                      {label:'Fidelización', pct:fid, color:'#7E22CE', show: true},
+                    ]
+                    return phases.map(ph => (
+                      <div key={ph.label} style={{ background:C.paper, borderRadius:8, padding:'10px 12px', opacity:ph.show?1:0.3, transition:'opacity 0.3s' }}>
+                        <div style={{ fontSize:10, fontWeight:600, color:ph.color, textTransform:'uppercase', fontFamily:"'Geist Mono',monospace", marginBottom:4 }}>{ph.label}</div>
+                        <div style={{ fontSize:22, fontWeight:700, color:C.navy, fontFamily:"'Geist Mono',monospace" }}>{ph.pct}%</div>
+                      </div>
+                    ))
+                  })()}
                 </div>
               </div>
 

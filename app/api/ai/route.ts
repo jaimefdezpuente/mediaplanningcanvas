@@ -41,23 +41,20 @@ const PROMPTS: Record<string, (d: D) => string> = {
   ].join('\n'),
 
   estrategia: (d) => {
-    // Distribucion de presupuesto segun prioridad
-    const prioridad = d.prioridad || 'equilibrado'
-    const distMap: Record<string, {not:number,int:number,lv:number,fid:number}> = {
-      notoriedad:  {not:40, int:25, lv:25, fid:10},
-      equilibrado: {not:20, int:20, lv:40, fid:20},
-      ventas:      {not:10, int:15, lv:60, fid:15},
-    }
-    const dist = distMap[prioridad] || distMap.equilibrado
-    const prioridadLabel = prioridad === 'notoriedad'
-      ? 'PRIORIDAD NOTORIEDAD: mas inversion en awareness y alcance'
-      : prioridad === 'ventas'
-      ? 'PRIORIDAD VENTAS: mas inversion en conversion y lead generation'
-      : 'PRIORIDAD EQUILIBRADA: mix balanceado entre awareness y conversion'
-
-    // Lista de canales disponibles pasada desde el frontend
+    const p = Math.max(0, Math.min(100, parseInt(d.prioridad_slider || '50', 10)))
+    // Interpolacion lineal: p=0 full notoriedad, p=100 full performance
+    const not = Math.round(45 - 0.40 * p)
+    const int_ = Math.round(30 - 0.20 * p)
+    const lv  = Math.round(15 + 0.55 * p)
+    const fid = Math.round(10 + 0.05 * p)
+    const noNotoriedad = p >= 95
+    const noLeadVenta  = p <= 5
+    const faseRules = noNotoriedad
+      ? 'NO incluyas canales de Notoriedad (slider al 100% Performance). Centra todo en Interaccion, Lead/Venta y Fidelizacion.'
+      : noLeadVenta
+      ? 'NO incluyas canales de Lead/Venta (slider al 100% Notoriedad). Centra todo en Notoriedad e Interaccion.'
+      : `Incluye canales de todas las fases. Distribucion orientativa: Notoriedad ${not}% | Interaccion ${int_}% | Lead/Venta ${lv}% | Fidelizacion ${fid}%.`
     const canalesDisp = d.canales_disponibles || ''
-
     return [
       'Eres experto en marketing digital senior con 15 anos de experiencia.',
       '',
@@ -71,26 +68,25 @@ const PROMPTS: Record<string, (d: D) => string> = {
       'Target core: ' + (d.target_desc||'No definido'),
       'Buyer persona: ' + (d.buyer_persona||'No definido'),
       'Escalera de valor: ' + (d.escalera_valor||'No definida'),
-      d.seo_difficulty ? 'SEO Difficulty: ' + d.seo_difficulty + '/100' : '',
-      d.paid_difficulty ? 'Paid Difficulty: ' + d.paid_difficulty + '/100' : '',
-      d.seo_difficulty && d.paid_difficulty ? 'Orientacion: SEO bajo+Paid bajo=owned | SEO bajo+Paid alto=inbound | SEO alto+Paid bajo=outbound | SEO alto+Paid alto=earned+owned' : '',
+      d.seo_difficulty ? 'SEO Difficulty: ' + d.seo_difficulty + '/100 (alto = organico dificil)' : '',
+      d.paid_difficulty ? 'Paid Difficulty: ' + d.paid_difficulty + '/100 (alto = CPC caro)' : '',
+      d.seo_difficulty && d.paid_difficulty ? 'Orientacion inbound/outbound: SEO bajo+Paid bajo=owned media | SEO bajo+Paid alto=inbound/SEO | SEO alto+Paid bajo=outbound/paid | SEO alto+Paid alto=earned+owned' : '',
       '',
-      '=== PRIORIDAD ESTRATEGICA ===',
-      prioridadLabel,
-      'Distribucion presupuesto orientativa: Notoriedad ' + dist.not + '% | Interaccion ' + dist.int + '% | Lead/Venta ' + dist.lv + '% | Fidelizacion ' + dist.fid + '%',
+      '=== PALANCA NOTORIEDAD vs PERFORMANCE (slider ' + p + '/100) ===',
+      faseRules,
       '',
-      '=== CANALES DISPONIBLES (USA UNICAMENTE ESTOS NOMBRES EXACTOS) ===',
+      '=== CANALES DISPONIBLES — USA UNICAMENTE ESTOS NOMBRES EXACTOS ===',
       canalesDisp,
       '',
-      '=== REGLAS OBLIGATORIAS ===',
-      '1. Usa UNICAMENTE los nombres de canal exactos de la lista anterior. Cero excepciones.',
-      '2. Selecciona MINIMO 2 canales por fase (notoriedad, interaccion, lead_venta, fidelizacion).',
-      '3. Total de canales: entre 8 y 12.',
-      '4. Los % de presupuesto_pct de TODOS los canales deben sumar exactamente 100.',
-      '5. Prioriza los canales mas idoneos para los objetivos declarados y la fase del negocio.',
+      '=== REGLAS OBLIGATORIAS (no negociables) ===',
+      '1. Cada canal que recomiendes DEBE aparecer literalmente en la lista anterior. Sin excepciones.',
+      '2. Minimo 2 canales por cada fase que debas incluir segun el slider.',
+      '3. Total de canales recomendados: entre 8 y 14.',
+      '4. Los presupuesto_pct de todos los canales deben sumar exactamente 100.',
+      '5. Prioriza canales con mayor ROI esperado para los objetivos y fase del negocio declarados.',
       '',
       'Devuelve SOLO JSON sin markdown:',
-      '{"estrategia_resumen":"3-4 frases","canales_por_fase":{"notoriedad":[{"canal":"nombre exacto de la lista","accion":"accion concreta","kpi":"KPI con numero","presupuesto_pct":15,"razon":"razon en 1 frase","score_ia":4}],"interaccion":[{"canal":"nombre exacto","accion":"accion","kpi":"KPI","presupuesto_pct":10,"razon":"razon","score_ia":3}],"lead_venta":[{"canal":"nombre exacto","accion":"accion","kpi":"KPI","presupuesto_pct":30,"razon":"razon","score_ia":5}],"fidelizacion":[{"canal":"nombre exacto","accion":"accion","kpi":"KPI","presupuesto_pct":10,"razon":"razon","score_ia":4}]},"quick_wins":["accion 1","accion 2","accion 3"]}',
+      '{"estrategia_resumen":"3-4 frases explicando la logica estrategica","canales_por_fase":{"notoriedad":[{"canal":"NOMBRE EXACTO DE LA LISTA","accion":"accion concreta y medible","kpi":"KPI con numero objetivo","presupuesto_pct":15,"razon":"por que este canal para este proyecto","score_ia":4}],"interaccion":[{"canal":"NOMBRE EXACTO","accion":"accion","kpi":"KPI","presupuesto_pct":10,"razon":"razon","score_ia":3}],"lead_venta":[{"canal":"NOMBRE EXACTO","accion":"accion","kpi":"KPI","presupuesto_pct":30,"razon":"razon","score_ia":5}],"fidelizacion":[{"canal":"NOMBRE EXACTO","accion":"accion","kpi":"KPI","presupuesto_pct":10,"razon":"razon","score_ia":4}]},"quick_wins":["accion rapida 1","accion rapida 2","accion rapida 3"]}',
     ].filter(Boolean).join('\n')
   },
 
