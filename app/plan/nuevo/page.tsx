@@ -299,6 +299,7 @@ function WizardInner() {
   const [seoDifficulty, setSeoDifficulty] = useState('')
   const [paidDifficulty, setPaidDifficulty] = useState('')
   const [showIAConfirm, setShowIAConfirm] = useState(false)
+  const [iaConfirmN, setIaConfirmN] = useState(0)
   const [tacticoData, setTacticoData] = useState<Obj|null>(null)
   const [tacticoPresupuesto, setTacticoPresupuesto] = useState(5000)
   const [tacticoTicket, setTacticoTicket] = useState(150)
@@ -403,7 +404,7 @@ function WizardInner() {
       }
       if (e.data?.type === 'mpc-upgrade') setShowUpgrade(true)
       if (e.data?.type === 'mpc-scratch-confirm') setShowScratchModal(true)
-      if (e.data?.type === 'mpc-ia-confirm') setShowIAConfirm(true)
+      if (e.data?.type === 'mpc-ia-confirm') { setIaConfirmN(e.data.n || 0); setShowIAConfirm(true) }
       if (e.data?.type === 'mpc-state') {
         se('_tactico', JSON.stringify(e.data))
         setTacticoData(e.data as Obj)
@@ -418,6 +419,23 @@ function WizardInner() {
 
   useEffect(() => { planRef.current = plan }, [plan])
   useEffect(() => { stepRef.current = step; if(step > 0 && savedPlanId) autoSaveFromRef() }, [step, savedPlanId])
+  // When returning to step 4, restore táctico state from saved edits
+  useEffect(() => {
+    if (step !== 4) return
+    const saved = plan.edits['_tactico']
+    if (!saved) return
+    try {
+      const parsed = JSON.parse(saved) as Obj
+      const rs = (parsed as Obj).restoreState
+      if (!rs) return
+      // Wait for iframe to mount, then send restore
+      const t = setTimeout(() => {
+        const ifr = document.getElementById('tactico-iframe') as HTMLIFrameElement
+        ifr?.contentWindow?.postMessage({ type: 'mpc-restore', state: rs }, '*')
+      }, 600)
+      return () => clearTimeout(t)
+    } catch {}
+  }, [step])
   useEffect(() => {
     if (!savedPlanId && !planId) return
     const url = new URL(window.location.href)
@@ -756,28 +774,55 @@ function WizardInner() {
       {alert&&<AlertModal title={alert.title} body={alert.body} btn="Entendido" onClose={()=>setAlert(null)}/>}
       {saveModal&&<SaveModal onSave={handleSave} onClose={()=>setSaveModal(false)} busy={busy} defaultName={plan.projectName||`Plan ${plan.sector||'nuevo'}`}/>}
       {showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)} userPlan={userPlan} periodStart={planPeriodStart}/>}
-      {showIAConfirm&&(
-        <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.4)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
-          <div style={{ background:'#fff', borderRadius:14, padding:'32px', maxWidth:420, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.25)', textAlign:'center' }}>
-            <div style={{ marginBottom:12 }}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36" style={{ display:'block', margin:'0 auto' }}>
-                <rect x="0" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="35" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/><rect x="70" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/>
-                <rect x="0" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="70" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/>
-                <rect x="0" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="70" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/>
-              </svg>
-            </div>
-            <h3 style={{ fontSize:18, fontWeight:600, color:C.navy, margin:'0 0 8px' }}>Confirmar optimización IA</h3>
-            <p style={{ fontSize:14, color:C.steel, lineHeight:1.7, margin:'0 0 20px' }}>
-              Esta operación consumirá <strong>{plan.selectedChannels.length} análisis IA</strong>, uno por cada canal del plan.
-              Tienes <strong>{Math.max(0,limits.analisis-usedAnalisis)} análisis disponibles</strong>.
-            </p>
-            <div style={{ display:'flex', gap:10 }}>
-              <button onClick={()=>setShowIAConfirm(false)} style={{ flex:1, padding:'11px', borderRadius:6, border:`1px solid ${C.steel1}`, background:'transparent', color:C.steel, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Cancelar</button>
-              <button onClick={()=>{ setShowIAConfirm(false); const ifr=document.getElementById('tactico-iframe') as HTMLIFrameElement; ifr?.contentWindow?.postMessage({type:'mpc-run-ia'},'*') }} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:C.navy, color:C.paper, fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Seguir adelante →</button>
+      {showIAConfirm&&(()=>{
+        const credNeeded = iaConfirmN
+        const credAvail = Math.max(0, limits.analisis - usedAnalisis)
+        const hasCredits = credAvail >= credNeeded
+        const runIA = () => { setShowIAConfirm(false); const ifr=document.getElementById('tactico-iframe') as HTMLIFrameElement; ifr?.contentWindow?.postMessage({type:'mpc-run-ia'},'*') }
+        return (
+          <div style={{ position:'fixed', inset:0, background:'rgba(15,41,66,0.45)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+            <div style={{ background:'#fff', borderRadius:14, padding:'32px', maxWidth:440, width:'100%', boxShadow:'0 24px 48px rgba(15,41,66,0.28)', position:'relative' }}>
+              {/* X close */}
+              <button onClick={()=>setShowIAConfirm(false)} style={{ position:'absolute', top:16, right:16, width:28, height:28, borderRadius:6, border:`1px solid ${C.steel1}`, background:'transparent', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, color:C.steel3, fontFamily:"'Geist',sans-serif" }}>✕</button>
+              {/* Icon */}
+              <div style={{ textAlign:'center', marginBottom:16 }}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36" style={{ display:'block', margin:'0 auto' }}>
+                  <rect x="0" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="35" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/><rect x="70" y="0" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/>
+                  <rect x="0" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/><rect x="70" y="35" width="30" height="30" rx="3" fill="#0F2942" opacity="0.42"/>
+                  <rect x="0" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="35" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="0.16"/><rect x="70" y="70" width="30" height="30" rx="3" fill="#0F2942" opacity="1"/>
+                </svg>
+              </div>
+              <h3 style={{ fontSize:18, fontWeight:600, color:C.navy, margin:'0 0 8px', textAlign:'center' }}>Optimizar Plan Táctico con IA</h3>
+              {/* Credits info */}
+              <div style={{ background:hasCredits?'#F0FDF4':'#FEF2F2', border:`1px solid ${hasCredits?'#BBF7D0':'#FECACA'}`, borderRadius:8, padding:'12px 16px', margin:'16px 0', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:600, color:hasCredits?C.success:'#B33A2E' }}>
+                    {hasCredits ? `${credNeeded} crédito${credNeeded!==1?'s':''} de Análisis IA` : 'Créditos insuficientes'}
+                  </div>
+                  <div style={{ fontSize:12, color:C.steel, marginTop:2 }}>
+                    {hasCredits
+                      ? `Disponibles: ${credAvail} · Quedarán: ${credAvail - credNeeded}`
+                      : `Necesitas ${credNeeded}, tienes ${credAvail}. Se recargan al inicio del próximo ciclo.`}
+                  </div>
+                </div>
+                <div style={{ fontSize:24, fontWeight:700, fontFamily:"'Geist Mono',monospace", color:hasCredits?C.success:'#B33A2E' }}>{credNeeded}</div>
+              </div>
+              {!hasCredits && (
+                <div style={{ fontSize:13, color:C.steel, lineHeight:1.6, marginBottom:16, textAlign:'center' }}>
+                  Amplía tu plan para obtener más créditos mensuales o espera a que se recarguen al inicio del próximo ciclo.
+                </div>
+              )}
+              <div style={{ display:'flex', gap:10, marginTop:4 }}>
+                <button onClick={()=>setShowIAConfirm(false)} style={{ flex:1, padding:'11px', borderRadius:6, border:`1px solid ${C.steel1}`, background:'transparent', color:C.steel, fontWeight:500, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Descartar</button>
+                {hasCredits
+                  ? <button onClick={runIA} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:C.navy, color:C.paper, fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Analizar →</button>
+                  : <button onClick={()=>{ setShowIAConfirm(false); setShowUpgrade(true) }} style={{ flex:2, padding:'11px', borderRadius:6, border:'none', background:C.accent, color:C.paper, fontWeight:600, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>Ampliar plan →</button>
+                }
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
       {showScratchModal&&(
         <div style={{ position:'fixed', inset:0, background:'rgba(13,27,42,0.5)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)' }}>
           <div style={{ background:'#fff', borderRadius:16, padding:32, maxWidth:420, width:'90%', boxShadow:'0 24px 48px rgba(13,27,42,0.25)', textAlign:'center' }}>

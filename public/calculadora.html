@@ -1749,7 +1749,7 @@ function notifyParent(){
   if(!window.parent||window.parent===window)return;
   if(_mpcIaRunning)return;
   try{
-    var totInv=S.channels.reduce(function(s,c){return s+(c.results&&c.results.inversion||0);},0);
+    var totInv=S.channels.reduce(function(s,c){return s+((c.results&&c.results.inversion)||0);},0);
     var monthly={};
     S.channels.forEach(function(e){
       var m=e.months||Array(12).fill(true);
@@ -1759,9 +1759,11 @@ function notifyParent(){
     });
     var channels=S.channels.map(function(e){
       var ch=getCh(e.channelId);
-      return{uid:e.uid,name:ch?ch.name:'',phase:ch?ch.ph:'',results:{inversion:(e.results&&e.results.inversion)||0,roas:(e.results&&e.results.roas)||0,clients:(e.results&&e.results.clients)||0}};
+      return{uid:e.uid,channelId:e.channelId,name:ch?ch.name:'',phase:ch?ch.ph:'',fields:e.fields||{},months:e.months||Array(12).fill(true),results:{inversion:(e.results&&e.results.inversion)||0,roas:(e.results&&e.results.roas)||0,clients:(e.results&&e.results.clients)||0}};
     });
-    window.parent.postMessage({type:'mpc-state',channels:channels,summary:{total_inv:totInv},monthly:monthly},'*');
+    // Full restorable state (so parent can restore after navigating away)
+    var restoreState={mode:S.mode,uidCtr:S.uidCtr,planMode:S.planMode,channels:channels};
+    window.parent.postMessage({type:'mpc-state',channels:channels,summary:{total_inv:totInv},monthly:monthly,restoreState:restoreState},'*');
   }catch(ex){}
 }
 function saveToStorage(){try{const d={mode:S.mode,sector:S.sector,uidCtr:S.uidCtr,planMode:S.planMode,channels:S.channels,budget:document.getElementById('obj_budget').value,clients:document.getElementById('obj_clients').value,cac:document.getElementById('obj_cac').value,ticket:document.getElementById('globalTicket').value,ticketType:document.getElementById('ticketType').value,phase:document.getElementById('obj_phase').value,sectorVal:document.getElementById('sectorSelect').value,ltv:{lh_p:document.getElementById('lh_p').value,lh_f:document.getElementById('lh_f').value,lh_y:document.getElementById('lh_y').value,lh_t:document.getElementById('lh_t').value,lm_p:document.getElementById('lm_p').value,lm_f:document.getElementById('lm_f').value,lm_y:document.getElementById('lm_y').value,lm_t:document.getElementById('lm_t').value,lb_p:document.getElementById('lb_p').value,lb_f:document.getElementById('lb_f').value,lb_y:document.getElementById('lb_y').value,lb_t:document.getElementById('lb_t').value,ln_p:document.getElementById('ln_p').value}};localStorage.setItem('mpc_v3',JSON.stringify(d));showToast('💾 Plan guardado en el navegador');}catch(e){showToast('❌ Error al guardar');}}
@@ -2578,6 +2580,19 @@ window.addEventListener('message', function(e) {
   if (e.data.type === 'mpc-set-mode') {
     var m = e.data.mode === 'budget' ? 'budget' : 'objetivo';
     if (typeof setPlanMode === 'function') setPlanMode(m);
+  }
+  if (e.data.type === 'mpc-restore' && e.data.state) {
+    try {
+      var rs = e.data.state;
+      S.mode = rs.mode || S.mode;
+      S.uidCtr = rs.uidCtr || S.uidCtr;
+      S.planMode = rs.planMode || S.planMode;
+      S.channels = (rs.channels || []).map(function(c) {
+        return { uid: c.uid, channelId: c.channelId, fields: c.fields || {}, months: c.months || Array(12).fill(true), results: null };
+      });
+      recalcAll();
+    } catch(ex) { console.error('mpc-restore error', ex); }
+    return;
   }
   if (e.data.type === 'mpc-run-ia') {
     if (typeof runTacticoIA === 'function') runTacticoIA();
