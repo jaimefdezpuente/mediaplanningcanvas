@@ -89,6 +89,20 @@ export default function AdminPage() {
     setSaving(false)
   }
 
+  async function confirmUserEmail(userId: string, email: string) {
+    const res = await fetch('/api/admin', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-secret': secret },
+      body: JSON.stringify({ userId, confirmEmail: true })
+    })
+    if (res.ok) {
+      setMsg(`✓ Email confirmado: ${email}`)
+      setUsers(u => u.map(x => x.id === userId ? { ...x, confirmed: true } : x))
+    } else {
+      setMsg('Error al confirmar email')
+    }
+  }
+
   async function deleteUser(userId: string, email: string) {
     if (!confirm(`¿Eliminar ${email}? Esto es irreversible.`)) return
     const res = await fetch('/api/admin', { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'x-admin-secret': secret }, body: JSON.stringify({ userId }) })
@@ -179,6 +193,11 @@ export default function AdminPage() {
               <button onClick={() => patchUser({ resetCredits: true })} style={{ ...BTN(false), color: C.warn, borderColor: C.warn }} disabled={saving}>
                 ↺ Reset créditos
               </button>
+              {!editUser?.confirmed && (
+                <button onClick={async () => { await confirmUserEmail(editUser!.id, editUser!.email); setEditUser(null) }} style={{ ...BTN(false), color: C.success, borderColor: C.success }} disabled={saving}>
+                  ✓ Confirmar email
+                </button>
+              )}
               <button onClick={() => patchUser()} style={{ ...BTN(true), flex: 1 }} disabled={saving}>
                 {saving ? 'Guardando...' : 'Guardar cambios'}
               </button>
@@ -290,10 +309,15 @@ export default function AdminPage() {
                       </span>
                     </td>
                     <td style={{ padding: '11px 14px' }}>
-                      <div style={{ display: 'flex', gap: 6 }}>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         <button onClick={() => { setEditUser(u); setEditPlan(u.plan); setEditEmail(u.email); setMsg('') }} style={{ padding: '5px 12px', borderRadius: 5, border: `1px solid ${C.steel1}`, background: 'transparent', color: C.steel, fontSize: 12, cursor: 'pointer' }}>
                           Editar
                         </button>
+                        {!u.confirmed && (
+                          <button onClick={() => confirmUserEmail(u.id, u.email)} style={{ padding: '5px 12px', borderRadius: 5, border: '1px solid #BBF7D0', background: '#F0FDF4', color: C.success, fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>
+                            ✓ Confirmar
+                          </button>
+                        )}
                         <button onClick={() => deleteUser(u.id, u.email)} style={{ padding: '5px 12px', borderRadius: 5, border: '1px solid #FECACA', background: '#FEF2F2', color: C.danger, fontSize: 12, cursor: 'pointer' }}>
                           Borrar
                         </button>

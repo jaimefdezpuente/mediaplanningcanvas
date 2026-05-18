@@ -61,7 +61,16 @@ export async function DELETE(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   if (!checkAuth(req)) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   const supabase = adminClient()
-  const { userId, plan, email, resetCredits } = await req.json()
+  const { userId, plan, email, resetCredits, confirmEmail } = await req.json()
+
+  // Confirmar email manualmente
+  if (confirmEmail) {
+    const { error } = await supabase.auth.admin.updateUserById(userId, {
+      email_confirm: true,
+    })
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true, action: 'email_confirmed' })
+  }
 
   // Leer metadata actual para no sobreescribirla
   const { data: userData } = await supabase.auth.admin.getUserById(userId)
