@@ -57,18 +57,31 @@ export default function RegistroPage() {
               La metodología que Jaime lleva 10 años enseñando en IE Business School, ahora en tu ordenador con IA.
             </p>
           </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-            {[
-              '✓ Metodología probada con +10K descargas',
-              '✓ IA entrenada en planificación de marketing',
-              '✓ Vídeo píldoras en cada fase',
-              '✓ Plan de medios mensualizado y exportable a PDF',
-              '✓ +100 canales y medios recomendados',
-            ].map((t,i)=>(
-              <div key={i} style={{ fontSize:13, color:'rgba(246,244,239,0.75)', display:'flex', alignItems:'flex-start', gap:8 }}>
-                {t}
-              </div>
-            ))}
+          <div style={{ marginTop:32 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'rgba(246,244,239,0.5)', fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:12 }}>
+              {tab==='pro' ? 'Plan Pro incluye:' : 'Plan Free incluye:'}
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              {tab==='free' ? [
+                '1 plan activo',
+                '3 Análisis IA de prueba',
+                '10 Mejoras IA de prueba',
+                'Metodología completa (5 fases)',
+                'Calculadora táctica avanzada',
+                'Export PDF',
+              ] : [
+                '10 planes activos',
+                '20 Análisis IA al mes',
+                '70 Mejoras IA al mes',
+                'Vídeo píldoras formativas',
+                'Calculadora táctica avanzada',
+                'Export PDF · Soporte prioritario',
+              ]}.map((t,i)=>(
+                <div key={i} style={{ fontSize:13, color:'rgba(246,244,239,0.8)', display:'flex', alignItems:'flex-start', gap:8 }}>
+                  <span style={{ color:'#4ade80', flexShrink:0 }}>✓</span>{t}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -100,32 +113,14 @@ export default function RegistroPage() {
 
             {tab === 'free' ? (
               <div>
-                <div style={{ background:C.paper2, borderRadius:8, padding:'14px 16px', marginBottom:16 }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:C.navy, marginBottom:8, fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.08em' }}>Plan Free incluye:</div>
-                  <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
-                    {['1 plan activo','3 Análisis IA de prueba','10 Mejoras IA de prueba','Metodología completa (5 fases)','Calculadora táctica avanzada','Export PDF'].map((f,i)=>(
-                      <div key={i} style={{ fontSize:12, color:C.steel, display:'flex', alignItems:'center', gap:6 }}>
-                        <span style={{ color:C.success, fontSize:10 }}>✓</span>{f}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+
                 <button type="submit" disabled={loading} style={{ width:'100%', padding:'12px', borderRadius:6, background:C.navy, border:'none', color:C.paper, fontWeight:600, fontSize:14, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>
                   {loading ? 'Creando cuenta...' : 'Crear cuenta gratis →'}
                 </button>
               </div>
             ) : (
               <div>
-                <div style={{ background:'#EFF6FF', borderRadius:8, padding:'14px 16px', marginBottom:16 }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:'#1E3A8A', marginBottom:8, fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.08em' }}>Plan Pro incluye:</div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
-                    {['10 planes activos','20 Análisis IA/mes','70 Mejoras IA/mes','Vídeo píldoras formativas','Calculadora táctica avanzada','Todos los canales y medios','Export PDF','Soporte prioritario'].map((f,i)=>(
-                      <div key={i} style={{ fontSize:12, color:'#1E40AF', display:'flex', alignItems:'center', gap:6 }}>
-                        <span style={{ fontSize:10 }}>✓</span>{f}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+
                 <button type="button" onClick={handlePro} disabled={loading} style={{ width:'100%', padding:'12px', borderRadius:6, background:C.accent, border:'none', color:C.paper, fontWeight:600, fontSize:14, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>
                   {loading ? 'Redirigiendo...' : 'Empezar Pro →'}
                 </button>
@@ -133,7 +128,14 @@ export default function RegistroPage() {
             )}
           </form>
 
-          <p style={{ textAlign:'center', fontSize:13, color:C.steel3, marginTop:20 }}>
+          <p style={{ textAlign:'center', fontSize:11, color:C.steel3, marginTop:16, lineHeight:1.6 }}>
+            Al registrarte aceptas los{' '}
+            <a href="https://www.mediaplanningcanvas.com/aviso-legal.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Términos de uso</a>
+            {' '}y la{' '}
+            <a href="https://www.mediaplanningcanvas.com/privacidad.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Política de Privacidad</a>
+            . Tus datos no se comparten con terceros.
+          </p>
+          <p style={{ textAlign:'center', fontSize:13, color:C.steel3, marginTop:12 }}>
             ¿Ya tienes cuenta? <a href="/login" style={{ color:C.navy, textDecoration:'none', fontWeight:600 }}>Entrar</a>
           </p>
         </div>
