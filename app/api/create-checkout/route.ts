@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       mode: 'subscription',
       customer_email: email,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `https://www.mediaplanningcanvas.com/dashboard?success=true&plan=${plan}`,
+      success_url: `https://app.mediaplanningcanvas.com/pago-completado?plan=${plan}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://www.mediaplanningcanvas.com/registro?cancelled=true`,
       metadata: { email, plan },
     })
