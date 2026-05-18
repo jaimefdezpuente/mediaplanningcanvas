@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import GoogleAnalytics from './components/GoogleAnalytics'
 
 export const metadata: Metadata = {
   title: 'Media Planning Canvas — The Marketing Plan Generator',
@@ -7,10 +8,15 @@ export const metadata: Metadata = {
   icons: { icon: '/favicon.svg' },
 }
 
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID || ''
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+        {children}
+      </body>
     </html>
   )
 }
