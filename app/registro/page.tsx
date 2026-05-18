@@ -40,8 +40,8 @@ export default function RegistroPage() {
   }
 
   return (
-    <div style={{ minHeight:'100vh', background:C.paper, display:'flex', padding:24, fontFamily:"'Geist',sans-serif" }}>
-      <div style={{ width:'100%', maxWidth:900, margin:'auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:0, background:C.white, borderRadius:16, overflow:'hidden', boxShadow:'0 8px 32px rgba(15,41,66,0.12)', border:`1px solid ${C.steel1}` }}>
+    <div style={{ minHeight:'100vh', background:C.paper, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:24, fontFamily:"'Geist',sans-serif" }}>
+      <div style={{ width:'100%', maxWidth:900, display:'grid', gridTemplateColumns:'1fr 1fr', gap:0, background:C.white, borderRadius:16, overflow:'hidden', boxShadow:'0 8px 32px rgba(15,41,66,0.12)', border:`1px solid ${C.steel1}` }}>
 
         {/* Left — brand panel */}
         <div style={{ background:C.navy, padding:48, display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
@@ -138,7 +138,7 @@ export default function RegistroPage() {
       </div>
 
       {/* Footer legal centrado */}
-      <div style={{ width:'100%', borderTop:`1px solid ${C.steel1}`, marginTop:0, padding:'20px 24px', textAlign:'center', background:C.paper }}>
+      <div style={{ width:'100%', maxWidth:900, padding:'16px 0', textAlign:'center' }}>
         <p style={{ fontSize:11, color:C.steel3, lineHeight:1.8, margin:0 }}>
           Al registrarte aceptas los{' '}
           <a href="https://www.mediaplanningcanvas.com/aviso-legal.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Términos de uso</a>
