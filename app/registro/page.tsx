@@ -62,7 +62,7 @@ export default function RegistroPage() {
               {tab==='pro' ? 'Plan Pro incluye:' : 'Plan Free incluye:'}
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-              {tab==='free' ? [
+              {(tab==='free' ? [
                 '1 plan activo',
                 '3 Análisis IA de prueba',
                 '10 Mejoras IA de prueba',
@@ -76,9 +76,9 @@ export default function RegistroPage() {
                 'Vídeo píldoras formativas',
                 'Calculadora táctica avanzada',
                 'Export PDF · Soporte prioritario',
-              ]}.map((t,i)=>(
+              ]).map((feat,i)=>(
                 <div key={i} style={{ fontSize:13, color:'rgba(246,244,239,0.8)', display:'flex', alignItems:'flex-start', gap:8 }}>
-                  <span style={{ color:'#4ade80', flexShrink:0 }}>✓</span>{t}
+                  <span style={{ color:'#4ade80', flexShrink:0 }}>✓</span>{feat}
                 </div>
               ))}
             </div>
