@@ -51,17 +51,22 @@ export default function RegistroPage() {
               <span style={{ fontSize:14, fontWeight:600, color:C.paper }}>Media Planning Canvas</span>
             </a>
             <h2 style={{ fontFamily:"'Instrument Serif',serif", fontWeight:400, fontSize:32, color:C.paper, lineHeight:1.2, letterSpacing:'-0.02em', marginBottom:16 }}>
-              El plan de marketing que siempre quisiste crear.
+              El plan de marketing que siempre quisiste crear bajo el método Media Planning Canvas.
             </h2>
             <p style={{ fontSize:14, color:'rgba(246,244,239,0.6)', lineHeight:1.7 }}>
               La metodología que Jaime lleva 10 años enseñando en IE Business School, ahora en tu ordenador con IA.
             </p>
           </div>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-            {[{n:'10+',l:'Años de metodología'},{n:'4.000+',l:'Profesionales formados'},{n:'5',l:'Fases completas'},{n:'20h+',l:'Vídeos formativos'}].map((s,i)=>(
-              <div key={i} style={{ background:'rgba(246,244,239,0.06)', borderRadius:8, padding:'14px 16px' }}>
-                <div style={{ fontFamily:"'Geist Mono',monospace", fontSize:22, fontWeight:500, color:C.paper, marginBottom:2 }}>{s.n}</div>
-                <div style={{ fontSize:11, color:'rgba(246,244,239,0.5)' }}>{s.l}</div>
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            {[
+              '✓ Metodología probada con +10K descargas',
+              '✓ IA entrenada en planificación de marketing',
+              '✓ Vídeo píldoras en cada fase',
+              '✓ Plan de medios mensualizado y exportable a PDF',
+              '✓ +100 canales y medios recomendados',
+            ].map((t,i)=>(
+              <div key={i} style={{ fontSize:13, color:'rgba(246,244,239,0.75)', display:'flex', alignItems:'flex-start', gap:8 }}>
+                {t}
               </div>
             ))}
           </div>
@@ -95,8 +100,15 @@ export default function RegistroPage() {
 
             {tab === 'free' ? (
               <div>
-                <div style={{ background:C.paper2, borderRadius:8, padding:'12px 14px', marginBottom:16, fontSize:12, color:C.steel }}>
-                  <strong style={{ color:C.navy }}>Plan Gratuito:</strong> 1 plan completo · 5 fases · 10 repensares · Export PDF
+                <div style={{ background:C.paper2, borderRadius:8, padding:'14px 16px', marginBottom:16 }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:C.navy, marginBottom:8, fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.08em' }}>Plan Free incluye:</div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+                    {['1 plan activo','3 Análisis IA de prueba','10 Mejoras IA de prueba','Metodología completa (5 fases)','Calculadora táctica avanzada','Export PDF'].map((f,i)=>(
+                      <div key={i} style={{ fontSize:12, color:C.steel, display:'flex', alignItems:'center', gap:6 }}>
+                        <span style={{ color:C.success, fontSize:10 }}>✓</span>{f}
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <button type="submit" disabled={loading} style={{ width:'100%', padding:'12px', borderRadius:6, background:C.navy, border:'none', color:C.paper, fontWeight:600, fontSize:14, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>
                   {loading ? 'Creando cuenta...' : 'Crear cuenta gratis →'}
@@ -104,11 +116,18 @@ export default function RegistroPage() {
               </div>
             ) : (
               <div>
-                <div style={{ background:'#EFF6FF', borderRadius:8, padding:'12px 14px', marginBottom:16, fontSize:12, color:'#1E40AF' }}>
-                  <strong>Pro:</strong> 10 planes/mes · 70 repensares · Vídeos · Calculadora avanzada · Activar Pro
+                <div style={{ background:'#EFF6FF', borderRadius:8, padding:'14px 16px', marginBottom:16 }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:'#1E3A8A', marginBottom:8, fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.08em' }}>Plan Pro incluye:</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
+                    {['10 planes activos','20 Análisis IA/mes','70 Mejoras IA/mes','Vídeo píldoras formativas','Calculadora táctica avanzada','Todos los canales y medios','Export PDF','Soporte prioritario'].map((f,i)=>(
+                      <div key={i} style={{ fontSize:12, color:'#1E40AF', display:'flex', alignItems:'center', gap:6 }}>
+                        <span style={{ fontSize:10 }}>✓</span>{f}
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <button type="button" onClick={handlePro} disabled={loading} style={{ width:'100%', padding:'12px', borderRadius:6, background:C.accent, border:'none', color:C.paper, fontWeight:600, fontSize:14, cursor:'pointer', fontFamily:"'Geist',sans-serif" }}>
-                  {loading ? 'Redirigiendo...' : 'Empezar Activar Pro →'}
+                  {loading ? 'Redirigiendo...' : 'Empezar Pro →'}
                 </button>
               </div>
             )}
@@ -118,6 +137,19 @@ export default function RegistroPage() {
             ¿Ya tienes cuenta? <a href="/login" style={{ color:C.navy, textDecoration:'none', fontWeight:600 }}>Entrar</a>
           </p>
         </div>
+      </div>
+
+      {/* Footer legal */}
+      <div style={{ width:'100%', maxWidth:900, margin:'24px auto 0', textAlign:'center' }}>
+        <p style={{ fontSize:11, color:C.steel3, lineHeight:1.8 }}>
+          Al registrarte aceptas la{' '}
+          <a href="https://www.mediaplanningcanvas.com/privacidad.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Política de Privacidad</a>
+          {' '}·{' '}
+          <a href="https://www.mediaplanningcanvas.com/aviso-legal.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Aviso Legal</a>
+          {' '}·{' '}
+          <a href="https://www.mediaplanningcanvas.com/cookies.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Cookies</a>
+          <br />© 2025 Parajitos Voladores SL · NIF B67809624
+        </p>
       </div>
     </div>
   )
