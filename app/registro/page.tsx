@@ -86,7 +86,8 @@ export default function RegistroPage() {
         </div>
 
         {/* Right — form */}
-        <div style={{ padding:48 }}>
+        <div style={{ padding:48, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ width:'100%', maxWidth:460 }}>
           <h1 style={{ fontSize:22, fontWeight:600, color:C.navy, marginBottom:4, letterSpacing:'-0.02em' }}>Crea tu cuenta</h1>
           <p style={{ fontSize:11, color:C.steel3, marginBottom:28, fontFamily:"'Geist Mono',monospace", textTransform:'uppercase', letterSpacing:'0.1em' }}>Empieza gratis · Sin tarjeta</p>
 
@@ -128,26 +129,21 @@ export default function RegistroPage() {
             )}
           </form>
 
-          <p style={{ textAlign:'center', fontSize:11, color:C.steel3, marginTop:16, lineHeight:1.6 }}>
-            Al registrarte aceptas los{' '}
-            <a href="https://www.mediaplanningcanvas.com/aviso-legal.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Términos de uso</a>
-            {' '}y la{' '}
-            <a href="https://www.mediaplanningcanvas.com/privacidad.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Política de Privacidad</a>
-            . Tus datos no se comparten con terceros.
-          </p>
+
           <p style={{ textAlign:'center', fontSize:13, color:C.steel3, marginTop:12 }}>
             ¿Ya tienes cuenta? <a href="/login" style={{ color:C.navy, textDecoration:'none', fontWeight:600 }}>Entrar</a>
           </p>
+          </div>
         </div>
       </div>
 
-      {/* Footer legal */}
-      <div style={{ width:'100%', maxWidth:900, margin:'24px auto 0', textAlign:'center' }}>
-        <p style={{ fontSize:11, color:C.steel3, lineHeight:1.8 }}>
-          Al registrarte aceptas la{' '}
-          <a href="https://www.mediaplanningcanvas.com/privacidad.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Política de Privacidad</a>
+      {/* Footer legal centrado */}
+      <div style={{ width:'100%', borderTop:`1px solid ${C.steel1}`, marginTop:0, padding:'20px 24px', textAlign:'center', background:C.paper }}>
+        <p style={{ fontSize:11, color:C.steel3, lineHeight:1.8, margin:0 }}>
+          Al registrarte aceptas los{' '}
+          <a href="https://www.mediaplanningcanvas.com/aviso-legal.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Términos de uso</a>
           {' '}·{' '}
-          <a href="https://www.mediaplanningcanvas.com/aviso-legal.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Aviso Legal</a>
+          <a href="https://www.mediaplanningcanvas.com/privacidad.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Privacidad</a>
           {' '}·{' '}
           <a href="https://www.mediaplanningcanvas.com/cookies.html" target="_blank" rel="noopener" style={{ color:C.steel, textDecoration:'underline' }}>Cookies</a>
           <br />© 2025 Parajitos Voladores SL · NIF B67809624
